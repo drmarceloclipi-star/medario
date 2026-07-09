@@ -21,14 +21,13 @@
     <header class="site-header" aria-label="Cabeçalho principal">
       <nav class="nav-shell" aria-label="Navegação principal">
         <a class="brand" href="/" aria-label="Medário, página inicial">
-          <span class="wordmark">Medário<span class="brand-flower" aria-hidden="true"><span></span><span></span></span></span>
+          <img class="topbar-wordmark" src="assets/medario-wordmark-topbar.png" alt="Medário">
         </a>
 
         <div class="nav-links" aria-label="Links principais">
           <a href="#como-funciona">Como funciona</a>
           <a href="#especialidades">Especialidades</a>
           <a href="#para-medicos">Para médicos</a>
-          <a href="#medario-pro">Medário Pro</a>
           <a href="#entrar">Entrar</a>
         </div>
 
@@ -41,9 +40,9 @@
         <div class="hero-local-lines" aria-hidden="true"></div>
         <div class="hero-shell">
           <div class="hero-copy">
-            <p class="eyebrow hero-badge"><span aria-hidden="true">○</span> Médicos em Joinville com busca inteligente</p>
-            <h1 id="hero-title">Encontre médicos com confiança<span class="title-dot">.</span></h1>
-            <p class="hero-subtitle">Busque por especialidade, convênio ou bairro. Veja CRM, RQE e contatos em um só lugar.</p>
+            <p class="eyebrow hero-badge">○ Conectando Você ao Melhor da Saúde</p>
+            <h1 id="hero-title">Encontre o médico<br>certo com ajuda da <span class="title-ai">IA</span><span class="title-dot">.</span></h1>
+            <p class="hero-subtitle">Medário é o catálogo médico digital de Joinville.<br>Nossa IA entende o que você precisa e conecta você ao profissional ideal.</p>
           </div>
 
           <form class="search-panel" id="busca" aria-labelledby="search-title">
@@ -54,33 +53,23 @@
               </div>
 
               <label class="field-block field-main">
-                <span>Especialidade ou necessidade</span>
-                <input name="especialidade" type="search" autocomplete="off" placeholder="Qual especialista você procura?">
+                <span class="sr-only">Especialidade ou necessidade</span>
+                <input name="especialidade" type="search" autocomplete="off" placeholder="Descreva o que você procura: especialidade, convênio, bairro, teleconsulta...">
               </label>
 
-              <label class="field-block field-location">
-                <span>Bairro</span>
-                <input name="local" type="search" autocomplete="off" placeholder="Bairro">
-              </label>
+              <button class="search-tool" type="button" aria-label="Anexar informação">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="m20 11-7.7 7.7a5 5 0 0 1-7.1-7.1L13 3.8a3.5 3.5 0 0 1 5 5l-7.8 7.8a2 2 0 0 1-2.8-2.8l7-7"/></svg>
+              </button>
 
-              <button class="suggestion-toggle" type="button" aria-expanded="false" aria-controls="especialidades" aria-label="Mostrar sugestões de busca">
-                <span aria-hidden="true">+</span>
+              <button class="search-tool" type="button" aria-label="Usar microfone">
+                <svg viewBox="0 0 24 24" focusable="false"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg>
               </button>
 
               <button class="search-submit" type="submit" aria-label="Buscar médicos">
                 <svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
               </button>
-
-              <div class="quick-actions" id="especialidades" aria-label="Sugestões rápidas" hidden>
-                <button type="button" data-query="Psiquiatra em Joinville"><span class="chip-icon is-red" aria-hidden="true">✦</span>Psiquiatra em Joinville</button>
-                <button type="button" data-query="Dermatologista que atende Unimed"><span class="chip-icon is-blue" aria-hidden="true">◇</span>Dermatologista que atende Unimed</button>
-                <button type="button" data-query="Ortopedista perto de mim"><span class="chip-icon is-aqua" aria-hidden="true">⌁</span>Ortopedista perto de mim</button>
-                <button type="button" data-query="Clínico geral com agenda rápida"><span class="chip-icon is-navy" aria-hidden="true">⌕</span>Clínico geral com agenda rápida</button>
-                <button type="button" data-query="Pediatra no bairro América"><span class="chip-icon is-blue" aria-hidden="true">◌</span>Pediatra no bairro América</button>
-                <button type="button" data-query="Ginecologista teleconsulta"><span class="chip-icon is-red" aria-hidden="true">✶</span>Ginecologista teleconsulta</button>
-              </div>
             </div>
-            <p class="search-feedback" id="search-feedback" role="status" aria-live="polite">Perfis médicos com CRM, RQE e informações verificáveis.</p>
+            <p class="search-feedback" id="search-feedback" role="status" aria-live="polite"></p>
           </form>
         </div>
       </section>
@@ -88,47 +77,59 @@
       <section class="proof-section mdr-section" aria-label="Prévia da experiência Medário">
         <div class="section-grid">
           <div class="how-it-works" id="como-funciona">
-            <p class="eyebrow">Como a IA do Medário funciona</p>
-            <h2>Busca médica com estrutura, não sorte.</h2>
+            <h2>Como a IA do Medário funciona</h2>
             <div class="step-list">
               <article class="step-item">
                 <div class="step-symbol" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 1 5.3-2.2L21 21"/></svg>
                 </div>
-                <h3>Busca inteligente</h3>
-                <p>Entenda sua necessidade em linguagem natural. A IA interpreta especialidade, convênio, bairro e tipo de atendimento.</p>
+                <h3>1. Busca inteligente</h3>
+                <p>Entenda sua necessidade em linguagem natural. Nossa IA interpreta o que você precisa.</p>
               </article>
 
               <article class="step-item">
                 <div class="step-symbol" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M12 3 19 6v5.5c0 4.2-2.9 7.8-7 9.5-4.1-1.7-7-5.3-7-9.5V6l7-3Z"/><path d="m8.8 12.2 2.1 2.1 4.5-5"/></svg>
                 </div>
-                <h3>Perfis verificados</h3>
-                <p>Mostramos profissionais e clínicas com dados claros, atualizados e organizados para reduzir dúvida na escolha.</p>
+                <h3>2. Perfis verificados</h3>
+                <p>Mostramos apenas profissionais e clínicas verificados, com informações atualizadas.</p>
               </article>
 
               <article class="step-item">
                 <div class="step-symbol is-floral" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M12 20V9"/><path d="M12 10C8 10 5 7.5 5 4c4 .1 7 2.6 7 6Z"/><path d="M12 10c4 0 7-2.5 7-6-4 .1-7 2.6-7 6Z"/></svg>
                 </div>
-                <h3>Relevância transparente</h3>
-                <p>Sugestões consideram especialidade, localização, convênio, disponibilidade e completude, sem prometer qualidade clínica.</p>
+                <h3>3. Recomendações personalizadas</h3>
+                <p>A IA sugere os melhores profissionais para o seu caso, com base em relevância.</p>
               </article>
+            </div>
+
+            <div class="local-section" aria-labelledby="local-title">
+              <div class="local-illustration" aria-hidden="true">
+                <svg viewBox="0 0 520 210" focusable="false">
+                  <path d="M64 160c60-14 101-49 132-104 31 55 72 90 132 104"/>
+                  <path d="M196 56v120M176 88v84M216 88v84"/>
+                  <path d="M94 159h324"/>
+                  <path d="M126 177c25 8 52 8 78 0M234 177c25 8 52 8 78 0M342 177c25 8 52 8 78 0"/>
+                  <path d="M410 94c13-16 36-16 49 0M52 108c15-18 42-18 57 0"/>
+                  <path class="flower" d="M356 65c-16 0-28-9-31-25 17 2 28 10 31 25Zm0 0c16 0 28-9 31-25-17 2-28 10-31 25Z"/>
+                </svg>
+              </div>
+              <div class="local-copy">
+                <p class="eyebrow">Alameda Clínica</p>
+                <h2 id="local-title">Feito em Joinville/SC</h2>
+                <p>Conectando cuidado e confiança.</p>
+              </div>
             </div>
           </div>
 
           <aside class="conversation-card" aria-label="Prévia de conversa com resultados médicos">
-            <div class="conversation-header">
-              <span class="status-dot" aria-hidden="true"></span>
-              <span>Prévia da busca</span>
-              <span class="conversation-time">10:24</span>
-            </div>
-            <div class="message user-message">Quero um dermatologista que atende Unimed em Joinville</div>
-            <div class="message ai-message">Encontrei opções com informações úteis para você:</div>
+            <div class="message user-message">Quero um dermatologista que atende Unimed em Joinville <span class="conversation-time">10:24</span><span class="message-check">✓✓</span></div>
+            <div class="message ai-message">Encontrei ótimas opções para você:</div>
 
             <div class="result-list" id="contato-medico">
               <article class="doctor-result">
-                <div class="avatar" aria-hidden="true">MA</div>
+                <img class="avatar avatar-photo" src="assets/doctor-mariana.png" alt="">
                 <div class="doctor-info">
                   <div class="doctor-topline">
                     <h3>Dra. Mariana Andrade</h3>
@@ -142,11 +143,11 @@
               </article>
 
               <article class="doctor-result is-sponsored">
-                <div class="avatar avatar-blue" aria-hidden="true">LB</div>
+                <img class="avatar avatar-photo" src="assets/doctor-lucas.png" alt="">
                 <div class="doctor-info">
                   <div class="doctor-topline">
                     <h3>Dr. Lucas Bertoli</h3>
-                    <span class="sponsored-badge">Patrocinado</span>
+                    <span class="available-badge">Disponível</span>
                   </div>
                   <p>Dermatologia · CRM/SC 67890</p>
                   <p>Atende: Unimed · Bradesco · Cassi</p>
@@ -156,29 +157,23 @@
               </article>
             </div>
 
-            <p class="sponsored-note">Destaques patrocinados não alteram os critérios da busca orgânica.</p>
+            <button class="more-results" type="button">Ver mais resultados <span aria-hidden="true">↓</span></button>
           </aside>
         </div>
       </section>
-
 
     </main>
 
     <footer class="site-footer" id="para-medicos">
       <div class="footer-cta-row">
-        <div class="footer-brand">
-          <span class="wordmark footer-wordmark">Medário<span class="brand-flower" aria-hidden="true"><span></span><span></span></span></span>
-          <p>Médicos em Joinville/SC</p>
-        </div>
         <div class="footer-links-row">
-          <a class="footer-link-cta" href="#diagnostico">Reivindicar perfil</a>
           <a class="footer-link" href="#medario-pro">Medário Pro</a>
           <a class="footer-link" href="#privacidade">Privacidade</a>
           <a class="footer-link" href="#termos">Termos</a>
           <a class="footer-link" href="mailto:contato@medario.com.br">Contato</a>
+          <a class="footer-link-cta" href="#diagnostico">Reivindicar perfil</a>
         </div>
       </div>
-      <p class="medical-notice">O Medário não substitui avaliação médica. Confirme as informações diretamente com o profissional antes do agendamento.</p>
     </footer>
 
     <script src="script.js"></script>
