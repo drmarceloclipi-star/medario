@@ -196,13 +196,11 @@
       <div class="footer-institutional">
         <p class="footer-line">
           <span class="footer-kicker">Busca médica clara, local e verificável.</span>
-          <a href="medicos/joinville.html">Encontrar médico</a>
-          <a href="sou-medico.html">Para médicos</a>
-          <a href="medario-pro.html">Medário Pro</a>
-          <a href="mailto:contato@medario.com.br">Contato</a>
+          <a href="institucional.html#sobre">Sobre</a>
+          <a href="termos.html">Termos</a>
           <a href="privacidade.html">Privacidade</a>
-          <a href="termos.html">Termos de uso</a>
-          <span class="footer-legal">Medário · Joinville, SC</span>
+          <a href="institucional.html">Institucional</a>
+          <span class="footer-legal">Feito em Joinville, SC</span>
         </p>
       </div>
     </footer>
@@ -230,7 +228,7 @@
         <!-- Step 2: Registration form -->
         <section class="modal-step" id="modal-step-2" hidden>
           <h2 class="modal-title">Criar conta de paciente</h2>
-          <p class="modal-message" id="modal-message" hidden></p>
+          <p class="modal-message" id="modal-message" role="status" aria-live="polite" hidden></p>
           <form id="register-form" class="auth-form" novalidate>
             <label class="field-row">
               <span class="field-label">E-mail</span>
@@ -288,7 +286,7 @@
         <!-- Login form -->
         <section class="modal-step" id="modal-login" hidden>
           <h2 class="modal-title">Entrar</h2>
-          <p class="modal-message" hidden></p>
+          <p class="modal-message" id="modal-login-message" role="status" aria-live="polite" hidden></p>
           <form id="login-form" class="auth-form" novalidate>
             <label class="field-row">
               <span class="field-label">E-mail</span>

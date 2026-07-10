@@ -8,14 +8,14 @@
 
   if (typeof firebase === "undefined") return;
 
-  /* ---------- Firebase config (placeholder values) ---------- */
+  /* ---------- Firebase config ---------- */
   const firebaseConfig = {
-    apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    authDomain: "medario-prod.firebaseapp.com",
-    projectId: "medario-prod",
-    storageBucket: "medario-prod.appspot.com",
-    messagingSenderId: "000000000000",
-    appId: "1:000000000000:web:xxxxxxxxxxxxxxxxxxxxxx",
+    apiKey: "AIzaSyCSs8I4hCFH1RiPVli2MriLXRugMz9xjgI",
+    authDomain: "medario-doctor.firebaseapp.com",
+    projectId: "medario-doctor",
+    storageBucket: "medario-doctor.firebasestorage.app",
+    messagingSenderId: "702082375310",
+    appId: "1:702082375310:web:1b9ab93a77d6aaa6db73df",
   };
 
   firebase.initializeApp(firebaseConfig);
@@ -48,7 +48,7 @@
   const loginForm = document.getElementById("login-form");
   const switchToLogin = document.getElementById("switch-to-login");
   const switchToRegister = document.getElementById("switch-to-register");
-  const modalMessage = document.getElementById("modal-message");
+  const modalMessages = document.querySelectorAll(".modal-message");
 
   const consentBanner = document.getElementById("consent-banner");
   const consentAccept = consentBanner?.querySelector(".consent-accept");
@@ -131,10 +131,11 @@
   }
 
   function setModalMessage(text, isError) {
-    if (!modalMessage) return;
-    modalMessage.textContent = text || "";
-    modalMessage.hidden = !text;
-    modalMessage.dataset.error = isError ? "true" : "false";
+    modalMessages.forEach((message) => {
+      message.textContent = text || "";
+      message.hidden = !text;
+      message.dataset.error = isError ? "true" : "false";
+    });
   }
 
   function clearModalMessage() {
