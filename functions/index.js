@@ -10,8 +10,7 @@
  * ------------------------------------------------------------------
  */
 
-const { onDocumentCreated } = require("firebase-functions/v2/firestore");
-const { onDocumentWritten } = require("firebase-functions/v2/firestore");
+const { onDocumentCreated, onDocumentWritten } = require("firebase-functions/v2/firestore");
 const { onUserDeleted } = require("firebase-functions/v2/auth");
 const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -40,14 +39,15 @@ const SPECIALTY_KEYWORDS = [
 function extractSpecialty(query) {
   if (!query) return null;
   const q = query.toLowerCase().trim();
-
-  // Exact keyword match (substring search for flexibility)
-  for (const keyword of SPECIALTY_KEYWORDS) {
-    if (q.includes(keyword)) {
+  // Sort keywords by length descending so longest match wins
+  const sorted = [...SPECIALTY_KEYWORDS].sort((a, b) => b.length - a.length);
+  for (const keyword of sorted) {
+    // Use word boundary to avoid 'urolog' matching inside 'neurolog'
+    const re = new RegExp("\\b" + keyword, "i");
+    if (re.test(q)) {
       return keyword.replace(/\s+/g, "_");
     }
   }
-
   return null;
 }
 
@@ -199,20 +199,32 @@ exports.onUserDelete = onUserDeleted(async (event) => {
   const userRef = db.collection("users").doc(uid);
 
   // a. Delete interests subcollection
-  const interestsSnap = await userRef.collection("interests").get();
-  const interestDeletes = interestsSnap.docs.map((doc) => doc.ref.delete());
-  await Promise.all(interestDeletes);
+  await deleteSubcollection(userRef, "interests");
 
   // b. Delete search_events subcollection
-  const eventsSnap = await userRef.collection("search_events").get();
-  const eventDeletes = eventsSnap.docs.map((doc) => doc.ref.delete());
-  await Promise.all(eventDeletes);
+  await deleteSubcollection(userRef, "search_events");
 
   // c. Delete the user document itself
   await userRef.delete();
 
-  logger.info(
-    `onUserDelete: full cleanup complete for user ${uid} ` +
-      `(${interestDeletes.length} interests, ${eventDeletes.length} search_events deleted).`
-  );
+  logger.info(`onUserDelete: full cleanup complete for user ${uid}`);
 });
+
+/* ------------------------------------------------------------------
+ * deleteSubcollection — batch delete with retry
+ * ------------------------------------------------------------------ */
+async function deleteSubcollection(ref, name) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const snap = await ref.collection(name).get();
+      if (snap.empty) return;
+      const batch = db.batch();
+      snap.forEach((doc) => batch.delete(doc.ref));
+      await batch.commit();
+      return;
+    } catch (err) {
+      if (attempt === 2) throw err;
+      await new Promise((r) => setTimeout(r, 1000));
+    }
+  }
+}

@@ -6,6 +6,8 @@
 (function () {
   "use strict";
 
+  if (typeof firebase === "undefined") return;
+
   /* ---------- Firebase config (placeholder values) ---------- */
   const firebaseConfig = {
     apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
@@ -88,6 +90,7 @@
       if (navCta) navCta.hidden = false;
       userProfile = null;
       affinity = {};
+      consentShownForSearch = false;
     }
   });
 
@@ -96,10 +99,13 @@
      ============================================================ */
   function openModal() {
     if (!modal) return;
+    lastFocusedBeforeModal = document.activeElement;
     modal.hidden = false;
     modal.setAttribute("aria-hidden", "false");
     showModalStep("step-1");
     clearModalMessage();
+    const focusable = modal.querySelectorAll("button, input, a[href], select, textarea");
+    if (focusable.length) focusable[0].focus();
   }
 
   function closeModal() {
@@ -110,6 +116,7 @@
     clearModalMessage();
     if (registerForm) registerForm.reset();
     if (loginForm) loginForm.reset();
+    if (lastFocusedBeforeModal) lastFocusedBeforeModal.focus();
   }
 
   function showModalStep(step) {
@@ -151,6 +158,23 @@
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modal && !modal.hidden) closeModal();
+  });
+
+  // Focus trap inside modal (Tab cycles focusable elements)
+  modal?.addEventListener("keydown", (e) => {
+    if (e.key === "Tab" && !modal.hidden) {
+      const focusable = modal.querySelectorAll("button:not([disabled]), input:not([disabled]), a[href], select, textarea");
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
   });
 
   /* Step 1 buttons */
@@ -207,18 +231,29 @@
       await cred.user.updateProfile({ displayName: email.split("@")[0] });
 
       // create Firestore user doc
-      await db.collection("users").doc(uid).set({
-        email: email,
-        cidade_bairro: cidadeBairro || null,
-        convenio: convenio || null,
-        tipo_atendimento: tipoAtendimento || null,
-        idioma: idioma || "Português",
-        acessibilidade: !!acessibilidade,
-        consent_preferences: false,
-        consent_at: null,
-        affinity: {},
-        created_at: firebase.firestore.FieldValue.serverTimestamp(),
-      });
+      try {
+        await db.collection("users").doc(uid).set({
+          email: email,
+          cidade: cidadeBairro || null,
+          convenio: convenio || null,
+          tipo_atendimento: tipoAtendimento || null,
+          idioma: idioma || "Português",
+          acessibilidade: !!acessibilidade,
+          consent_preferences: false,
+          consent_at: null,
+          affinity: {},
+          created_at: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (firestoreErr) {
+        console.error("Medário: Firestore user doc creation failed", firestoreErr);
+        try {
+          await cred.user.delete();
+        } catch (delErr) {
+          console.error("Medário: failed to delete orphan auth user", delErr);
+        }
+        setModalMessage("Ocorreu um erro ao criar sua conta. Tente novamente.", true);
+        return;
+      }
 
       closeModal();
       showToast("Conta criada com sucesso! Bem-vindo ao Medário.");
@@ -291,17 +326,13 @@
      F. Consent banner
      ============================================================ */
   let consentShownForSearch = false;
+  let lastFocusedBeforeModal = null;
 
   function maybeShowConsentBanner() {
-    if (!currentUser || !userProfile) return;
-    if (userProfile.consent_preferences === true || userProfile.consent_preferences === false) {
-      // user already made an explicit choice
-      return;
-    }
-    // consent_preferences is falsy / undefined / null -> show banner
-    if (consentBanner && consentBanner.hidden) {
-      consentBanner.hidden = false;
-    }
+    if (!currentUser) return;
+    const consent = userProfile ? userProfile.consent_preferences : undefined;
+    if (consent === true || consent === false) return; // already chose
+    if (consentBanner && consentBanner.hidden) consentBanner.hidden = false;
   }
 
   consentAccept?.addEventListener("click", async () => {
@@ -379,6 +410,7 @@
       const infoP = card.querySelector(".doctor-info p");
       let score = 0;
       if (infoP) {
+        // Normalize specialty text to lowercase for robust matching
         const text = infoP.textContent.toLowerCase();
         for (const [specialty, val] of Object.entries(affinity)) {
           if (text.includes(specialty.toLowerCase())) {
@@ -432,7 +464,8 @@
       case "auth/network-request-failed":
         return "Falha de conexão. Verifique sua internet.";
       default:
-        return (err && err.message) ? err.message : "Ocorreu um erro. Tente novamente.";
+        console.error("Medário: unhandled auth error", err);
+        return "Ocorreu um erro. Tente novamente.";
     }
   }
 

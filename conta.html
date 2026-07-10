@@ -30,8 +30,8 @@
         appId: "REPLACE_WITH_APP_ID"
       };
       firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
-      const auth = firebase.auth();
+      window.db = firebase.firestore();
+      window.auth = firebase.auth();
     </script>
   </head>
   <body>
@@ -436,32 +436,35 @@
 
       /* ---- Delete account (danger zone) ---- */
       btnDelete.addEventListener("click", openModal);
-      btnConfirmDelete.addEventListener("click", () => {
+      btnConfirmDelete.addEventListener("click", async () => {
         const user = auth.currentUser;
-        if (!user) return;
-        // 1. Delete interests subcollection docs (client side; onUserDelete
-        //    Cloud Function also cleans up, but we do it here for safety).
-        const userRef = db.collection("users").doc(user.uid);
-        userRef.collection("interests").get().then((snap) => {
+        if (!user) { toast("Faça login novamente primeiro.", "error"); return; }
+        try {
+          // Delete subcollections first
+          const interestsSnap = await db.collection("users").doc(user.uid).collection("interests").get();
           const batch = db.batch();
-          snap.forEach((d) => batch.delete(d.ref));
-          return batch.commit();
-        }).then(() => {
-          // 2. Delete the user document
-          return userRef.delete();
-        }).then(() => {
-          // 3. Delete the Auth user
-          return user.delete();
-        }).then(() => {
-          // 4. Sign out & redirect
-          return auth.signOut();
-        }).then(() => {
-          window.location.href = "index.html";
-        }).catch((err) => {
-          console.error("Erro ao excluir conta:", err);
-          closeModal();
-          toast("Erro ao excluir conta. Tente novamente.", "error");
-        });
+          interestsSnap.forEach((doc) => batch.delete(doc.ref));
+          await batch.commit();
+          // Delete user doc
+          await db.collection("users").doc(user.uid).delete();
+          // Delete auth user
+          await user.delete();
+          toast("Conta excluída com sucesso.");
+          setTimeout(() => { window.location.href = "index.html"; }, 1500);
+        } catch (err) {
+          if (err.code === "auth/requires-recent-login") {
+            toast("Por segurança, faça login novamente antes de excluir.", "error");
+            setTimeout(() => { window.location.href = "index.html"; }, 2000);
+          } else {
+            toast("Erro ao excluir conta: " + (err.message || "tente novamente"), "error");
+          }
+        }
+        closeModal();
+      });
+
+      /* ---- Unsubscribe from snapshot listener on page unload ---- */
+      window.addEventListener("beforeunload", () => {
+        if (interestsUnsub) interestsUnsub();
       });
     })();
     </script>

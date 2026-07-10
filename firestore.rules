@@ -9,6 +9,8 @@ service cloud.firestore {
     match /doctors/{doctorId} {
       allow read: if true;
       allow write: if false;
+      // Note: Admin SDK bypasses security rules. Admin writes use the
+      // service account, not user SDK. This rule blocks user SDK writes only.
     }
 
     // ─── Public directory: specialties ──────────────────────────
@@ -30,9 +32,10 @@ service cloud.firestore {
       }
 
       // Search events are written by the app and consumed/deleted by
-      // Cloud Functions. Only the owner may read them.
+      // Cloud Functions. Raw search data is sensitive, so user reads
+      // are blocked — the CF processes and deletes these immediately.
       match /search_events/{eventId} {
-        allow read: if request.auth != null && request.auth.uid == userId;
+        allow read: if false; // sensitive — CF processes and deletes immediately
         allow create: if request.auth != null && request.auth.uid == userId;
         allow update, delete: if false; // only Cloud Functions delete these
       }
