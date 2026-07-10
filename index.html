@@ -20,6 +20,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,650&family=Sora:wght@400;450;520;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase compat SDK (loaded before app script) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="styles.css">
     <script type="application/ld+json">
     {"@context":"https://schema.org","@type":"WebSite","name":"Medário","url":"https://medario.com.br/","description":"Catálogo médico digital de Joinville para encontrar especialistas com CRM, RQE e informações verificáveis.","inLanguage":"pt-BR"}
@@ -34,19 +38,17 @@
           <img class="topbar-wordmark" src="assets/medario-wordmark-topbar.png" alt="Medário">
         </a>
 
-        <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links-main">
-          <span class="nav-toggle-bar" aria-hidden="true"></span>
-          <span class="nav-toggle-bar" aria-hidden="true"></span>
-          <span class="nav-toggle-bar" aria-hidden="true"></span>
-        </button>
-        <div class="nav-links" id="nav-links-main" aria-label="Links principais">
-          <a href="#como-funciona">Como funciona</a>
-          <a href="medicos/joinville.html">Especialidades</a>
-          <a href="sou-medico.html">Para médicos</a>
-          <a href="medario-pro.html">Medário Pro</a>
-        </div>
+        <a class="nav-cta" href="medicos/joinville.html">Começar</a>
 
-        <a class="nav-cta" href="sou-medico.html">Sou médico</a>
+        <div class="nav-user" id="nav-user" hidden>
+          <button class="user-avatar-btn" type="button" aria-label="Menu do usuário" aria-expanded="false" id="user-avatar-btn">
+            <span class="user-avatar-initial" id="user-avatar-initial">U</span>
+          </button>
+          <div class="user-dropdown" id="user-dropdown" role="menu" hidden>
+            <a href="conta.html" role="menuitem">Minha conta</a>
+            <button type="button" role="menuitem" id="sign-out-btn">Sair</button>
+          </div>
+        </div>
       </nav>
     </header>
 
@@ -98,7 +100,7 @@
                   <svg viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 1 5.3-2.2L21 21"/></svg>
                 </div>
                 <h3>1. Busca inteligente</h3>
-                <p>Entenda sua necessidade em linguagem natural. Nossa IA interpreta o que você precisa.</p>
+                <p>Descreva sua necessidade. A IA entende seu caso.</p>
               </article>
 
               <article class="step-item">
@@ -106,7 +108,7 @@
                   <svg viewBox="0 0 24 24"><path d="M12 3 19 6v5.5c0 4.2-2.9 7.8-7 9.5-4.1-1.7-7-5.3-7-9.5V6l7-3Z"/><path d="m8.8 12.2 2.1 2.1 4.5-5"/></svg>
                 </div>
                 <h3>2. Perfis verificados</h3>
-                <p>Mostramos apenas profissionais e clínicas verificados, com informações atualizadas.</p>
+                <p>Exibimos médicos e clínicas verificados.</p>
               </article>
 
               <article class="step-item">
@@ -114,7 +116,7 @@
                   <svg viewBox="0 0 24 24"><path d="M12 20V9"/><path d="M12 10C8 10 5 7.5 5 4c4 .1 7 2.6 7 6Z"/><path d="M12 10c4 0 7-2.5 7-6-4 .1-7 2.6-7 6Z"/></svg>
                 </div>
                 <h3>3. Recomendações personalizadas</h3>
-                <p>A IA sugere os melhores profissionais para o seu caso, com base em relevância.</p>
+                <p>A IA sugere os profissionais mais relevantes para você.</p>
               </article>
             </div>
 
@@ -142,7 +144,7 @@
             <div class="message ai-message">Encontrei ótimas opções para você:</div>
 
             <div class="result-list" id="contato-medico">
-              <article class="doctor-result">
+              <article class="doctor-result" data-specialty="dermatologia">
                 <img class="avatar avatar-photo" src="assets/doctor-mariana.png" alt="Dra. Mariana Andrade">
                 <div class="doctor-info">
                   <div class="doctor-topline">
@@ -156,7 +158,7 @@
                 <a class="doctor-action" href="medicos/mariana-andrade.html">Ver perfil</a>
               </article>
 
-              <article class="doctor-result is-sponsored">
+              <article class="doctor-result is-sponsored" data-specialty="dermatologia">
                 <img class="avatar avatar-photo" src="assets/doctor-lucas.png" alt="Dr. Lucas Bertoli">
                 <div class="doctor-info">
                   <div class="doctor-topline">
@@ -186,10 +188,122 @@
           <a href="sou-medico.html">Para médicos</a>
           <a href="medario-pro.html">Medário Pro</a>
           <a href="mailto:contato@medario.com.br">Contato</a>
+          <a href="privacidade.html">Privacidade</a>
+          <a href="termos.html">Termos de uso</a>
           <span class="footer-legal">Medário · Joinville, SC</span>
         </p>
       </div>
     </footer>
+
+    <!-- Bifurcation modal (register / login) -->
+    <div class="modal-overlay" id="bifurcation-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-card">
+        <button class="modal-close" type="button" id="modal-close" aria-label="Fechar">&times;</button>
+
+        <!-- Step 1: Paciente ou Médico? -->
+        <section class="modal-step" id="modal-step-1">
+          <h2 id="modal-title" class="modal-title">Você é paciente ou médico?</h2>
+          <div class="modal-bifurcation">
+            <button class="modal-choice" type="button" id="btn-paciente">
+              <strong>Sou paciente</strong>
+              <span>Quero encontrar médicos em Joinville</span>
+            </button>
+            <button class="modal-choice" type="button" id="btn-medico">
+              <strong>Sou médico</strong>
+              <span>Quero cadastrar meu perfil</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Step 2: Registration form -->
+        <section class="modal-step" id="modal-step-2" hidden>
+          <h2 class="modal-title">Criar conta de paciente</h2>
+          <p class="modal-message" id="modal-message" hidden></p>
+          <form id="register-form" class="auth-form" novalidate>
+            <label class="field-row">
+              <span class="field-label">E-mail</span>
+              <input type="email" name="email" autocomplete="email" required>
+            </label>
+            <label class="field-row">
+              <span class="field-label">Senha</span>
+              <input type="password" name="senha" autocomplete="new-password" minlength="6" required>
+            </label>
+            <label class="field-row">
+              <span class="field-label">Cidade / Bairro</span>
+              <input type="text" name="cidade-bairro" placeholder="Ex.: Centro, Joinville">
+            </label>
+            <label class="field-row">
+              <span class="field-label">Convênio</span>
+              <select name="convenio">
+                <option value="">Selecione…</option>
+                <option>Unimed</option>
+                <option>América</option>
+                <option>SulAmérica</option>
+                <option>Bradesco</option>
+                <option>Cassi</option>
+                <option>Hapvida</option>
+                <option>Notre Dame</option>
+                <option>Outro</option>
+                <option>Particular</option>
+              </select>
+            </label>
+            <label class="field-row">
+              <span class="field-label">Tipo de atendimento</span>
+              <select name="tipo-atendimento">
+                <option value="">Selecione…</option>
+                <option>Presencial</option>
+                <option>Teleconsulta</option>
+                <option>Ambos</option>
+              </select>
+            </label>
+            <label class="field-row">
+              <span class="field-label">Idioma</span>
+              <select name="idioma">
+                <option>Português</option>
+                <option>Inglês</option>
+                <option>Espanhol</option>
+              </select>
+            </label>
+            <label class="field-row field-check">
+              <input type="checkbox" name="acessibilidade">
+              <span class="field-label">Preciso de acessibilidade</span>
+            </label>
+            <button class="button-primary modal-submit" type="submit">Criar conta</button>
+          </form>
+          <p class="modal-switch">Já tem conta? <a href="#" id="switch-to-login">Entrar</a></p>
+        </section>
+
+        <!-- Login form -->
+        <section class="modal-step" id="modal-login" hidden>
+          <h2 class="modal-title">Entrar</h2>
+          <p class="modal-message" hidden></p>
+          <form id="login-form" class="auth-form" novalidate>
+            <label class="field-row">
+              <span class="field-label">E-mail</span>
+              <input type="email" name="email" autocomplete="email" required>
+            </label>
+            <label class="field-row">
+              <span class="field-label">Senha</span>
+              <input type="password" name="senha" autocomplete="current-password" required>
+            </label>
+            <button class="button-primary modal-submit" type="submit">Entrar</button>
+          </form>
+          <p class="modal-switch">Não tem conta? <a href="#" id="switch-to-register">Criar conta</a></p>
+        </section>
+      </div>
+    </div>
+
+    <!-- Consent banner (shown by JS) -->
+    <div class="consent-banner" id="consent-banner" hidden>
+      <p>O Medário pode lembrar suas especialidades de interesse para melhorar suas buscas. Você pode desativar a qualquer momento.</p>
+      <div class="consent-actions">
+        <button type="button" class="consent-accept">Ativar</button>
+        <button type="button" class="consent-decline">Não, obrigado</button>
+      </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
     <script src="script.js"></script>
   </body>

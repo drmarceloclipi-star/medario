@@ -1,0 +1,11 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "interests",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "last_searched", "order": "DESCENDING" }
+      ]
+    }
+  ]
+}
