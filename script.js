@@ -18,3 +18,11 @@ form?.addEventListener("submit", (event) => {
     block: "center"
   });
 });
+
+const navToggle = document.querySelector(".nav-toggle");
+const navLinks = document.querySelector(".nav-links");
+navToggle?.addEventListener("click", () => {
+  const isOpen = navLinks.classList.toggle("is-open");
+  navToggle.setAttribute("aria-expanded", String(isOpen));
+  navToggle.setAttribute("aria-label", isOpen ? "Fechar menu" : "Abrir menu");
+});

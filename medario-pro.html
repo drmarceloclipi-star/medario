@@ -9,11 +9,19 @@
     <meta property="og:title" content="Medário Pro — Planos para médicos e clínicas">
     <meta property="og:description" content="Perfil enriquecido, SEO local, Google Business Profile, Analytics e relatórios mensais.">
     <meta property="og:type" content="website">
+    <link rel="canonical" href="https://medario.com.br/medario-pro">
+    <meta property="og:url" content="https://medario.com.br/medario-pro">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:image" content="https://medario.com.br/assets/medario-mark.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Medário Pro — Planos para médicos e clínicas">
+    <meta name="twitter:description" content="Perfil enriquecido, SEO local, Google Business Profile, Analytics e relatórios mensais.">
     <link rel="icon" href="assets/medario-mark.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,650&family=Sora:wght@400;450;520;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"Medário Pro","description":"Planos para médicos e clínicas com SEO local e métricas."}</script>
   </head>
   <body>
     <a class="skip-link" href="#main">Pular para o conteúdo</a>
@@ -23,7 +31,12 @@
         <a class="brand" href="index.html" aria-label="Medário, página inicial">
           <img class="topbar-wordmark" src="assets/medario-wordmark-topbar.png" alt="Medário">
         </a>
-        <div class="nav-links" aria-label="Links principais">
+        <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links-main">
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+        <div class="nav-links" id="nav-links-main" aria-label="Links principais">
           <a href="index.html#como-funciona">Como funciona</a>
           <a href="medicos/joinville.html">Especialidades</a>
           <a href="sou-medico.html">Para médicos</a>
@@ -101,7 +114,7 @@
         <a class="diagnostic-link" href="diagnostico-presenca-digital.html">Fazer diagnóstico gratuito</a>
       </section>
 
-      <aside class="medical-notice mdr-section" role="note">
+      <aside class="medical-notice mdr-section" aria-label="Aviso médico">
         <p>O Medário Pro não promete "mais pacientes rápido". Oferecemos visibilidade profissional ética, com informações estruturadas e respeito às normas do Conselho Federal de Medicina.</p>
       </aside>
     </main>

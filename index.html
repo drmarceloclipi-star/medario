@@ -9,22 +9,37 @@
     <meta property="og:title" content="Medário | Encontre médicos em Joinville com ajuda da IA">
     <meta property="og:description" content="O catálogo médico digital de Joinville para encontrar especialistas com CRM, RQE e informações verificáveis.">
     <meta property="og:type" content="website">
+    <link rel="canonical" href="https://medario.com.br/">
+    <meta property="og:url" content="https://medario.com.br/">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:image" content="https://medario.com.br/assets/medario-mark.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Medário | Encontre médicos em Joinville com ajuda da IA">
+    <meta name="twitter:description" content="O catálogo médico digital de Joinville para encontrar especialistas com CRM, RQE e informações verificáveis.">
     <link rel="icon" href="assets/medario-mark.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,650&family=Sora:wght@400;450;520;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebSite","name":"Medário","url":"https://medario.com.br/","description":"Catálogo médico digital de Joinville para encontrar especialistas com CRM, RQE e informações verificáveis.","inLanguage":"pt-BR"}
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">Pular para o conteúdo</a>
 
     <header class="site-header" aria-label="Cabeçalho principal">
       <nav class="nav-shell" aria-label="Navegação principal">
-        <a class="brand" href="/" aria-label="Medário, página inicial">
+        <a class="brand" href="index.html" aria-label="Medário, página inicial">
           <img class="topbar-wordmark" src="assets/medario-wordmark-topbar.png" alt="Medário">
         </a>
 
-        <div class="nav-links" aria-label="Links principais">
+        <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links-main">
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+        <div class="nav-links" id="nav-links-main" aria-label="Links principais">
           <a href="#como-funciona">Como funciona</a>
           <a href="medicos/joinville.html">Especialidades</a>
           <a href="sou-medico.html">Para médicos</a>
@@ -41,7 +56,7 @@
         <div class="hero-local-lines" aria-hidden="true"></div>
         <div class="hero-shell">
           <div class="hero-copy">
-            <p class="eyebrow hero-badge">○ Conectando Você ao Melhor da Saúde</p>
+            <p class="eyebrow hero-badge"><span aria-hidden="true">○</span> Conectando Você ao Melhor da Saúde</p>
             <h1 id="hero-title">Encontre o médico<br>certo com ajuda da <span class="title-ai">IA</span><span class="title-dot">.</span></h1>
             <p class="hero-subtitle">Medário é o catálogo médico digital de Joinville.<br>Nossa IA entende o que você precisa e conecta você ao profissional ideal.</p>
           </div>
@@ -125,12 +140,12 @@
           </div>
 
           <aside class="conversation-card" aria-label="Prévia de conversa com resultados médicos">
-            <div class="message user-message">Quero um dermatologista que atende Unimed em Joinville <span class="conversation-time">10:24</span><span class="message-check">✓✓</span></div>
+            <div class="message user-message">Quero um dermatologista que atende Unimed em Joinville <span class="conversation-time" aria-hidden="true">10:24</span><span class="message-check" aria-hidden="true">✓✓</span></div>
             <div class="message ai-message">Encontrei ótimas opções para você:</div>
 
             <div class="result-list" id="contato-medico">
               <article class="doctor-result">
-                <img class="avatar avatar-photo" src="assets/doctor-mariana.png" alt="">
+                <img class="avatar avatar-photo" src="assets/doctor-mariana.png" alt="Dra. Mariana Andrade">
                 <div class="doctor-info">
                   <div class="doctor-topline">
                     <h3>Dra. Mariana Andrade</h3>
@@ -144,7 +159,7 @@
               </article>
 
               <article class="doctor-result is-sponsored">
-                <img class="avatar avatar-photo" src="assets/doctor-lucas.png" alt="">
+                <img class="avatar avatar-photo" src="assets/doctor-lucas.png" alt="Dr. Lucas Bertoli">
                 <div class="doctor-info">
                   <div class="doctor-topline">
                     <h3>Dr. Lucas Bertoli</h3>
@@ -154,7 +169,7 @@
                   <p>Atende: Unimed · Bradesco · Cassi</p>
                   <p>Atiradores, Joinville/SC</p>
                 </div>
-                <a class="doctor-action secondary" href="medicos/mariana-andrade.html">Ver perfil</a>
+                <a class="doctor-action secondary" href="#" aria-disabled="true" role="button">Ver perfil</a>
               </article>
             </div>
 
