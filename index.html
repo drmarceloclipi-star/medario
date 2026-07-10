@@ -38,6 +38,18 @@
           <img class="topbar-wordmark" src="assets/medario-wordmark-topbar.png" alt="Medário">
         </a>
 
+        <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links-main">
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+
+        <div class="nav-links" id="nav-links-main" aria-label="Links principais">
+          <a href="medicos/joinville.html">Encontrar médico</a>
+          <a href="sou-medico.html">Para médicos</a>
+          <a href="medario-pro.html">Medário Pro</a>
+        </div>
+
         <a class="nav-cta" href="medicos/joinville.html">Começar</a>
 
         <div class="nav-user" id="nav-user" hidden>
@@ -70,7 +82,7 @@
 
               <label class="field-block field-main">
                 <span class="sr-only">Especialidade ou necessidade</span>
-                <input name="especialidade" type="search" autocomplete="off" placeholder="Descreva o que você procura: especialidade, convênio, bairro, teleconsulta...">
+                <input name="especialidade" type="search" autocomplete="off" placeholder="Especialidade, convênio ou bairro">
               </label>
 
               <button class="search-tool" type="button" aria-label="Anexar informação">

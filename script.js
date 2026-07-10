@@ -474,9 +474,33 @@
      ============================================================ */
   const navToggle = document.querySelector(".nav-toggle");
   const navLinks = document.querySelector(".nav-links");
+  const closeNav = () => {
+    if (!navToggle || !navLinks) return;
+    navLinks.classList.remove("is-open");
+    navToggle.setAttribute("aria-expanded", "false");
+    navToggle.setAttribute("aria-label", "Abrir menu");
+  };
+
   navToggle?.addEventListener("click", () => {
+    if (!navLinks) return;
     const isOpen = navLinks.classList.toggle("is-open");
     navToggle.setAttribute("aria-expanded", String(isOpen));
     navToggle.setAttribute("aria-label", isOpen ? "Fechar menu" : "Abrir menu");
+  });
+
+  navLinks?.addEventListener("click", (event) => {
+    if (event.target.closest("a")) closeNav();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!navLinks?.classList.contains("is-open")) return;
+    if (!navLinks.contains(event.target) && !navToggle?.contains(event.target)) closeNav();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && navLinks?.classList.contains("is-open")) {
+      closeNav();
+      navToggle?.focus();
+    }
   });
 })();
