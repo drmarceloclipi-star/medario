@@ -1,0 +1,36 @@
+{
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs22"
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      ".git/**",
+      ".gitignore",
+      ".DS_Store",
+      ".env",
+      ".env.*",
+      ".firebase/**",
+      ".Codex/**",
+      ".tmp/**",
+      ".playwright-cli/**",
+      "functions/**",
+      "docs/**",
+      "**/*.md",
+      "firestore.rules",
+      "firestore.indexes.json",
+      "package.json",
+      "package-lock.json",
+      "home-mobile-before.png",
+      "**/*.log",
+      "**/node_modules/**"
+    ]
+  }
+}
