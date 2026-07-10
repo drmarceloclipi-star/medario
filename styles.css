@@ -47,10 +47,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    radial-gradient(circle at 11% 88%, oklch(85.4% 0.052 199.3 / 0.17), transparent 25rem),
-    radial-gradient(circle at 93% 84%, oklch(56% 0.078 238 / 0.09), transparent 30rem),
-    var(--surface);
+  background: var(--surface);
   color: var(--text-default);
   font-family: var(--font-ui);
   font-size: 1rem;
@@ -640,10 +637,10 @@ h3 {
 }
 
 .site-footer {
-  margin-top: clamp(0.2rem, 0.9vw, 0.65rem);
+  margin-top: clamp(1rem, 2.4vw, 1.9rem);
   padding: clamp(0.35rem, 0.9vw, 0.65rem) 0 0.35rem;
   border-top: 1px solid oklch(32.8% 0.068 257.3 / 0.08);
-  background: linear-gradient(180deg, transparent, oklch(85.4% 0.052 199.3 / 0.045));
+  background: transparent;
 }
 
 .footer-institutional {
