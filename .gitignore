@@ -1,3 +1,6 @@
 .Codex/
 .tmp/
 .DS_Store
+.firebase/
+functions/node_modules/
+functions/.runtimeconfig.json

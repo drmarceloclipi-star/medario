@@ -10,8 +10,7 @@
  * ------------------------------------------------------------------
  */
 
-const { onDocumentCreated, onDocumentWritten } = require("firebase-functions/v2/firestore");
-const { onUserDeleted } = require("firebase-functions/v2/auth");
+const functionsV1 = require("firebase-functions/v1");
 const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
 
@@ -64,11 +63,10 @@ function extractSpecialty(query) {
  *   c. Delete the search_event doc (data minimisation — no raw
  *      search history is retained, per LGPD Art. 15 / Art. 16).
  * ================================================================== */
-exports.onSearchEvent = onDocumentCreated(
-  "users/{uid}/search_events/{eventId}",
-  async (event) => {
-    const { uid, eventId } = event.params;
-    const snap = event.data;
+exports.onSearchEvent = functionsV1.firestore
+  .document("users/{uid}/search_events/{eventId}")
+  .onCreate(async (snap, context) => {
+    const { uid, eventId } = context.params;
 
     if (!snap) {
       logger.warn(`onSearchEvent: no data for event ${eventId}`);
@@ -104,8 +102,7 @@ exports.onSearchEvent = onDocumentCreated(
     // Always delete the raw search event (minimisation).
     await snap.ref.delete();
     logger.info(`onSearchEvent: deleted search_event ${eventId} for user ${uid}`);
-  }
-);
+  });
 
 /* ==================================================================
  * 2. computeAffinity
@@ -120,10 +117,10 @@ exports.onSearchEvent = onDocumentCreated(
  *     proportional).
  *   - Writes the resulting map to users/{uid}.affinity.
  * ================================================================== */
-exports.computeAffinity = onDocumentWritten(
-  "users/{uid}/interests/{interestId}",
-  async (event) => {
-    const { uid } = event.params;
+exports.computeAffinity = functionsV1.firestore
+  .document("users/{uid}/interests/{interestId}")
+  .onWrite(async (_change, context) => {
+    const { uid } = context.params;
 
     // Fetch all interest docs for this user.
     const interestsSnap = await db
@@ -175,8 +172,7 @@ exports.computeAffinity = onDocumentWritten(
     logger.info(
       `computeAffinity: updated affinity for user ${uid} with ${Object.keys(affinity).length} specialties.`
     );
-  }
-);
+  });
 
 /* ==================================================================
  * 3. onUserDelete
@@ -188,8 +184,8 @@ exports.computeAffinity = onDocumentWritten(
  *   b. Delete all docs in users/{uid}/search_events
  *   c. Delete the user document itself: users/{uid}
  * ================================================================== */
-exports.onUserDelete = onUserDeleted(async (event) => {
-  const uid = event.uid;
+exports.onUserDelete = functionsV1.auth.user().onDelete(async (user) => {
+  const uid = user.uid;
 
   if (!uid) {
     logger.warn("onUserDelete: no uid in event, skipping.");
