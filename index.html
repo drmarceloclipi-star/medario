@@ -38,6 +38,18 @@
           <img class="topbar-wordmark" src="assets/medario-wordmark-topbar.png" alt="Medário">
         </a>
 
+        <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links-main">
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+
+        <div class="nav-links" id="nav-links-main" aria-label="Links principais">
+          <a href="medicos/joinville.html">Encontrar médico</a>
+          <a href="sou-medico.html">Para médicos</a>
+          <a href="medario-pro.html">Medário Pro</a>
+        </div>
+
         <a class="nav-cta" href="medicos/joinville.html">Começar</a>
 
         <div class="nav-user" id="nav-user" hidden>
@@ -70,7 +82,7 @@
 
               <label class="field-block field-main">
                 <span class="sr-only">Especialidade ou necessidade</span>
-                <input name="especialidade" type="search" autocomplete="off" placeholder="Descreva o que você procura: especialidade, convênio, bairro, teleconsulta...">
+                <input name="especialidade" type="search" autocomplete="off" placeholder="Especialidade, convênio ou bairro">
               </label>
 
               <button class="search-tool" type="button" aria-label="Anexar informação">
@@ -184,13 +196,11 @@
       <div class="footer-institutional">
         <p class="footer-line">
           <span class="footer-kicker">Busca médica clara, local e verificável.</span>
-          <a href="medicos/joinville.html">Encontrar médico</a>
-          <a href="sou-medico.html">Para médicos</a>
-          <a href="medario-pro.html">Medário Pro</a>
-          <a href="mailto:contato@medario.com.br">Contato</a>
+          <a href="institucional.html#sobre">Sobre</a>
+          <a href="termos.html">Termos</a>
           <a href="privacidade.html">Privacidade</a>
-          <a href="termos.html">Termos de uso</a>
-          <span class="footer-legal">Medário · Joinville, SC</span>
+          <a href="institucional.html">Institucional</a>
+          <span class="footer-legal">Feito em Joinville, SC</span>
         </p>
       </div>
     </footer>
@@ -218,7 +228,7 @@
         <!-- Step 2: Registration form -->
         <section class="modal-step" id="modal-step-2" hidden>
           <h2 class="modal-title">Criar conta de paciente</h2>
-          <p class="modal-message" id="modal-message" hidden></p>
+          <p class="modal-message" id="modal-message" role="status" aria-live="polite" hidden></p>
           <form id="register-form" class="auth-form" novalidate>
             <label class="field-row">
               <span class="field-label">E-mail</span>
@@ -276,7 +286,7 @@
         <!-- Login form -->
         <section class="modal-step" id="modal-login" hidden>
           <h2 class="modal-title">Entrar</h2>
-          <p class="modal-message" hidden></p>
+          <p class="modal-message" id="modal-login-message" role="status" aria-live="polite" hidden></p>
           <form id="login-form" class="auth-form" novalidate>
             <label class="field-row">
               <span class="field-label">E-mail</span>
