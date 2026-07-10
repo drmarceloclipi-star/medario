@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Minha conta — Medário</title>
+    <meta name="description" content="Gerencie suas preferências, interesses e privacidade no Medário.">
+    <meta name="theme-color" content="#F1FAEE">
+    <link rel="canonical" href="https://medario.com.br/conta.html">
+    <meta property="og:title" content="Minha conta — Medário">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <link rel="icon" href="assets/medario-mark.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,650&family=Sora:wght@400;450;520;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+      // Same config as firebase-config.js — compat SDK uses global firebase
+      const firebaseConfig = {
+        apiKey: "REPLACE_WITH_API_KEY",
+        authDomain: "REPLACE_WITH_AUTH_DOMAIN",
+        projectId: "REPLACE_WITH_PROJECT_ID",
+        storageBucket: "REPLACE_WITH_STORAGE_BUCKET",
+        messagingSenderId: "REPLACE_WITH_SENDER_ID",
+        appId: "REPLACE_WITH_APP_ID"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Pular para o conteúdo</a>
+
+    <header class="site-header" aria-label="Cabeçalho principal">
+      <nav class="nav-shell" aria-label="Navegação principal">
+        <a class="brand" href="index.html" aria-label="Medário, página inicial">
+          <img class="topbar-wordmark" src="assets/medario-wordmark-topbar.png" alt="Medário">
+        </a>
+        <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links-main">
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+        <div class="nav-links" id="nav-links-main" aria-label="Links principais">
+          <a href="index.html#como-funciona">Como funciona</a>
+          <a href="medicos/joinville.html">Especialidades</a>
+          <a href="sou-medico.html">Para médicos</a>
+          <a href="medario-pro.html">Medário Pro</a>
+        </div>
+        <a class="nav-cta" href="medicos/joinville.html">Começar</a>
+        <div class="nav-user" id="nav-user" hidden>
+          <button class="user-avatar-btn" id="nav-user-avatar" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Menu da conta"><span class="user-avatar-initial">—</span></button>
+          <div class="user-dropdown" id="nav-user-dropdown" role="menu" hidden>
+            <a href="conta.html" role="menuitem">Minha conta</a>
+            <a href="privacidade.html" role="menuitem">Privacidade</a>
+            <a href="termos.html" role="menuitem">Termos de uso</a>
+            <button type="button" role="menuitem" id="nav-user-signout">Sair</button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="conta-hero mdr-section" aria-labelledby="conta-title">
+        <h1 id="conta-title">Minha conta</h1>
+        <p class="conta-subtitle" id="conta-email-label" aria-live="polite">Carregando…</p>
+      </section>
+
+      <!-- 1. Preferences -->
+      <section class="conta-section mdr-section" aria-labelledby="prefs-title">
+        <h2 id="prefs-title">Preferências</h2>
+        <form class="conta-form" id="prefs-form">
+          <div class="form-field">
+            <label class="form-label" for="pref-cidade">Cidade / Bairro</label>
+            <input class="form-input" type="text" id="pref-cidade" name="cidade" placeholder="Ex.: Joinville, Santo Antônio" autocomplete="address-level2">
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="pref-convenio">Convênio</label>
+            <select class="form-input" id="pref-convenio" name="convenio">
+              <option value="">Selecione…</option>
+              <option value="Unimed">Unimed</option>
+              <option value="América">América</option>
+              <option value="SulAmérica">SulAmérica</option>
+              <option value="Bradesco">Bradesco</option>
+              <option value="Cassi">Cassi</option>
+              <option value="Hapvida">Hapvida</option>
+              <option value="Notre Dame">Notre Dame</option>
+              <option value="Outro">Outro</option>
+              <option value="Particular">Particular</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="pref-atendimento">Tipo de atendimento</label>
+            <select class="form-input" id="pref-atendimento" name="atendimento">
+              <option value="">Selecione…</option>
+              <option value="Presencial">Presencial</option>
+              <option value="Teleconsulta">Teleconsulta</option>
+              <option value="Ambos">Ambos</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="pref-idioma">Idioma</label>
+            <select class="form-input" id="pref-idioma" name="idioma">
+              <option value="Português">Português</option>
+              <option value="Inglês">Inglês</option>
+              <option value="Espanhol">Espanhol</option>
+            </select>
+          </div>
+
+          <div class="form-field form-field-checkbox">
+            <label class="checkbox-label" for="pref-acessibilidade">
+              <input type="checkbox" id="pref-acessibilidade" name="acessibilidade">
+              <span>Tenho necessidades de acessibilidade</span>
+            </label>
+          </div>
+
+          <button class="button-primary" type="submit">Salvar preferências</button>
+        </form>
+      </section>
+
+      <!-- 2. Interests (read-only display + consent toggle) -->
+      <section class="conta-section mdr-section" aria-labelledby="interests-title">
+        <h2 id="interests-title">Interesses derivados</h2>
+        <p class="conta-help">
+          Listamos especialidades agregadas a partir do seu histórico de busca. Não armazenamos os termos pesquisados — apenas contagens por especialidade.
+        </p>
+        <ul class="interests-list" id="interests-list" aria-live="polite">
+          <li class="interests-empty" id="interests-empty">Nenhum interesse derivado ainda. Busque por especialidades para que apareçam aqui.</li>
+        </ul>
+
+        <div class="form-field form-field-checkbox">
+          <label class="checkbox-label" for="consent-interests">
+            <input type="checkbox" id="consent-interests">
+            <span>Permitir que o Medário use meus interesses para melhorar buscas</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 3. Privacy / danger zone -->
+      <section class="conta-section mdr-section" aria-labelledby="privacy-title">
+        <h2 id="privacy-title">Privacidade</h2>
+
+        <div class="privacy-actions">
+          <button class="button-secondary" type="button" id="btn-revoke-consent">Revogar consentimento</button>
+          <button class="button-primary" type="button" id="btn-signout">Sair</button>
+        </div>
+
+        <div class="danger-zone">
+          <h3>Excluir minha conta</h3>
+          <p>Esta ação é irreversível. Todos os seus dados — preferências, interesses e histórico derivado — serão removidos permanentemente, conforme a LGPD (Art. 18).</p>
+          <button class="button-danger" type="button" id="btn-delete-account">Excluir minha conta</button>
+        </div>
+      </section>
+
+      <aside class="mdr-disclaimer mdr-section" aria-label="Aviso">
+        <p>Seus dados ficam isolados por conta. O Medário não compartilha seus dados com terceiros nem vende dados de busca sensíveis. Leia nossa <a href="privacidade.html">Política de Privacidade</a>.</p>
+      </aside>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-institutional">
+        <p class="footer-line">
+          <span class="footer-kicker">Busca médica clara, local e verificável.</span>
+          <a href="index.html#busca">Encontrar médico</a>
+          <a href="sou-medico.html">Para médicos</a>
+          <a href="medario-pro.html">Medário Pro</a>
+          <a href="mailto:contato@medario.com.br">Contato</a>
+          <a href="privacidade.html">Privacidade</a>
+          <a href="termos.html">Termos de uso</a>
+          <span class="footer-legal">Medário · Joinville, SC</span>
+        </p>
+      </div>
+    </footer>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <!-- Delete-account confirmation dialog -->
+    <div class="modal-overlay" id="delete-modal" hidden>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+        <button class="modal-close" type="button" aria-label="Fechar" data-close-modal>✕</button>
+        <h3 class="modal-title" id="delete-modal-title">Confirmar exclusão da conta</h3>
+        <p>Tem certeza? Esta ação é <strong>irreversível</strong> e removerá todos os seus dados do Medário.</p>
+        <div class="modal-actions">
+          <button class="button-secondary" type="button" data-close-modal>Cancelar</button>
+          <button class="button-danger" type="button" id="btn-confirm-delete">Sim, excluir minha conta</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+    /* ===================================================================
+       conta.html — inline account logic (Firebase compat SDK)
+       Uses global `firebase`, `db`, `auth` initialized in <head>.
+       =================================================================== */
+    (function () {
+      "use strict";
+
+      const db = window.db;
+      const auth = window.auth;
+      if (!db || !auth) {
+        console.error("Firebase não inicializado.");
+        return;
+      }
+
+      /* ---- Toast ---- */
+      const toastEl = document.getElementById("toast");
+      let toastTimer = null;
+      function toast(msg, type) {
+        if (!toastEl) return;
+        toastEl.textContent = msg;
+        toastEl.classList.toggle("is-error", type === "error");
+        toastEl.hidden = false;
+        // Defer class toggle so the transition runs after display
+        requestAnimationFrame(() => toastEl.classList.add("is-visible"));
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toastEl.classList.remove("is-visible");
+          setTimeout(() => { toastEl.hidden = true; }, 300);
+        }, 3000);
+      }
+
+      /* ---- Nav user menu ---- */
+      const navUser = document.getElementById("nav-user");
+      const navAvatar = document.getElementById("nav-user-avatar");
+      const navDropdown = document.getElementById("nav-user-dropdown");
+      const navSignout = document.getElementById("nav-user-signout");
+      const navCta = document.querySelector(".nav-cta");
+
+      function openDropdown() {
+        navDropdown.hidden = false;
+        navAvatar.setAttribute("aria-expanded", "true");
+      }
+      function closeDropdown() {
+        navDropdown.hidden = true;
+        navAvatar.setAttribute("aria-expanded", "false");
+      }
+      navAvatar?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (navDropdown.hidden) openDropdown(); else closeDropdown();
+      });
+      document.addEventListener("click", (e) => {
+        if (!navUser.contains(e.target)) closeDropdown();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeDropdown();
+      });
+
+      /* ---- Form elements ---- */
+      const emailLabel = document.getElementById("conta-email-label");
+      const prefsForm = document.getElementById("prefs-form");
+      const prefCidade = document.getElementById("pref-cidade");
+      const prefConvenio = document.getElementById("pref-convenio");
+      const prefAtendimento = document.getElementById("pref-atendimento");
+      const prefIdioma = document.getElementById("pref-idioma");
+      const prefAcessibilidade = document.getElementById("pref-acessibilidade");
+      const consentInterests = document.getElementById("consent-interests");
+      const interestsList = document.getElementById("interests-list");
+      const interestsEmpty = document.getElementById("interests-empty");
+      const btnRevoke = document.getElementById("btn-revoke-consent");
+      const btnSignout = document.getElementById("btn-signout");
+      const btnDelete = document.getElementById("btn-delete-account");
+      const deleteModal = document.getElementById("delete-modal");
+      const btnConfirmDelete = document.getElementById("btn-confirm-delete");
+
+      let currentUid = null;
+      let userDocRef = null;
+      let interestsUnsub = null;
+
+      /* ---- Modal helpers ---- */
+      function openModal() { deleteModal.hidden = false; }
+      function closeModal() { deleteModal.hidden = true; }
+      deleteModal.querySelectorAll("[data-close-modal]").forEach((b) =>
+        b.addEventListener("click", closeModal)
+      );
+      deleteModal.addEventListener("click", (e) => {
+        if (e.target === deleteModal) closeModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !deleteModal.hidden) closeModal();
+      });
+
+      /* ---- Render interests ---- */
+      function renderInterests(docs) {
+        interestsList.innerHTML = "";
+        if (!docs.length) {
+          interestsList.appendChild(interestsEmpty);
+          return;
+        }
+        docs.forEach((doc) => {
+          const d = doc.data();
+          const li = document.createElement("li");
+          li.className = "interest-pill";
+          const label = document.createElement("span");
+          label.className = "interest-pill-label";
+          label.textContent = (d.specialty || doc.id).replace(/_/g, " ");
+          const count = document.createElement("span");
+          count.className = "interest-pill-count";
+          count.textContent = String(d.count || 0) + " buscas";
+          const when = document.createElement("span");
+          when.className = "interest-pill-date";
+          const ts = d.last_searched?.toDate ? d.last_searched.toDate() : null;
+          when.textContent = ts ? "última: " + ts.toLocaleDateString("pt-BR") : "";
+          li.append(label, count, when);
+          interestsList.appendChild(li);
+        });
+      }
+
+      /* ---- Load user data ---- */
+      function loadUser(user) {
+        currentUid = user.uid;
+        userDocRef = db.collection("users").doc(user.uid);
+
+        // Header nav user
+        const initial = (user.email || "?").charAt(0).toUpperCase();
+        const avatarSpan = navAvatar.querySelector(".user-avatar-initial");
+        if (avatarSpan) avatarSpan.textContent = initial;
+        navUser.hidden = false;
+        if (navCta) navCta.hidden = true;
+        emailLabel.textContent = user.email || "Conta";
+
+        // Read preferences
+        userDocRef.get().then((snap) => {
+          if (!snap.exists) return;
+          const d = snap.data() || {};
+          if (d.cidade) prefCidade.value = d.cidade;
+          if (d.convenio) prefConvenio.value = d.convenio;
+          if (d.atendimento) prefAtendimento.value = d.atendimento;
+          if (d.idioma) prefIdioma.value = d.idioma;
+          prefAcessibilidade.checked = !!d.acessibilidade;
+          consentInterests.checked = !!d.consent_preferences;
+        }).catch((err) => {
+          console.error("Erro ao carregar preferências:", err);
+          toast("Não foi possível carregar suas preferências.", "error");
+        });
+
+        // Subscribe to interests (live)
+        if (interestsUnsub) interestsUnsub();
+        interestsUnsub = userDocRef.collection("interests")
+          .orderBy("count", "desc")
+          .onSnapshot((snap) => {
+            renderInterests(snap.docs);
+          }, (err) => {
+            console.error("Erro ao carregar interesses:", err);
+          });
+      }
+
+      /* ---- Auth state ---- */
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          loadUser(user);
+        } else {
+          // Not logged in — redirect to home (no account to show)
+          currentUid = null;
+          navUser.hidden = true;
+          if (navCta) navCta.hidden = false;
+          if (location.pathname.endsWith("conta.html")) {
+            window.location.href = "index.html";
+          }
+        }
+      });
+
+      /* ---- Save preferences ---- */
+      prefsForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (!userDocRef) return;
+        const data = {
+          cidade: prefCidade.value.trim(),
+          convenio: prefConvenio.value,
+          atendimento: prefAtendimento.value,
+          idioma: prefIdioma.value,
+          acessibilidade: prefAcessibilidade.checked,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        };
+        userDocRef.set(data, { merge: true })
+          .then(() => toast("Preferências salvas."))
+          .catch((err) => {
+            console.error(err);
+            toast("Erro ao salvar preferências.", "error");
+          });
+      });
+
+      /* ---- Consent toggle (interests) ---- */
+      consentInterests.addEventListener("change", () => {
+        if (!userDocRef) return;
+        userDocRef.set({
+          consent_preferences: consentInterests.checked,
+          consent_at: firebase.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true })
+          .then(() => toast(consentInterests.checked ? "Consentimento ativado." : "Consentimento desativado."))
+          .catch((err) => {
+            console.error(err);
+            consentInterests.checked = !consentInterests.checked; // revert
+            toast("Erro ao atualizar consentimento.", "error");
+          });
+      });
+
+      /* ---- Revoke consent ---- */
+      btnRevoke.addEventListener("click", () => {
+        if (!userDocRef) return;
+        userDocRef.set({
+          consent_preferences: false,
+          consent_at: firebase.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true })
+          .then(() => {
+            consentInterests.checked = false;
+            toast("Consentimento revogado.");
+          })
+          .catch((err) => {
+            console.error(err);
+            toast("Erro ao revogar consentimento.", "error");
+          });
+      });
+
+      /* ---- Sign out ---- */
+      function signOutAndRedirect() {
+        auth.signOut().then(() => {
+          window.location.href = "index.html";
+        }).catch((err) => {
+          console.error(err);
+          toast("Erro ao sair.", "error");
+        });
+      }
+      btnSignout.addEventListener("click", signOutAndRedirect);
+      navSignout.addEventListener("click", signOutAndRedirect);
+
+      /* ---- Delete account (danger zone) ---- */
+      btnDelete.addEventListener("click", openModal);
+      btnConfirmDelete.addEventListener("click", () => {
+        const user = auth.currentUser;
+        if (!user) return;
+        // 1. Delete interests subcollection docs (client side; onUserDelete
+        //    Cloud Function also cleans up, but we do it here for safety).
+        const userRef = db.collection("users").doc(user.uid);
+        userRef.collection("interests").get().then((snap) => {
+          const batch = db.batch();
+          snap.forEach((d) => batch.delete(d.ref));
+          return batch.commit();
+        }).then(() => {
+          // 2. Delete the user document
+          return userRef.delete();
+        }).then(() => {
+          // 3. Delete the Auth user
+          return user.delete();
+        }).then(() => {
+          // 4. Sign out & redirect
+          return auth.signOut();
+        }).then(() => {
+          window.location.href = "index.html";
+        }).catch((err) => {
+          console.error("Erro ao excluir conta:", err);
+          closeModal();
+          toast("Erro ao excluir conta. Tente novamente.", "error");
+        });
+      });
+    })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Public directory: doctors ──────────────────────────────
+    // Anyone can read the doctor directory (no auth required).
+    // Writes are disabled — managed by admin / Cloud Functions only.
+    match /doctors/{doctorId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ─── Public directory: specialties ──────────────────────────
+    // Anyone can read the list of medical specialties.
+    match /specialties/{specialtyId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ─── User data — only the owner can access ──────────────────
+    // A signed-in user may read and write only their own document.
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Interests subcollection — same ownership rule.
+      match /interests/{interestId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Search events are written by the app and consumed/deleted by
+      // Cloud Functions. Only the owner may read them.
+      match /search_events/{eventId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null && request.auth.uid == userId;
+        allow update, delete: if false; // only Cloud Functions delete these
+      }
+    }
+  }
+}

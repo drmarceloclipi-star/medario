@@ -34,6 +34,23 @@ Metáfora de layout para a página de perfil do médico (`/medicos/[slug]`). Dev
 ### Diagnóstico de presença digital
 Serviço gratuito do Medário Pro que avalia a presença online de um médico ou clínica (SEO local, Google Business Profile, etc.) antes da contratação de um plano pago. Página dedicada (`/diagnostico-presenca-digital`) é deliverável de Stage 5.
 
+## Termos do cadastro de usuário
+
+### Bifurcação de usuário
+Ponto de entrada onde o usuário se identifica como paciente ou médico ao clicar em "Começar". A partir daí, o fluxo se ramifica: paciente segue para cadastro com preferências; médico segue para o fluxo de aquisição (`/sou-medico`).
+
+### Preferência operacional
+Dado logístico não-sensível que o usuário fornece para refinar buscas: cidade/bairro, convênio, tipo de atendimento (presencial/teleconsulta), idioma, acessibilidade. Não é dado de saúde — já existe no fluxo de busca pública sem conta.
+
+### Interesse derivado
+Especialidade de interesse agregada do histórico de busca do usuário, sem armazenar os termos brutos pesquisados. Ex: três buscas por "dermatologista" geram o interesse `dermatologia` com contagem 3. É o resultado do processamento, não o insumo — princípio da minimização de dados.
+
+### Perfil de afinidade
+Score pré-computado por especialidade (ex: `dermatologia: 0.8, pediatria: 0.3`) gerado por Cloud Function a partir dos interesses derivados. Gravado no documento do usuário no Firestore. Usado pelo cliente para re-ranking leve dos resultados de busca — médicos cuja especialidade tem alta afinidade sobem nos resultados.
+
+### Consentimento em duas camadas
+Modelo de consentimento LGPD onde o cadastro básico (email/senha) não coleta dados sensíveis. O consentimento para processamento de interesses de saúde acontece no contexto da primeira busca, com pergunta contextual e ação afirmativa do usuário. Pode ser revogado a qualquer momento nas configurações.
+
 ## Conceitos que o glossário evita
 
 - **Avaliações de pacientes** — o MVP não inclui reviews, estrelas ou rankings de qualidade médica.

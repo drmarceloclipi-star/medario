@@ -2257,3 +2257,708 @@ h1 {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   New components: user menu, modal, consent banner, toast
+   ============================================================ */
+
+/* ---------- User avatar / dropdown ---------- */
+.nav-user {
+  position: relative;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.user-avatar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(180deg, oklch(36% 0.074 257.3), var(--navy));
+  color: var(--paper);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+}
+
+.user-avatar-btn:active {
+  transform: scale(0.96);
+}
+
+.user-avatar-initial {
+  line-height: 1;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  padding: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-soft);
+  z-index: 20;
+}
+
+.user-dropdown a,
+.user-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--text-strong);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 520;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+
+.user-dropdown a:hover,
+.user-dropdown button:hover {
+  background: var(--aqua-soft);
+  color: var(--blue);
+}
+
+/* ---------- Modal overlay ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-page);
+  background: oklch(32.8% 0.068 257.3 / 0.45);
+  backdrop-filter: blur(6px);
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal-card {
+  position: relative;
+  width: min(440px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 30px 80px oklch(32.8% 0.068 257.3 / 0.22);
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+
+.modal-close:hover {
+  background: var(--aqua-soft);
+  color: var(--text-strong);
+}
+
+.modal-step[hidden] {
+  display: none;
+}
+
+.modal-title {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 650;
+  color: var(--text-strong);
+}
+
+/* ---------- Bifurcation choices ---------- */
+.modal-bifurcation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.modal-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-warm);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 160ms var(--ease-out), border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+}
+
+.modal-choice strong {
+  font-family: var(--font-ui);
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: var(--text-strong);
+}
+
+.modal-choice span {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.modal-choice:hover {
+  transform: translateY(-2px);
+  border-color: oklch(56% 0.078 238 / 0.34);
+  box-shadow: 0 12px 28px oklch(32.8% 0.068 257.3 / 0.1);
+}
+
+/* ---------- Auth form fields ---------- */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.field-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-default);
+}
+
+.field-row input,
+.field-row select {
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-strong);
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+}
+
+.field-row input:focus,
+.field-row select:focus {
+  outline: 0;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+.field-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.field-check input {
+  width: 18px;
+  height: 18px;
+}
+
+.modal-submit {
+  margin-top: 0.4rem;
+  width: 100%;
+}
+
+.modal-message {
+  margin: 0 0 0.8rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius-sm);
+  background: var(--success-soft);
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
+  font-size: 0.85rem;
+  font-weight: 580;
+}
+
+.modal-message[data-error="true"] {
+  background: oklch(61.2% 0.208 22.2 / 0.1);
+  border-color: oklch(61.2% 0.208 22.2 / 0.3);
+  color: oklch(45% 0.18 22.2);
+}
+
+.modal-switch {
+  margin: 1.1rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.modal-switch a {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+/* ---------- Consent banner ---------- */
+.consent-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem auto 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-blue);
+  width: min(var(--max), calc(100% - var(--space-page) * 2));
+}
+
+.consent-banner[hidden] {
+  display: none;
+}
+
+.consent-banner p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-default);
+}
+
+.consent-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.consent-accept,
+.consent-decline {
+  min-height: 38px;
+  padding: 0 1rem;
+  border: 1px solid var(--rule-soft);
+  border-radius: 0.8rem;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms var(--ease-out), color 160ms var(--ease-out), border-color 160ms var(--ease-out);
+}
+
+.consent-accept {
+  background: linear-gradient(180deg, oklch(36% 0.074 257.3), var(--navy));
+  color: var(--paper);
+  border-color: transparent;
+}
+
+.consent-accept:hover {
+  transform: translateY(-1px);
+}
+
+.consent-decline {
+  background: var(--surface);
+  color: var(--text-default);
+}
+
+.consent-decline:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 200;
+  padding: 0.9rem 1.4rem;
+  border-radius: var(--radius-md);
+  background: var(--navy);
+  color: var(--paper);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 520;
+  box-shadow: 0 18px 40px oklch(32.8% 0.068 257.3 / 0.25);
+  opacity: 0;
+  transition: transform 280ms var(--ease-out), opacity 280ms var(--ease-out);
+}
+
+.toast[hidden] {
+  display: none;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.is-error {
+  background: var(--red);
+  color: var(--paper);
+}
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 760px) {
+  .consent-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .consent-actions {
+    flex-direction: column;
+  }
+
+  .consent-accept,
+  .consent-decline {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   Account page (conta.html) — preferences form, interests, danger zone
+   ============================================================ */
+
+.conta-hero {
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  padding-bottom: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.conta-hero h1 {
+  margin-bottom: 0.4rem;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+
+.conta-subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.conta-section {
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.conta-section h2 {
+  margin-bottom: 1rem;
+  font-size: clamp(1.3rem, 2.5vw, 1.6rem);
+}
+
+.conta-help {
+  max-width: 60ch;
+  margin-bottom: 1rem;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+/* Preferences form fields (full-width, stacked) */
+.conta-form {
+  display: grid;
+  gap: 1.1rem;
+  max-width: 520px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-field-checkbox {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-default);
+  letter-spacing: 0.01em;
+}
+
+.form-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--rule-soft);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--text-strong);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+}
+
+.form-input:focus {
+  outline: 0;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+select.form-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  background-size: 1.1rem;
+  padding-right: 2.6rem;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--text-default);
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--navy);
+}
+
+.conta-form .button-primary {
+  margin-top: 0.4rem;
+  min-height: 48px;
+}
+
+/* Interests list — pills like clinical-focus-list */
+.interests-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 1.2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.interests-empty {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.interest-pill {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.6rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  background: var(--aqua-soft);
+  color: var(--navy);
+  font-size: 0.82rem;
+}
+
+.interest-pill-label {
+  font-weight: 650;
+  text-transform: capitalize;
+}
+
+.interest-pill-count {
+  font-size: 0.74rem;
+  font-weight: 580;
+  color: var(--blue);
+}
+
+.interest-pill-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* Privacy action buttons */
+.privacy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Danger zone — red-bordered box */
+.danger-zone {
+  margin-top: 1.5rem;
+  padding: 1.4rem;
+  border: 2px solid var(--red);
+  border-radius: var(--radius-md);
+  background: oklch(61.2% 0.208 22.2 / 0.06);
+}
+
+.danger-zone h3 {
+  margin: 0 0 0.5rem;
+  color: var(--red);
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.danger-zone p {
+  margin: 0 0 1rem;
+  max-width: 60ch;
+  color: var(--text-default);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+/* Danger button — red, used for account deletion */
+.button-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 1.2rem;
+  border: 0;
+  border-radius: 0.8rem;
+  background: var(--red);
+  color: var(--paper);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+}
+
+.button-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px oklch(61.2% 0.208 22.2 / 0.28);
+}
+
+.button-danger:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* Modal actions row inside confirmation dialog */
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+}
+
+.modal-actions .button-danger {
+  flex: 1 1 auto;
+}
+
+/* ============================================================
+   Legal pages (privacidade.html, termos.html)
+   ============================================================ */
+
+.legal-article {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.legal-header {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.legal-header h1 {
+  margin-bottom: 0.3rem;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+}
+
+.legal-subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+/* Aviso box — styled like medical-notice / mdr-disclaimer */
+.legal-aviso {
+  margin-bottom: 2rem;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid oklch(85.4% 0.052 199.3 / 0.4);
+  border-radius: var(--radius-md);
+  background: var(--aqua-soft);
+}
+
+.legal-aviso p {
+  margin: 0;
+  color: var(--text-default);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+.legal-aviso strong {
+  color: var(--navy);
+  letter-spacing: 0.03em;
+}
+
+.legal-section {
+  margin-top: 1.5rem;
+}
+
+.legal-section:first-of-type {
+  margin-top: 0;
+}
+
+.legal-section h2 {
+  margin-bottom: 0.6rem;
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+}
+
+.legal-section h3 {
+  margin: 1rem 0 0.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.legal-section p {
+  margin-bottom: 0.7rem;
+  color: var(--text-default);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.legal-section a {
+  color: var(--blue);
+  font-weight: 580;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.legal-section a:hover {
+  color: var(--navy);
+}
+
+/* ============================================================
+   Responsive — account page
+   ============================================================ */
+
+@media (max-width: 760px) {
+  .conta-form {
+    max-width: 100%;
+  }
+
+  .interest-pill {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions .button-danger {
+    width: 100%;
+  }
+}
