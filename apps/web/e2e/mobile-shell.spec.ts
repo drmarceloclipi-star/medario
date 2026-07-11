@@ -97,6 +97,20 @@ test.describe("mobile shell", () => {
     await expect(page.getByRole("heading", { name: "Dra. Marina Alves" })).toBeVisible();
   });
 
+  test("lets a visitor save a search and favorite locally without an account", async ({ page }) => {
+    await openShell(page);
+    await page.getByLabel("Descreva o que você precisa").fill("Psiquiatra em Joinville");
+    await page.getByRole("button", { name: "Buscar" }).click();
+    await page.getByRole("button", { name: "Salvar busca" }).click();
+    await expect(page.getByText("Busca salva neste dispositivo.")).toBeVisible();
+    const savedSearches = page.getByRole("complementary", { name: "Buscas salvas neste dispositivo" });
+    await expect(savedSearches).toContainText("psiquiatria");
+    await savedSearches.getByRole("button", { name: "Remover busca salva" }).click();
+    await expect(savedSearches).toBeHidden();
+    await page.getByRole("button", { name: "Favoritar" }).first().click();
+    await expect(page.getByRole("button", { name: "Remover favorito" }).first()).toBeVisible();
+  });
+
   test("compares at most three doctors using explicit criteria and lets the user remove one", async ({ page }) => {
     await openShell(page);
     await page.getByLabel("Descreva o que você precisa").fill("Psiquiatra em Joinville");

@@ -8,6 +8,7 @@ import { type DirectoryDoctor, type ResultSort, resultPage, searchDirectory } fr
 import { MapResults } from './map-results';
 import { canAddToComparison } from './comparison';
 import { ComparisonPanel } from './comparison-panel';
+import { createSavedItemsStore } from './saved-items';
 
 const availabilityCopy = {
   confirmed_slot: 'Vaga confirmada',
@@ -19,7 +20,7 @@ function dateLabel(value: string) {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(value)).replace('.', '');
 }
 
-function DoctorResultCard({ doctor, sponsored = false, selected = false, onSelect, comparing = false, onCompare }: { doctor: DirectoryDoctor; sponsored?: boolean; selected?: boolean; onSelect?: () => void; comparing?: boolean; onCompare?: () => void }) {
+function DoctorResultCard({ doctor, sponsored = false, selected = false, onSelect, comparing = false, onCompare, favorite = false, onFavorite }: { doctor: DirectoryDoctor; sponsored?: boolean; selected?: boolean; onSelect?: () => void; comparing?: boolean; onCompare?: () => void; favorite?: boolean; onFavorite?: () => void }) {
   const mainLocation = doctor.locations[0];
   return (
     <article className={`result-card ${selected ? 'selected' : ''}`} onClick={onSelect}>
@@ -34,7 +35,7 @@ function DoctorResultCard({ doctor, sponsored = false, selected = false, onSelec
         <div><dt>Disponibilidade</dt><dd>{availabilityCopy[doctor.availabilityState]}{doctor.availability?.nextAvailableAt ? ` · ${dateLabel(doctor.availability.nextAvailableAt)}` : ''}</dd></div>
         <div><dt>Convênios</dt><dd>{doctor.insuranceDetails.map((insurance) => `${insurance.name} · ${insurance.status === 'confirmed' ? 'Convênio confirmado' : 'Convênio informado: confirme antes'}`).join(' · ')}</dd></div>
       </dl>
-      <footer><span>Dado atualizado em {dateLabel(doctor.updatedAt)}</span>{onCompare && <button type="button" onClick={(event) => { event.stopPropagation(); onCompare(); }}>{comparing ? 'Remover comparação' : 'Comparar'}</button>}<a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${mainLocation?.district ?? ''} ${mainLocation?.city ?? ''}`)}`} target="_blank" rel="noreferrer">Rota no Google Maps</a><a href={`/medicos/${doctor.slug}`}>Ver perfil</a></footer>
+      <footer><span>Dado atualizado em {dateLabel(doctor.updatedAt)}</span>{onFavorite && <button type="button" onClick={(event) => { event.stopPropagation(); onFavorite(); }}>{favorite ? 'Remover favorito' : 'Favoritar'}</button>}{onCompare && <button type="button" onClick={(event) => { event.stopPropagation(); onCompare(); }}>{comparing ? 'Remover comparação' : 'Comparar'}</button>}<a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${mainLocation?.district ?? ''} ${mainLocation?.city ?? ''}`)}`} target="_blank" rel="noreferrer">Rota no Google Maps</a><a href={`/medicos/${doctor.slug}`}>Ver perfil</a></footer>
     </article>
   );
 }
@@ -45,6 +46,10 @@ export function ResultList({ search }: { search: DerivedSearch }) {
   const [locationStatus, setLocationStatus] = useState<'unknown' | 'loading' | 'available' | 'unavailable'>('unknown');
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
+  const [savedItems] = useState(() => typeof window === 'undefined' ? null : createSavedItemsStore(window.localStorage));
+  const [favoriteIds, setFavoriteIds] = useState(() => savedItems?.favorites().map((item) => item.doctorId) ?? []);
+  const [savedSearches, setSavedSearches] = useState(() => savedItems?.savedSearches() ?? []);
+  const [savedSearchMessage, setSavedSearchMessage] = useState('');
   const hasPatientLocation = locationStatus === 'available';
   const results = useMemo(() => searchDirectory(search, sort, hasPatientLocation), [search, sort, hasPatientLocation]);
   const page = resultPage(results.organic, cursor);
@@ -71,11 +76,13 @@ export function ResultList({ search }: { search: DerivedSearch }) {
         <label>Ordenar resultados<select aria-label="Ordenar resultados" value={sort} onChange={(event) => { setSort(event.target.value as ResultSort); setCursor(0); }}><option value="relevance">Relevância</option><option value="distance">Distância</option><option value="availability">Disponibilidade</option><option value="updated">Atualização</option></select></label>
       </div>
       <p className="order-explainer"><strong>Ordem orgânica.</strong> Considera filtros exatos, distância quando autorizada, disponibilidade e atualização. Não indica qualidade médica.</p>
+      <div className="visitor-save"><div><strong>Salvar esta busca</strong><p>Favoritos e buscas ficam neste dispositivo. Criar conta é opcional para futura sincronização.</p></div><Button variant="secondary" type="button" onClick={() => { savedItems?.saveSearch({ criteria: search.filters }); setSavedSearches(savedItems?.savedSearches() ?? []); setSavedSearchMessage('Busca salva neste dispositivo.'); }}>Salvar busca</Button>{savedSearchMessage && <span role="status">{savedSearchMessage}</span>}</div>
+      {savedSearches.length > 0 && <aside className="visitor-save saved-searches" aria-label="Buscas salvas neste dispositivo"><div><strong>Buscas salvas neste dispositivo</strong><p>Guardamos somente filtros objetivos.</p></div>{savedSearches.map((savedSearch) => <div className="saved-search-row" key={savedSearch.id}><span>{Object.values(savedSearch.criteria).filter(Boolean).join(' · ') || 'Filtros da busca'}</span><button type="button" onClick={() => { savedItems?.removeSearch(savedSearch.id); setSavedSearches(savedItems?.savedSearches() ?? []); }}>Remover busca salva</button></div>)}</aside>}
       {!hasPatientLocation && <div className="location-prompt"><div><strong>Quer ver distância?</strong><p>Sua localização é usada só nesta busca.</p></div><Button variant="secondary" type="button" loading={locationStatus === 'loading'} onClick={requestLocation}>Usar localização</Button></div>}
       {locationStatus === 'unavailable' && <p className="location-feedback" role="status">Localização não autorizada. Resultados continuam sem quilometragem.</p>}
       <ComparisonPanel doctors={results.organic.filter((doctor) => comparisonIds.includes(doctor.id))} onRemove={(id) => setComparisonIds((current) => current.filter((item) => item !== id))} />
       <MapResults doctors={results.organic} selectedDoctorId={selectedDoctorId} onSelect={setSelectedDoctorId} />
-      <div className="organic-results">{visibleOrganic.map((doctor) => <DoctorResultCard doctor={doctor} selected={doctor.id === selectedDoctorId} onSelect={() => setSelectedDoctorId(doctor.id)} comparing={comparisonIds.includes(doctor.id)} onCompare={() => setComparisonIds((current) => current.includes(doctor.id) ? current.filter((item) => item !== doctor.id) : canAddToComparison(current, doctor.id) ? [...current, doctor.id] : current)} key={doctor.id} />)}</div>
+      <div className="organic-results">{visibleOrganic.map((doctor) => <DoctorResultCard doctor={doctor} selected={doctor.id === selectedDoctorId} onSelect={() => setSelectedDoctorId(doctor.id)} favorite={favoriteIds.includes(doctor.id)} onFavorite={() => setFavoriteIds((current) => { const next = current.includes(doctor.id) ? current.filter((id) => id !== doctor.id) : [...current, doctor.id]; if (current.includes(doctor.id)) savedItems?.unfavorite(doctor.id); else savedItems?.favorite(doctor.id); return next; })} comparing={comparisonIds.includes(doctor.id)} onCompare={() => setComparisonIds((current) => current.includes(doctor.id) ? current.filter((item) => item !== doctor.id) : canAddToComparison(current, doctor.id) ? [...current, doctor.id] : current)} key={doctor.id} />)}</div>
       {page.nextCursor !== null && <Button className="load-more" type="button" variant="secondary" onClick={() => setCursor(page.nextCursor!)}>Carregar mais resultados</Button>}
       {results.sponsored.length > 0 && <section className="sponsored-results" aria-labelledby="sponsored-title"><p className="section-label">Posicionamento pago</p><h2 id="sponsored-title">Patrocinados</h2>{results.sponsored.map((doctor) => <DoctorResultCard doctor={doctor} sponsored key={doctor.id} />)}</section>}
     </section>
