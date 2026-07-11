@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /apps/
+Disallow: /packages/
+Disallow: /functions/
+Disallow: /docs/
+Disallow: /node_modules/
+
+Sitemap: https://medario.com.br/sitemap.xml
