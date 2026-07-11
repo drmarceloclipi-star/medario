@@ -18,6 +18,7 @@ const { calendarIsFresh, canTransitionAppointment, createReservationDecision, sl
 const { defaultPreferences, notificationEnabled, notificationOutboxRecord, preferencesFrom } = require("./notification-policy");
 const { leadMetricsFrom, profileChangesFrom } = require("./professional-policy");
 const { savedSearchCriteriaFrom, savedSearchRecord } = require("./saved-items-policy");
+const { userSubcollectionsForDeletion } = require("./user-cleanup-policy");
 const { unmatchedSearchLogMessage } = require("./privacy");
 
 admin.initializeApp();
@@ -547,17 +548,11 @@ exports.onUserDelete = functionsV1.auth.user().onDelete(async (user) => {
 
   const userRef = db.collection("users").doc(uid);
 
-  // a. Delete interests subcollection
-  await deleteSubcollection(userRef, "interests");
+  for (const subcollection of userSubcollectionsForDeletion()) {
+    await deleteSubcollection(userRef, subcollection);
+  }
 
-  // b. Delete search_events subcollection
-  await deleteSubcollection(userRef, "search_events");
-
-  // c. Delete account-synchronized saved items
-  await deleteSubcollection(userRef, "favorites");
-  await deleteSubcollection(userRef, "savedSearches");
-
-  // d. Delete the user document itself
+  // Delete the user document after all owned subcollections.
   await userRef.delete();
 
   logger.info(`onUserDelete: full cleanup complete for user ${uid}`);
