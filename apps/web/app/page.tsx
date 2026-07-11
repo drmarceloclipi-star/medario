@@ -9,7 +9,8 @@ async function loadDirectory() {
   try {
     const page = await (await createPublicProfileReader()).list({ limit: 100 });
     return page.profiles.map(directoryDoctorFromPublicProfile);
-  } catch {
+  } catch (error) {
+    console.error('public directory load failed', error instanceof Error ? error.message : 'unknown error');
     return [];
   }
 }
