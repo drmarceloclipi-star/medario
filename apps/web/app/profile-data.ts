@@ -1,49 +1,52 @@
-export type PublicProfile = {
-  slug: string;
-  name: string;
-  specialty: string;
-  crm: string;
-  rqe: string;
-  bio: string;
-  verified: boolean;
-  claimed: boolean;
-  updatedAt: string;
-  pendingChange?: string;
-  location: { name: string; address: string; district: string; city: string; state: string; authorized: boolean };
-  insurances: Array<{ name: string; confirmed: boolean }>;
-  modalities: Array<"Presencial" | "Teleconsulta externa">;
-  availability: string;
-  contacts: { whatsApp: { verified: boolean; href: string }; phone: { verified: boolean; href: string } };
-};
+import type { DirectoryPage, PublicDirectoryReader, PublicProfile } from "@medario/domain";
 
-const profiles: PublicProfile[] = [{
-  slug: "dra-marina-alves",
-  name: "Dra. Marina Alves",
-  specialty: "Psiquiatria",
-  crm: "CRM-SC 12345",
+export type { PublicProfile } from "@medario/domain";
+
+const migratedMariana: PublicProfile = {
+  slug: "mariana-andrade",
+  name: "Dra. Mariana Andrade",
+  specialty: "Dermatologia",
+  crm: "CRM/SC 12345",
   rqe: "RQE 6789",
-  bio: "Psiquiatra com atendimento para adultos, presencial em Joinville e por teleconsulta externa. Informações clínicas são discutidas apenas na consulta.",
+  bio: "Dermatologista em Joinville com atendimento presencial e teleconsulta externa. Informações clínicas são discutidas apenas na consulta.",
   verified: true,
-  claimed: true,
-  updatedAt: "10 jul 2026",
-  pendingChange: "Alteração de horário em revisão. Exibindo o último dado confirmado.",
-  location: { name: "Clínica Centro", address: "Rua das Palmeiras, 245", district: "Centro", city: "Joinville", state: "SC", authorized: true },
-  insurances: [{ name: "Unimed", confirmed: true }, { name: "Particular", confirmed: true }],
+  claimed: false,
+  updatedAt: "2026-07-07T09:00:00-03:00",
+  location: { name: "Consultório Santo Antônio", address: "Rua das Palmeiras, 245", district: "Santo Antônio", city: "Joinville", state: "SC", authorized: true },
+  insurances: [{ name: "Unimed", confirmed: true }, { name: "América", confirmed: true }, { name: "SulAmérica", confirmed: true }],
   modalities: ["Presencial", "Teleconsulta externa"],
   availability: "Aceita novos pacientes",
-  contacts: { whatsApp: { verified: true, href: "https://wa.me/554733334444" }, phone: { verified: true, href: "tel:+554733334444" } },
-}];
+  contacts: { whatsApp: { verified: false, href: "#" }, phone: { verified: true, href: "tel:+554733334444" } },
+};
 
-const legacyAliases: Record<string, string> = { "marina-alves": "dra-marina-alves" };
+const legacyAliases: Record<string, string> = {
+  "dra-marina-alves": "mariana-andrade",
+  "marina-alves": "mariana-andrade",
+  "mariana-andrade.html": "mariana-andrade",
+};
+
+function fixtureReader(): PublicDirectoryReader {
+  return {
+    async getBySlug(slug) {
+      return resolvePublicProfileSlug(slug) === migratedMariana.slug ? migratedMariana : null;
+    },
+    async list(): Promise<DirectoryPage> {
+      return { profiles: [migratedMariana], hasMore: false };
+    },
+  };
+}
 
 export function resolvePublicProfileSlug(slug: string) {
   return legacyAliases[slug] ?? slug;
 }
 
-export function getPublicProfile(slug: string) {
-  return profiles.find((profile) => profile.slug === resolvePublicProfileSlug(slug));
+export async function createPublicProfileReader() {
+  if (process.env.MEDARIO_PUBLIC_PROFILE_SOURCE === "fixture") return fixtureReader();
+  const { createPublicDirectoryReader } = await import("@medario/firebase/server");
+  return createPublicDirectoryReader();
 }
 
-export function publicProfileSlugs() {
-  return profiles.map((profile) => profile.slug);
+export async function getPublicProfile(slug: string) {
+  const reader = await createPublicProfileReader();
+  return reader.getBySlug(resolvePublicProfileSlug(slug));
 }

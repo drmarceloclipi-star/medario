@@ -13,14 +13,29 @@ service cloud.firestore {
         get(/databases/$(database)/documents/professionalAccounts/$(request.auth.uid)).data.doctorId == doctorId;
     }
 
+    function userProfileFields() {
+      return ["email", "cidade", "convenio", "tipo_atendimento", "idioma", "acessibilidade", "consent_preferences", "consent_at", "created_at", "updated_at"];
+    }
+
+    function serverOwnedUserTimestamps() {
+      return (!request.resource.data.diff(resource.data).affectedKeys().hasAny(["updated_at"]) || (request.resource.data.updated_at is timestamp && request.resource.data.updated_at == request.time)) &&
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(["consent_at"]) || (request.resource.data.consent_at is timestamp && request.resource.data.consent_at == request.time));
+    }
+
     // ─── Public directory: doctors ──────────────────────────────
     // Anyone can read the doctor directory (no auth required).
     // Writes are disabled — managed by admin / Cloud Functions only.
     match /doctors/{doctorId} {
-      allow read: if true;
+      allow read: if false;
       allow write: if false;
       // Note: Admin SDK bypasses security rules. Admin writes use the
       // service account, not user SDK. This rule blocks user SDK writes only.
+    }
+
+    // Public projection only. Private doctor records stay server-only.
+    match /publicDoctors/{doctorId} {
+      allow read: if resource.data.published == true;
+      allow write: if false;
     }
 
     // ─── Public directory: specialties ──────────────────────────
@@ -33,12 +48,16 @@ service cloud.firestore {
     // ─── User data — only the owner can access ──────────────────
     // A signed-in user may read and write only their own document.
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId && request.resource.data.keys().hasOnly(userProfileFields()) && request.resource.data.email == request.auth.token.email && request.resource.data.created_at is timestamp && request.resource.data.created_at == request.time;
+      allow update: if request.auth != null && request.auth.uid == userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(userProfileFields()) && request.resource.data.email == request.auth.token.email && (!resource.data.keys().hasAll(["created_at"]) || request.resource.data.created_at == resource.data.created_at) && serverOwnedUserTimestamps();
+      allow delete: if request.auth != null && request.auth.uid == userId;
 
       // Interests subcollection — same ownership rule.
       match /interests/{interestId} {
         allow read: if request.auth != null && request.auth.uid == userId;
-        allow write: if request.auth != null && request.auth.uid == userId;
+        allow create, update: if false;
+        allow delete: if request.auth != null && request.auth.uid == userId;
       }
 
       // Search events are written by the app and consumed/deleted by

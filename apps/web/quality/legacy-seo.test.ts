@@ -33,4 +33,17 @@ describe('legacy public SEO contract', () => {
     expect(sitemap).not.toContain('joinville');
     expect(sitemap).not.toContain('conta');
   });
+
+  it('isolates the Firebase Hosting bundle and keeps App Hosting on the native adapter path', () => {
+    const firebase = JSON.parse(readRootFile('firebase.json')) as { hosting: { public?: string } };
+    const appHosting = readRootFile('apps/web/apphosting.yaml');
+    const legacyBuilder = readRootFile('scripts/build-legacy-hosting.mjs');
+
+    expect(firebase.hosting.public).toBe('.firebase/legacy-public');
+    expect(appHosting).not.toContain('buildCommand:');
+    expect(appHosting).not.toContain('runCommand:');
+    expect(appHosting).toContain('NEXT_PUBLIC_FIREBASE_PROJECT_ID');
+    expect(legacyBuilder).toContain('diagnostico-presenca-digital.html');
+    expect(legacyBuilder).toContain('reivindicar-perfil.html');
+  });
 });

@@ -67,12 +67,13 @@ test.describe("mobile shell", () => {
     await expect(page.getByRole("heading", { name: "Dr. Rafael Nunes" })).toBeVisible();
   });
 
-  test("shows a public verified profile without moving the legacy site", async ({ page }) => {
+  test("shows the migrated public profile without moving the legacy site", async ({ page }) => {
     await page.goto("/medicos/dra-marina-alves");
-    await expect(page.getByRole("heading", { name: "Dra. Marina Alves" })).toBeVisible();
-    await expect(page.getByText("Alteração em revisão")).toBeVisible();
-    await expect(page.getByRole("link", { name: "WhatsApp verificado" })).toHaveAttribute("href", /wa\.me/);
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://medario.com.br/medicos/dra-marina-alves");
+    await expect(page).toHaveURL(/\/medicos\/mariana-andrade$/);
+    await expect(page.getByRole("heading", { name: "Dra. Mariana Andrade" })).toBeVisible();
+    await expect(page.getByText("Dados atualizados em")).toBeVisible();
+    await expect(page.getByRole("link", { name: "WhatsApp verificado" })).toHaveCount(0);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://medario.com.br/medicos/mariana-andrade");
   });
 
   test("interrupts urgent symptom reports without creating a search URL", async ({ page }) => {

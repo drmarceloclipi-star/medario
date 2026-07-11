@@ -12,7 +12,7 @@ export default defineConfig({
   },
   webServer: {
     command:
-      "npm run build && cp -r .next/static .next/standalone/apps/web/.next/static && PORT=3100 HOSTNAME=127.0.0.1 node .next/standalone/apps/web/server.js",
+      "MEDARIO_PUBLIC_PROFILE_SOURCE=fixture npm run build && MEDARIO_PUBLIC_PROFILE_SOURCE=fixture PORT=3100 HOSTNAME=127.0.0.1 npm run start",
     url: "http://127.0.0.1:3100",
     reuseExistingServer: false,
   },

@@ -1,3 +1,15 @@
-scripts:
-  buildCommand: npm ci --workspaces=false && npm run build --workspaces=false && cp -r .next/static .next/standalone/apps/web/.next/static
-  runCommand: node .next/standalone/apps/web/server.js
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyCSs8I4hCFH1RiPVli2MriLXRugMz9xjgI
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: medario-doctor.firebaseapp.com
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: medario-doctor
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:702082375310:web:46be3b2b6dc2f66bdb73df
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: medario-doctor.firebasestorage.app
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "702082375310"
+  - variable: NEXT_PUBLIC_FIREBASE_FUNCTIONS_REGION
+    value: us-central1

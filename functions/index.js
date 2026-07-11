@@ -469,6 +469,19 @@ exports.onSearchEvent = functionsV1.firestore
     logger.info(`onSearchEvent: deleted search_event ${eventId} for user ${uid}`);
   });
 
+exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {
+  await db.collection("users").doc(user.uid).set({
+    email: user.email || null,
+    cidade: null,
+    convenio: null,
+    tipo_atendimento: null,
+    idioma: "Português",
+    acessibilidade: false,
+    consent_preferences: false,
+    created_at: new Date(),
+  }, { merge: true });
+});
+
 /* ==================================================================
  * 2. computeAffinity
  * ==================================================================

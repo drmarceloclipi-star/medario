@@ -242,7 +242,6 @@
           acessibilidade: !!acessibilidade,
           consent_preferences: false,
           consent_at: null,
-          affinity: {},
           created_at: firebase.firestore.FieldValue.serverTimestamp(),
         });
       } catch (firestoreErr) {

@@ -128,6 +128,7 @@ export async function loadFirebaseRuntime(): Promise<FirebaseRuntime> {
 }
 
 export type FirebaseBrowserClient = {
+  app: FirebaseApp;
   auth: Auth;
   functions: Functions;
   invoke: <Request, Response>(name: string, data: Request) => Promise<Response>;
@@ -148,6 +149,7 @@ export async function createFirebaseBrowserClient(options: FirebaseClientOptions
     const app = runtime.getApps().length ? runtime.getApp() : runtime.initializeApp(config);
     const functions = region ? runtime.getFunctions(app, region) : runtime.getFunctions(app);
     return {
+      app,
       auth: runtime.getAuth(app),
       functions,
       invoke: async <Request, Response>(name: string, data: Request) => (await runtime.httpsCallable<Request, Response>(functions, name)(data)).data,

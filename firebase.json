@@ -8,7 +8,10 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "public": ".",
+    "public": ".firebase/legacy-public",
+    "predeploy": [
+      "node scripts/build-legacy-hosting.mjs"
+    ],
     "cleanUrls": true,
     "trailingSlash": false,
     "headers": [

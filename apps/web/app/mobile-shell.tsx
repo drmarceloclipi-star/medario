@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import type { SearchHistoryEntry, SearchSource, SearchSuggestion } from '@medario/domain';
 import { Button, Chip, IconButton, Input } from '@medario/ui';
 
@@ -16,7 +17,13 @@ import { type SymptomGuidance, orientSymptomSearch, reviewedUrgencyProtocol } fr
 
 const historyStorageKey = 'medario.search-history';
 const healthConsentStorageKey = 'medario.health-search-consent';
-const navItems = ['Início', 'Buscar médicos', 'Favoritos', 'Agendamentos', 'Medário Pro'];
+const navItems = [
+  { label: 'Início', href: '/' },
+  { label: 'Buscar médicos', href: '/#buscar' },
+  { label: 'Favoritos', href: '/conta#favoritos' },
+  { label: 'Agendamentos', href: '/conta#agendamentos' },
+  { label: 'Medário Pro', href: '/medario-pro' },
+];
 const quickPrompts = [
   { label: 'Perto de mim', query: 'Psiquiatra perto de mim' },
   { label: 'Meu convênio', query: 'Médico que atende meu convênio' },
@@ -209,7 +216,7 @@ export function MobileShell() {
       <header className="mobile-topbar">
         <IconButton label="Abrir menu" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)}>☰</IconButton>
         {submittedSearch ? <img className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" /> : <span aria-hidden="true" />}
-        <button className="avatar-button" type="button" aria-label="Abrir conta">MC</button>
+        <Link className="avatar-button" href="/conta" aria-label="Abrir conta">MC</Link>
       </header>
 
       <section className="mobile-content" aria-labelledby="home-title">
@@ -268,7 +275,7 @@ export function MobileShell() {
 
       {pendingSearch && <div className="overlay" role="presentation"><section className="consent-dialog" role="dialog" aria-modal="true" aria-label="Dados de saúde nesta busca"><p className="section-label">Consentimento em duas camadas</p><h2>Usar este relato para orientar a busca?</h2><p>Com sua permissão, este termo pode entrar no seu histórico por até 90 dias. Sem permissão, mantemos apenas filtros objetivos e não salvamos o relato.</p><div className="consent-actions"><Button variant="secondary" type="button" onClick={() => { commitSearch(pendingSearch.query, pendingSearch.source, false); setPendingSearch(null); }}>Continuar sem consentimento</Button><Button type="button" onClick={() => { window.localStorage.setItem(healthConsentStorageKey, 'granted'); setHealthConsent(true); commitSearch(pendingSearch.query, pendingSearch.source, true); setPendingSearch(null); }}>Permitir e continuar</Button></div></section></div>}
 
-      {drawerOpen && <div className="overlay" role="presentation" onMouseDown={() => setDrawerOpen(false)}><aside className="side-drawer" role="dialog" aria-modal="true" aria-label="Menu principal" tabIndex={-1} ref={drawerRef} onMouseDown={(event) => event.stopPropagation()}><div className="drawer-header"><img className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" /><IconButton label="Fechar menu" onClick={() => setDrawerOpen(false)}>×</IconButton></div><nav>{navItems.map((item, index) => <a className={index === 0 ? 'active' : ''} href="#" key={item}>{item}</a>)}</nav><div className="drawer-footer"><strong>Encontre o cuidado certo.</strong><span>Joinville · Santa Catarina</span></div></aside></div>}
+      {drawerOpen && <div className="overlay" role="presentation" onMouseDown={() => setDrawerOpen(false)}><aside className="side-drawer" role="dialog" aria-modal="true" aria-label="Menu principal" tabIndex={-1} ref={drawerRef} onMouseDown={(event) => event.stopPropagation()}><div className="drawer-header"><img className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" /><IconButton label="Fechar menu" onClick={() => setDrawerOpen(false)}>×</IconButton></div><nav>{navItems.map((item, index) => <Link className={index === 0 ? 'active' : ''} href={item.href} key={item.label}>{item.label}</Link>)}</nav><div className="drawer-footer"><strong>Encontre o cuidado certo.</strong><span>Joinville · Santa Catarina</span></div></aside></div>}
 
       {sheetOpen && <div className="overlay sheet-overlay" role="presentation" onMouseDown={() => setSheetOpen(false)}><section className="bottom-sheet" role="dialog" aria-modal="true" aria-label="Filtros da busca" tabIndex={-1} ref={sheetRef} onMouseDown={(event) => event.stopPropagation()}><div className="sheet-handle" aria-hidden="true" /><div className="sheet-heading"><div><span className="sheet-eyebrow">Busca Medário</span><h2>Refinar sua busca</h2></div><IconButton label="Fechar" onClick={() => setSheetOpen(false)}>×</IconButton></div><div className="sheet-options"><button type="button"><span>⌖</span><div><strong>Usar minha localização</strong><small>Solicita autorização antes de calcular proximidade</small></div></button><button type="button"><span>▤</span><div><strong>Filtrar por convênio</strong><small>Mostrar apenas planos aceitos</small></div></button><button type="button"><span>◷</span><div><strong>Disponibilidade</strong><small>Hoje, esta semana ou data específica</small></div></button></div><Button type="button" onClick={() => setSheetOpen(false)}>Continuar</Button></section></div>}
     </main>

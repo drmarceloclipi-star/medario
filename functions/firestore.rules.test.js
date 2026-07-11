@@ -5,7 +5,7 @@ const { resolve } = require("node:path");
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const { assertFails, assertSucceeds, initializeTestEnvironment } = require("@firebase/rules-unit-testing");
-const { doc, getDoc, setDoc } = require("firebase/firestore");
+const { doc, getDoc, serverTimestamp, setDoc } = require("firebase/firestore");
 
 const projectId = "medario-rules-test";
 const emulatorPort = Number(process.env.FIRESTORE_EMULATOR_PORT || 8080);
@@ -30,6 +30,7 @@ test.before(async () => {
     await setDoc(doc(db, "profileChangeRequests/change-1"), { doctorId: "doctor-1", status: "pending" });
     await setDoc(doc(db, "professionalLeadMetrics/doctor-1"), { profileViews: 1 });
     await setDoc(doc(db, "professionalLeads/lead-1"), { doctorId: "doctor-1", action: "appointment_request" });
+    await setDoc(doc(db, "publicDoctors/doctor-1"), { published: true, slug: "doctor-1" });
   });
 });
 
@@ -50,6 +51,12 @@ test("denies direct writes and all availability reads", async () => {
 
   await assertFails(setDoc(doc(patient, "appointments/appointment-1"), { status: "confirmed" }, { merge: true }));
   await assertFails(getDoc(doc(patient, "calendarAvailability/doctor-1")));
+});
+
+test("exposes only published public projections", async () => {
+  const anonymous = environment.unauthenticatedContext().firestore();
+  await assertSucceeds(getDoc(doc(anonymous, "publicDoctors/doctor-1")));
+  await assertFails(getDoc(doc(anonymous, "doctors/doctor-1")));
 });
 
 test("keeps Medário Pro review and lead data server-only", async () => {
@@ -90,4 +97,19 @@ test("keeps synchronized favorites and saved searches server-only", async () => 
 
   await assertFails(setDoc(doc(patient, "users/patient-1/favorites/doctor-1"), { doctorId: "doctor-1" }));
   await assertFails(setDoc(doc(patient, "users/patient-1/savedSearches/search-1"), { criteria: { specialty: "psiquiatria" } }));
+});
+
+test("allows only account-owned profile fields and blocks derived writes", async () => {
+  const userId = `rules-profile-${Date.now()}`;
+  const patient = environment.authenticatedContext(userId, { email: "patient@example.com" }).firestore();
+
+  await assertSucceeds(setDoc(doc(patient, `users/${userId}`), {
+    email: "patient@example.com",
+    cidade: "Joinville",
+    idioma: "Português",
+    acessibilidade: false,
+    created_at: serverTimestamp(),
+  }));
+  await assertFails(setDoc(doc(patient, `users/${userId}`), { affinity: { psiquiatria: 1 } }, { merge: true }));
+  await assertFails(setDoc(doc(patient, `users/${userId}/interests/psiquiatria`), { specialty: "psiquiatria" }));
 });
