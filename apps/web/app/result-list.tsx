@@ -31,7 +31,7 @@ function DoctorResultCard({ doctor, sponsored = false }: { doctor: DirectoryDoct
         <div><dt>Disponibilidade</dt><dd>{availabilityCopy[doctor.availabilityState]}{doctor.availability?.nextAvailableAt ? ` · ${dateLabel(doctor.availability.nextAvailableAt)}` : ''}</dd></div>
         <div><dt>Convênios</dt><dd>{doctor.insuranceDetails.map((insurance) => `${insurance.name} · ${insurance.status === 'confirmed' ? 'Convênio confirmado' : 'Convênio informado: confirme antes'}`).join(' · ')}</dd></div>
       </dl>
-      <footer><span>Dado atualizado em {dateLabel(doctor.updatedAt)}</span><a href={`#perfil-${doctor.slug}`}>Ver perfil</a></footer>
+      <footer><span>Dado atualizado em {dateLabel(doctor.updatedAt)}</span><a href={`/medicos/${doctor.slug}`}>Ver perfil</a></footer>
     </article>
   );
 }
