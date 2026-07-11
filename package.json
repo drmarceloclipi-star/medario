@@ -9,7 +9,9 @@
     "dev:web": "npm run dev --workspace @medario/web",
     "build:web": "npm run build --workspace @medario/web",
     "lint:web": "npm run lint --workspace @medario/web",
-    "typecheck:web": "npm run typecheck --workspace @medario/web"
+    "typecheck:web": "npm run typecheck --workspace @medario/web",
+    "test:web": "npm run test --workspace @medario/web",
+    "qa:web": "npm run qa --workspace @medario/web"
   },
   "engines": {
     "node": ">=22.0.0"

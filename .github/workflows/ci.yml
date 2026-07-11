@@ -29,14 +29,12 @@ jobs:
       - name: Install web dependencies
         run: npm ci --prefix apps/web
 
-      - name: Typecheck web
-        run: npm run typecheck:web
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/web
 
-      - name: Lint web
-        run: npm run lint:web
-
-      - name: Build web
-        run: npm run build:web
+      - name: Run web quality suite
+        run: npm run qa:web
 
       - name: Typecheck UI package
         run: npm --workspace @medario/ui run typecheck
