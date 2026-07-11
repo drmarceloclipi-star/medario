@@ -53,3 +53,11 @@ test("keeps Medário Pro review and lead data server-only", async () => {
   await assertFails(getDoc(doc(professional, "professionalLeadMetrics/doctor-1")));
   await assertFails(getDoc(doc(professional, "professionalLeads/lead-1")));
 });
+
+test("keeps notification preferences and outbox server-only", async () => {
+  const patient = environment.authenticatedContext("patient-1").firestore();
+
+  await assertFails(setDoc(doc(patient, "notificationPreferences/patient-1"), { appointment_confirmed: { email: true } }));
+  await assertFails(getDoc(doc(patient, "notificationPreferences/patient-1")));
+  await assertFails(getDoc(doc(patient, "notificationOutbox/notification-1")));
+});
