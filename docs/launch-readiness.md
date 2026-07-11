@@ -10,7 +10,7 @@ Gate obrigatório para expor a nova jornada pública. A aplicação Next permane
 | Agendamento | Solicitação, confirmação, cancelamento e estado final contra orquestrador persistido | Bloqueado: agenda/Pro ainda não migrados para o fluxo Next/Firebase real. |
 | Autorização | Revisão explícita de regras e emulador Firestore com acesso próprio/negação cruzada | Parcial: Auth, conta, favoritos, buscas salvas e consentimento usam Firebase real; agenda/Pro ainda não migrados. |
 | Consentimento | Consentimento de saúde e telemetria verificável e revogável | Parcial: saúde coberto; telemetria ainda sem integração. |
-| Acessibilidade e visual | WCAG AA, viewport aprovado e regressão visual principal | Parcial: lint, viewport e E2E; Lighthouse/axe e snapshot visual pendentes. |
+| Acessibilidade e visual | WCAG AA, viewport aprovado e regressão visual principal | Verde no slice migrado: Lighthouse/Axe sem violações, viewport E2E e snapshot mobile revisado. |
 | Observabilidade | Crash/error monitoring sem texto de busca, sintomas ou localização exata | Bloqueado: provedor e configuração inexistentes. |
 | Analytics | Evento apenas após Consentimento de telemetria | Bloqueado: provedor e configuração inexistentes. |
 | Degradação | Mapa e Google Calendar retornam caminho seguro testado | Mapa coberto; Calendar aguarda OAuth e agenda real. |

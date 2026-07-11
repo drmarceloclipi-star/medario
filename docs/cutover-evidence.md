@@ -6,10 +6,13 @@ Atualização: 2026-07-11
 
 - Firebase Hosting legado usa `.firebase/legacy-public`, gerado por allowlist em `scripts/build-legacy-hosting.mjs`.
 - App Hosting backend `medario`, região `us-east4`, root `/apps/web`, runtime Node 22.
-- Rollout validado: build `build-2026-07-11-050`, commit `a85841c`, rollout `rollout-2026-07-11-043`, tráfego 100% na revisão nova.
+- Rollout validado: build `build-2026-07-11-055`, commit `ee733ff`, rollout `rollout-2026-07-11-048`, tráfego 100% na revisão nova.
 - Perfil `doctors/doctor-mariana-andrade` e projeção `publicDoctors/doctor-mariana-andrade` migrados.
 - Rotas públicas `/institucional`, `/privacidade`, `/termos` e `/medicos/joinville` servidas pelo Next; diretório real permanece `noindex,follow` até três perfis confirmados.
 - `robots.txt` e `sitemap.xml` servidos pelo App Hosting; sitemap inclui somente home, páginas públicas legais e perfis confirmados.
+- App Hosting preview usa `robots: Disallow: /`; domínio próprio e apex usam sitemap host-aware quando conectados.
+- Headers live: CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy e HSTS.
+- Standalone final contém `.next/static` e `public`; favicon servido sem 404.
 
 ## Smoke live
 
@@ -21,6 +24,13 @@ Atualização: 2026-07-11
 - Auth real: login, preferências Firestore, consentimento, exclusão de conta e limpeza via trigger.
 - Callables reais: favorito + `listSavedItems` retornaram snapshot persistido; visitante continua local até merge explícito.
 - Hosting legado: fontes/configs internas testadas retornam 404; assets allowlisted retornam 200.
+
+## QA final
+
+- `npm run qa:web`: 38 testes unitários, 21 E2E, typecheck, lint sem warnings e build standalone verdes.
+- Functions: 18 testes verdes. Rules Emulator: 9 testes verdes, incluindo consentimento explícito para `search_events`.
+- Lighthouse no standalone local: home 96 performance / 100 acessibilidade / 100 best-practices / 100 SEO; institucional 99 / 100 / 100 / 100; diretório 99 / 100 / 100, com `noindex` intencional.
+- Axe live: zero violações em home, institucional e diretório.
 
 ## Domínio App Hosting
 
@@ -37,5 +47,5 @@ Não houve alteração de `medario.com.br`, remoção do Hosting legado ou cutov
 - DNS e SSL de `app.medario.com.br` dependem do provedor DNS.
 - Diretório SEO continua `noindex` até existirem três perfis confirmados e conteúdo único.
 - Agenda, Medário Pro, observabilidade e analytics permanecem fora do cutover público.
-- Axe/Lighthouse e snapshot visual ainda precisam de execução dedicada; a tentativa local foi limitada por disco raiz sem espaço.
+- Snapshot visual mobile gerado e revisado; Lighthouse/Axe verdes. SEO do preview permanece bloqueado deliberadamente por `robots`.
 - Rollback foi identificado por revisões App Hosting/Hosting; ensaio operacional antes do apex ainda pendente.
