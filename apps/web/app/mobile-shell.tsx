@@ -12,6 +12,7 @@ import {
   shouldPersistSearch,
 } from './search';
 import { ResultList } from './result-list';
+import { type SymptomGuidance, orientSymptomSearch, reviewedUrgencyProtocol } from './symptom-protocol';
 
 const historyStorageKey = 'medario.search-history';
 const healthConsentStorageKey = 'medario.health-search-consent';
@@ -80,6 +81,8 @@ export function MobileShell() {
   const [pendingSearch, setPendingSearch] = useState<PendingSearch | null>(null);
   const [submittedSearch, setSubmittedSearch] = useState<DerivedSearch | null>(null);
   const [searchPhase, setSearchPhase] = useState<SearchPhase>('idle');
+  const [symptomGuidance, setSymptomGuidance] = useState<SymptomGuidance | null>(null);
+  const [urgentGuidance, setUrgentGuidance] = useState<SymptomGuidance | null>(null);
   const drawerRef = useRef<HTMLElement>(null);
   const sheetRef = useRef<HTMLElement>(null);
   const searchTimerRef = useRef<number | null>(null);
@@ -133,8 +136,11 @@ export function MobileShell() {
     if (!cleanQuery) return;
 
     try {
-      const nextSearch = deriveSearch(cleanQuery);
+      const baseSearch = deriveSearch(cleanQuery);
+      const guidance = canPersistHealthSearch ? orientSymptomSearch(cleanQuery) : null;
+      const nextSearch = guidance?.kind === 'orientation' ? { ...baseSearch, filters: { ...baseSearch.filters, ...guidance.filters } } : baseSearch;
       setSubmittedSearch(nextSearch);
+      setSymptomGuidance(guidance?.kind === 'orientation' ? guidance : null);
       setComposerFocused(false);
       setSearchPhase('loading');
       window.history.replaceState(null, '', searchUrl(nextSearch));
@@ -151,6 +157,12 @@ export function MobileShell() {
   const requestSearch = (nextQuery: string, source: SearchSource) => {
     const cleanQuery = nextQuery.trim();
     if (!cleanQuery) return;
+    const guidance = orientSymptomSearch(cleanQuery);
+    if (guidance.kind === 'urgent') {
+      setUrgentGuidance(guidance);
+      setComposerFocused(false);
+      return;
+    }
     if (deriveSearch(cleanQuery).hasHealthSignal && !healthConsent) {
       setPendingSearch({ query: cleanQuery, source });
       setComposerFocused(false);
@@ -232,6 +244,8 @@ export function MobileShell() {
             </div>
           </section>
         )}
+        {urgentGuidance && <section className="urgent-guidance" role="alert"><p className="section-label">Alerta de urgência</p><h2>Busque atendimento imediato</h2><p>{urgentGuidance.message}</p><small>Protocolo revisado por {reviewedUrgencyProtocol.reviewedBy} · versão {reviewedUrgencyProtocol.version}</small><Button type="button" onClick={() => setUrgentGuidance(null)}>Entendi</Button></section>}
+        {searchPhase === 'ready' && symptomGuidance && <section className="symptom-guidance" aria-live="polite"><p className="section-label">Orientação de busca</p><p>{symptomGuidance.message}</p></section>}
         {searchPhase === 'ready' && submittedSearch && <ResultList search={submittedSearch} />}
         {searchPhase === 'empty' && <section className="state-card" aria-live="polite"><span className="state-icon" aria-hidden="true">⌕</span><div><strong>Escolha um filtro objetivo.</strong><p>Tente citar especialidade, cidade, convênio ou modalidade para preparar a busca.</p></div></section>}
         {searchPhase === 'error' && <section className="state-card" role="alert"><span className="state-icon" aria-hidden="true">!</span><div><strong>Não foi possível preparar sua busca.</strong><p>Seus dados não foram enviados. Tente novamente.</p><button className="consent-link" type="button" onClick={() => requestSearch(query, 'composer')}>Tentar novamente</button></div></section>}
