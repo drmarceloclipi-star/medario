@@ -14,7 +14,7 @@ Gate obrigatório para expor a nova jornada pública. A aplicação Next permane
 | Observabilidade | Crash/error monitoring sem texto de busca, sintomas ou localização exata | Bloqueado: provedor e configuração inexistentes. |
 | Analytics | Evento apenas após Consentimento de telemetria | Bloqueado: provedor e configuração inexistentes. |
 | Degradação | Mapa e Google Calendar retornam caminho seguro testado | Mapa coberto; Calendar aguarda OAuth e agenda real. |
-| Rollback | Versão anterior identificada, preview validado e reversão ensaiada | Parcial: legado versionado e App Hosting build 045 ativo; ensaio de reversão e aprovação do domínio ainda pendentes. |
+| Rollback | Versão anterior identificada, preview validado e reversão ensaiada | Parcial: legado versionado e App Hosting build 056 ativo; ensaio de reversão e aprovação do domínio ainda pendentes. |
 
 ## Operação antes do cutover
 
