@@ -45,12 +45,12 @@ test.describe("mobile shell", () => {
   test("asks contextual consent before retaining a symptom search", async ({ page }) => {
     await openShell(page);
 
-    await page.getByLabel("Descreva o que você precisa").fill("Dor no peito e cardiologista");
+    await page.getByLabel("Descreva o que você precisa").fill("Ansiedade e psiquiatra");
     await page.getByRole("button", { name: "Buscar" }).click();
     await page.getByRole("button", { name: "Permitir e continuar" }).click();
     await page.getByLabel("Descreva o que você precisa").focus();
 
-    await expect(page.getByRole("button", { name: /Dor no peito e cardiologista/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Ansiedade e psiquiatra/ })).toBeVisible();
   });
 
   test("shows factual results, separated sponsorship and accessible pagination", async ({ page }) => {
@@ -73,6 +73,15 @@ test.describe("mobile shell", () => {
     await expect(page.getByText("Alteração em revisão")).toBeVisible();
     await expect(page.getByRole("link", { name: "WhatsApp verificado" })).toHaveAttribute("href", /wa\.me/);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://medario.com.br/medicos/dra-marina-alves");
+  });
+
+  test("interrupts urgent symptom reports without creating a search URL", async ({ page }) => {
+    await openShell(page);
+    await page.getByLabel("Descreva o que você precisa").fill("Estou com dor no peito e falta de ar");
+    await page.getByRole("button", { name: "Buscar" }).click();
+
+    await expect(page.locator(".urgent-guidance")).toContainText("Busque atendimento imediato");
+    expect(page.url()).not.toContain("dor");
   });
 
   for (const width of MOBILE_VIEWPORTS) {
