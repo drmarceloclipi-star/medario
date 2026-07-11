@@ -17,6 +17,8 @@ const crypto = require("node:crypto");
 const { calendarIsFresh, canTransitionAppointment, createReservationDecision, slotIsEligible } = require("./appointment-policy");
 const { defaultPreferences, notificationEnabled, notificationOutboxRecord, preferencesFrom } = require("./notification-policy");
 const { leadMetricsFrom, profileChangesFrom } = require("./professional-policy");
+const { savedSearchCriteriaFrom, savedSearchRecord } = require("./saved-items-policy");
+const { userSubcollectionsForDeletion } = require("./user-cleanup-policy");
 const { unmatchedSearchLogMessage } = require("./privacy");
 
 admin.initializeApp();
@@ -289,6 +291,85 @@ exports.processNotificationOutbox = functionsV1.https.onCall(async (_data, conte
   return { processed: pending.size, providerConfigured: false };
 });
 
+/* ==================================================================
+ * Authenticated saved items
+ * ------------------------------------------------------------------
+ * Visitors remain local-only. Sync is an explicit authenticated action
+ * and stores only objective criteria, never raw search or health text.
+ * ================================================================== */
+exports.listSavedItems = functionsV1.https.onCall(async (_data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para sincronizar itens.");
+  const base = db.collection("users").doc(context.auth.uid);
+  const [favorites, searches] = await Promise.all([base.collection("favorites").orderBy("createdAt", "desc").limit(100).get(), base.collection("savedSearches").orderBy("updatedAt", "desc").limit(50).get()]);
+  return {
+    favorites: favorites.docs.map((item) => ({ doctorId: item.id, createdAt: item.data().createdAt || null })),
+    searches: searches.docs.flatMap((item) => {
+      try {
+        return [{ id: item.id, criteria: savedSearchCriteriaFrom(item.data().criteria), alertEnabled: item.data().alertEnabled === true, createdAt: item.data().createdAt || null, updatedAt: item.data().updatedAt || null }];
+      } catch {
+        return [];
+      }
+    }),
+  };
+});
+
+exports.favoriteDoctor = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para sincronizar itens.");
+  const doctorId = requiredString(data?.doctorId, "doctorId");
+  const doctorRef = db.collection("doctors").doc(doctorId);
+  const favoriteRef = db.collection("users").doc(context.auth.uid).collection("favorites").doc(doctorId);
+  const now = new Date();
+  await db.runTransaction(async (transaction) => {
+    const doctorSnap = await transaction.get(doctorRef);
+    if (!doctorSnap.exists) throw new functionsV1.https.HttpsError("not-found", "Perfil médico não encontrado.");
+    transaction.set(favoriteRef, { doctorId, createdAt: now, updatedAt: now, version: 1 }, { merge: true });
+  });
+  return { doctorId, favorited: true };
+});
+
+exports.unfavoriteDoctor = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para sincronizar itens.");
+  const doctorId = requiredString(data?.doctorId, "doctorId");
+  await db.collection("users").doc(context.auth.uid).collection("favorites").doc(doctorId).delete();
+  return { doctorId, favorited: false };
+});
+
+exports.saveAccountSearch = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para sincronizar itens.");
+  let criteria;
+  try { criteria = savedSearchCriteriaFrom(data?.criteria); } catch { throw new functionsV1.https.HttpsError("invalid-argument", "Critérios de busca salva inválidos."); }
+  const alertEnabled = data?.alertEnabled === true;
+  const searches = db.collection("users").doc(context.auth.uid).collection("savedSearches");
+  const now = new Date();
+  const searchRef = searches.doc();
+  await db.runTransaction(async (transaction) => {
+    const existing = await transaction.get(searches.limit(51));
+    if (existing.size >= 50) throw new functionsV1.https.HttpsError("resource-exhausted", "Limite de buscas salvas atingido.");
+    transaction.create(searchRef, savedSearchRecord({ id: searchRef.id, criteria, alertEnabled, now }));
+  });
+  return { id: searchRef.id, criteria, alertEnabled };
+});
+
+exports.removeAccountSearch = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para sincronizar itens.");
+  const searchId = requiredString(data?.searchId, "searchId");
+  await db.collection("users").doc(context.auth.uid).collection("savedSearches").doc(searchId).delete();
+  return { searchId, removed: true };
+});
+
+exports.setSavedSearchAlert = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para sincronizar itens.");
+  const searchId = requiredString(data?.searchId, "searchId");
+  if (typeof data?.alertEnabled !== "boolean") throw new functionsV1.https.HttpsError("invalid-argument", "Preferência de alerta inválida.");
+  const ref = db.collection("users").doc(context.auth.uid).collection("savedSearches").doc(searchId);
+  await db.runTransaction(async (transaction) => {
+    const snap = await transaction.get(ref);
+    if (!snap.exists) throw new functionsV1.https.HttpsError("not-found", "Busca salva não encontrada.");
+    transaction.update(ref, { alertEnabled: data.alertEnabled, updatedAt: new Date(), version: admin.firestore.FieldValue.increment(1) });
+  });
+  return { searchId, alertEnabled: data.alertEnabled };
+});
+
 /* ------------------------------------------------------------------
  * Specialty extraction
  * ------------------------------------------------------------------
@@ -454,7 +535,8 @@ exports.computeAffinity = functionsV1.firestore
  * Full data cleanup (LGPD Art. 18 — right to erasure):
  *   a. Delete all docs in users/{uid}/interests
  *   b. Delete all docs in users/{uid}/search_events
- *   c. Delete the user document itself: users/{uid}
+ *   c. Delete saved items: users/{uid}/favorites + savedSearches
+ *   d. Delete the user document itself: users/{uid}
  * ================================================================== */
 exports.onUserDelete = functionsV1.auth.user().onDelete(async (user) => {
   const uid = user.uid;
@@ -466,13 +548,11 @@ exports.onUserDelete = functionsV1.auth.user().onDelete(async (user) => {
 
   const userRef = db.collection("users").doc(uid);
 
-  // a. Delete interests subcollection
-  await deleteSubcollection(userRef, "interests");
+  for (const subcollection of userSubcollectionsForDeletion()) {
+    await deleteSubcollection(userRef, subcollection);
+  }
 
-  // b. Delete search_events subcollection
-  await deleteSubcollection(userRef, "search_events");
-
-  // c. Delete the user document itself
+  // Delete the user document after all owned subcollections.
   await userRef.delete();
 
   logger.info(`onUserDelete: full cleanup complete for user ${uid}`);

@@ -61,3 +61,10 @@ test("keeps notification preferences and outbox server-only", async () => {
   await assertFails(getDoc(doc(patient, "notificationPreferences/patient-1")));
   await assertFails(getDoc(doc(patient, "notificationOutbox/notification-1")));
 });
+
+test("keeps synchronized favorites and saved searches server-only", async () => {
+  const patient = environment.authenticatedContext("patient-1").firestore();
+
+  await assertFails(setDoc(doc(patient, "users/patient-1/favorites/doctor-1"), { doctorId: "doctor-1" }));
+  await assertFails(setDoc(doc(patient, "users/patient-1/savedSearches/search-1"), { criteria: { specialty: "psiquiatria" } }));
+});
