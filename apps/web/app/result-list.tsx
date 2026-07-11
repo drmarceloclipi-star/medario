@@ -84,7 +84,9 @@ export function ResultList({ search, doctors }: { search: DerivedSearch; doctors
     try {
       await Promise.all(favoriteIds.map((doctorId) => savedClient.favoriteDoctor(doctorId)));
       await Promise.all(savedSearches.map((search) => savedClient.saveAccountSearch({ criteria: search.criteria, alertEnabled: false })));
-      setMergeMessage('Favoritos e buscas sincronizados com sua conta.');
+      const synced = await savedClient.listSavedItems();
+      setFavoriteIds(synced.favorites.map((item) => item.doctorId));
+      setMergeMessage(`Favoritos e buscas sincronizados com sua conta (${synced.favorites.length} favorito(s)).`);
     } catch {
       setMergeMessage('Não foi possível sincronizar tudo. Tente novamente.');
     } finally {
