@@ -23,7 +23,7 @@ const navItems = [
   { label: 'Buscar médicos', href: '/#buscar' },
   { label: 'Favoritos', href: '/conta#favoritos' },
   { label: 'Agendamentos', href: '/conta#agendamentos' },
-  { label: 'Medário Pro', href: '/medario-pro' },
+  { label: 'Medário Pro', href: 'https://medario.com.br/medario-pro.html' },
 ];
 const quickPrompts = [
   { label: 'Perto de mim', query: 'Psiquiatra perto de mim' },
