@@ -46,8 +46,9 @@ export function ResultList({ search }: { search: DerivedSearch }) {
   const [locationStatus, setLocationStatus] = useState<'unknown' | 'loading' | 'available' | 'unavailable'>('unknown');
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
-  const [savedItems] = useState(() => typeof window === 'undefined' ? null : createSavedItemsStore(window.localStorage, false));
+  const [savedItems] = useState(() => typeof window === 'undefined' ? null : createSavedItemsStore(window.localStorage));
   const [favoriteIds, setFavoriteIds] = useState(() => savedItems?.favorites().map((item) => item.doctorId) ?? []);
+  const [savedSearches, setSavedSearches] = useState(() => savedItems?.savedSearches() ?? []);
   const [savedSearchMessage, setSavedSearchMessage] = useState('');
   const hasPatientLocation = locationStatus === 'available';
   const results = useMemo(() => searchDirectory(search, sort, hasPatientLocation), [search, sort, hasPatientLocation]);
@@ -75,7 +76,8 @@ export function ResultList({ search }: { search: DerivedSearch }) {
         <label>Ordenar resultados<select aria-label="Ordenar resultados" value={sort} onChange={(event) => { setSort(event.target.value as ResultSort); setCursor(0); }}><option value="relevance">Relevância</option><option value="distance">Distância</option><option value="availability">Disponibilidade</option><option value="updated">Atualização</option></select></label>
       </div>
       <p className="order-explainer"><strong>Ordem orgânica.</strong> Considera filtros exatos, distância quando autorizada, disponibilidade e atualização. Não indica qualidade médica.</p>
-      <div className="visitor-save"><div><strong>Salvar esta busca</strong><p>Favoritos e buscas ficam neste dispositivo. Criar conta é opcional para futura sincronização.</p></div><Button variant="secondary" type="button" onClick={() => { savedItems?.saveSearch({ criteria: search.filters }); setSavedSearchMessage('Busca salva neste dispositivo.'); }}>Salvar busca</Button>{savedSearchMessage && <span role="status">{savedSearchMessage}</span>}</div>
+      <div className="visitor-save"><div><strong>Salvar esta busca</strong><p>Favoritos e buscas ficam neste dispositivo. Criar conta é opcional para futura sincronização.</p></div><Button variant="secondary" type="button" onClick={() => { savedItems?.saveSearch({ criteria: search.filters }); setSavedSearches(savedItems?.savedSearches() ?? []); setSavedSearchMessage('Busca salva neste dispositivo.'); }}>Salvar busca</Button>{savedSearchMessage && <span role="status">{savedSearchMessage}</span>}</div>
+      {savedSearches.length > 0 && <aside className="visitor-save saved-searches" aria-label="Buscas salvas neste dispositivo"><div><strong>Buscas salvas neste dispositivo</strong><p>Guardamos somente filtros objetivos.</p></div>{savedSearches.map((savedSearch) => <div className="saved-search-row" key={savedSearch.id}><span>{Object.values(savedSearch.criteria).filter(Boolean).join(' · ') || 'Filtros da busca'}</span><button type="button" onClick={() => { savedItems?.removeSearch(savedSearch.id); setSavedSearches(savedItems?.savedSearches() ?? []); }}>Remover busca salva</button></div>)}</aside>}
       {!hasPatientLocation && <div className="location-prompt"><div><strong>Quer ver distância?</strong><p>Sua localização é usada só nesta busca.</p></div><Button variant="secondary" type="button" loading={locationStatus === 'loading'} onClick={requestLocation}>Usar localização</Button></div>}
       {locationStatus === 'unavailable' && <p className="location-feedback" role="status">Localização não autorizada. Resultados continuam sem quilometragem.</p>}
       <ComparisonPanel doctors={results.organic.filter((doctor) => comparisonIds.includes(doctor.id))} onRemove={(id) => setComparisonIds((current) => current.filter((item) => item !== id))} />
