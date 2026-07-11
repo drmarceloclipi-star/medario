@@ -6,13 +6,17 @@ Atualização: 2026-07-11
 
 - Firebase Hosting legado usa `.firebase/legacy-public`, gerado por allowlist em `scripts/build-legacy-hosting.mjs`.
 - App Hosting backend `medario`, região `us-east4`, root `/apps/web`, runtime Node 22.
-- Rollout validado: build `build-2026-07-11-044`, commit `9575fbb`, rollout `rollout-2026-07-11-037`, tráfego 100% na revisão nova.
+- Rollout validado: build `build-2026-07-11-049`, commit `57157f4`, rollout `rollout-2026-07-11-042`, tráfego 100% na revisão nova.
 - Perfil `doctors/doctor-mariana-andrade` e projeção `publicDoctors/doctor-mariana-andrade` migrados.
+- Rotas públicas `/institucional`, `/privacidade`, `/termos` e `/medicos/joinville` servidas pelo Next; diretório real permanece `noindex,follow` até três perfis confirmados.
+- `robots.txt` e `sitemap.xml` servidos pelo App Hosting; sitemap inclui somente home, páginas públicas legais e perfis confirmados.
 
 ## Smoke live
 
-- `/`, `/conta` e `/medicos/mariana-andrade`: HTTP 200.
+- `/`, `/conta`, `/institucional`, `/privacidade`, `/termos`, `/medicos/joinville`, `/robots.txt` e `/sitemap.xml`: HTTP 200.
 - Aliases `dra-marina-alves` e `marina-alves`: redirect canônico para `mariana-andrade`.
+- Aliases legais e de diretório `.html`: HTTP 308 para as rotas extensionless.
+- Diretório entrega ItemList, perfil real de Mariana, canonical e `noindex, follow` enquanto o gate de indexação está fechado.
 - Perfil entrega canonical, CRM/RQE, JSON-LD e contato somente quando verificado.
 - Auth real: login, preferências Firestore, consentimento, exclusão de conta e limpeza via trigger.
 - Callables reais: favorito + `listSavedItems` retornaram snapshot persistido; visitante continua local até merge explícito.
@@ -33,5 +37,5 @@ Não houve alteração de `medario.com.br`, remoção do Hosting legado ou cutov
 - DNS e SSL de `app.medario.com.br` dependem do provedor DNS.
 - Diretório SEO continua `noindex` até existirem três perfis confirmados e conteúdo único.
 - Agenda, Medário Pro, observabilidade e analytics permanecem fora do cutover público.
-- Axe/Lighthouse e snapshot visual ainda precisam de execução dedicada.
+- Axe/Lighthouse e snapshot visual ainda precisam de execução dedicada; a tentativa local foi limitada por disco raiz sem espaço.
 - Rollback foi identificado por revisões App Hosting/Hosting; ensaio operacional antes do apex ainda pendente.
