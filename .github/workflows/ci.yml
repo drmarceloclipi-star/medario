@@ -23,6 +23,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Verify web dependency lockfile
+        run: npm ci --prefix apps/web
+
       - name: Install dependencies
         run: npm install
 
