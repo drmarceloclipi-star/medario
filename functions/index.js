@@ -15,6 +15,7 @@ const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
 const crypto = require("node:crypto");
 const { calendarIsFresh, canTransitionAppointment, createReservationDecision, slotIsEligible } = require("./appointment-policy");
+const { defaultPreferences, notificationEnabled, notificationOutboxRecord, preferencesFrom } = require("./notification-policy");
 const { leadMetricsFrom, profileChangesFrom } = require("./professional-policy");
 const { unmatchedSearchLogMessage } = require("./privacy");
 
@@ -50,6 +51,15 @@ async function activeProfessionalAccount(transaction, uid) {
   return accountSnap.data();
 }
 
+function enqueueOptedInNotification(transaction, preferenceSnap, { event, channel, recipientUid, subjectRef, now }) {
+  let preferences;
+  try { preferences = preferenceSnap?.exists ? preferencesFrom(preferenceSnap.data()) : defaultPreferences(); } catch { preferences = defaultPreferences(); }
+  if (!notificationEnabled(preferences, event, channel)) return false;
+  const id = digest(JSON.stringify({ event, channel, recipientUid, subjectRef }));
+  transaction.create(db.collection("notificationOutbox").doc(id), notificationOutboxRecord({ id, event, channel, recipientUid, subjectRef, now }));
+  return true;
+}
+
 /* ==================================================================
  * Appointment orchestration
  * ------------------------------------------------------------------
@@ -70,14 +80,16 @@ exports.createAppointmentRequest = functionsV1.https.onCall(async (data, context
   const typeRef = db.collection("doctors").doc(doctorId).collection("appointmentTypes").doc(typeId);
   const slotRef = slotId ? db.collection("doctors").doc(doctorId).collection("slots").doc(slotId) : null;
   const availabilityRef = db.collection("calendarAvailability").doc(doctorId);
+  const preferenceRef = db.collection("notificationPreferences").doc(patientUid);
   const idempotencyRef = db.collection("appointmentIdempotency").doc(`${patientUid}_${digest(idempotencyKey)}`);
 
   return db.runTransaction(async (transaction) => {
-    const [idempotencySnap, typeSnap, slotSnap, availabilitySnap] = await Promise.all([
+    const [idempotencySnap, typeSnap, slotSnap, availabilitySnap, preferenceSnap] = await Promise.all([
       transaction.get(idempotencyRef),
       transaction.get(typeRef),
       slotRef ? transaction.get(slotRef) : Promise.resolve(null),
       transaction.get(availabilityRef),
+      transaction.get(preferenceRef),
     ]);
     if (!typeSnap.exists) throw new functionsV1.https.HttpsError("not-found", "Tipo de consulta não encontrado.");
 
@@ -110,6 +122,7 @@ exports.createAppointmentRequest = functionsV1.https.onCall(async (data, context
     transaction.create(appointmentRef, appointment);
     if (decision.slotPatch && slotRef) transaction.update(slotRef, { status: decision.slotPatch.status, appointmentId: appointmentRef.id, updatedAt: now, version: admin.firestore.FieldValue.increment(1) });
     if (decision.integrationOutbox) transaction.create(db.collection("calendarOutbox").doc(decision.integrationOutbox.id), { ...decision.integrationOutbox, doctorId, state: "pending", attempts: 0, createdAt: now });
+    if (appointment.status === "confirmed") enqueueOptedInNotification(transaction, preferenceSnap, { event: "appointment_confirmed", channel: "email", recipientUid: patientUid, subjectRef: appointmentRef.id, now });
     transaction.create(idempotencyRef, { requestFingerprint, appointmentId: appointmentRef.id, status: appointment.status, expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000) });
     return { appointmentId: appointmentRef.id, status: appointment.status, replayed: false };
   });
@@ -141,13 +154,15 @@ exports.decideAppointmentRequest = functionsV1.https.onCall(async (data, context
     const typeRef = db.collection("doctors").doc(appointment.doctorId).collection("appointmentTypes").doc(appointment.typeId);
     const slotRef = db.collection("doctors").doc(appointment.doctorId).collection("slots").doc(appointment.requestedSlotId);
     const availabilityRef = db.collection("calendarAvailability").doc(appointment.doctorId);
-    const [typeSnap, slotSnap, availabilitySnap] = await Promise.all([transaction.get(typeRef), transaction.get(slotRef), transaction.get(availabilityRef)]);
+    const preferenceRef = db.collection("notificationPreferences").doc(appointment.patientUid);
+    const [typeSnap, slotSnap, availabilitySnap, preferenceSnap] = await Promise.all([transaction.get(typeRef), transaction.get(slotRef), transaction.get(availabilityRef), transaction.get(preferenceRef)]);
     const appointmentType = typeSnap.exists ? { id: typeSnap.id, ...typeSnap.data() } : null;
     const slot = slotSnap.exists ? { id: slotSnap.id, ...slotSnap.data() } : null;
     if (!calendarIsFresh(availabilitySnap.exists ? availabilitySnap.data() : null, now) || !slotIsEligible(slot, appointmentType, now)) throw new functionsV1.https.HttpsError("failed-precondition", "Agenda ou horário precisa ser confirmado novamente.");
     transaction.update(slotRef, { status: "reserved", appointmentId, updatedAt: now, version: admin.firestore.FieldValue.increment(1) });
     transaction.update(appointmentRef, { status: "confirmed", slotId: slotRef.id, confirmedAt: now, decidedAt: now, version: admin.firestore.FieldValue.increment(1) });
     transaction.create(db.collection("calendarOutbox").doc(`${appointmentId}:confirmed`), { id: `${appointmentId}:confirmed`, medarioAppointmentId: appointmentId, doctorId: appointment.doctorId, startsAt: slot.startsAt, endsAt: slot.endsAt, state: "pending", attempts: 0, createdAt: now });
+    enqueueOptedInNotification(transaction, preferenceSnap, { event: "appointment_confirmed", channel: "email", recipientUid: appointment.patientUid, subjectRef: appointmentId, now });
     return { appointmentId, status: "confirmed", replayed: false };
   });
 });
@@ -189,8 +204,11 @@ exports.reviewProfessionalProfileChange = functionsV1.https.onCall(async (data, 
     if (!requestSnap.exists) throw new functionsV1.https.HttpsError("not-found", "Alteração não encontrada.");
     const request = requestSnap.data();
     if (request.status !== "pending") throw new functionsV1.https.HttpsError("failed-precondition", "Alteração já foi revisada.");
+    const preferenceRef = db.collection("notificationPreferences").doc(request.professionalUid);
+    const preferenceSnap = await transaction.get(preferenceRef);
     if (decision === "approve") {
       transaction.set(db.collection("doctors").doc(request.doctorId), { ...request.fields, updatedAt: now }, { merge: true });
+      enqueueOptedInNotification(transaction, preferenceSnap, { event: "profile_updated", channel: "email", recipientUid: request.professionalUid, subjectRef: requestId, now });
     }
     transaction.update(requestRef, { status: decision === "approve" ? "approved" : "rejected", reviewedAt: now, reviewerUid: context.auth.uid });
     transaction.create(requestRef.collection("audit").doc(), { at: now, decision, reviewerUid: context.auth.uid });
@@ -230,6 +248,45 @@ exports.revokeProfessionalCalendarConnection = functionsV1.https.onCall(async (_
     transaction.set(connectionRef, { status: "revoked", revokedAt: now, updatedAt: now }, { merge: true });
     return { status: "revoked" };
   });
+});
+
+exports.getNotificationPreferences = functionsV1.https.onCall(async (_data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para ver preferências.");
+  const snap = await db.collection("notificationPreferences").doc(context.auth.uid).get();
+  try { return preferencesFrom(snap.exists ? snap.data() : {}); } catch { return defaultPreferences(); }
+});
+
+exports.updateNotificationPreferences = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para alterar preferências.");
+  let preferences;
+  try { preferences = preferencesFrom(data?.preferences); } catch { throw new functionsV1.https.HttpsError("invalid-argument", "Preferências de notificação inválidas."); }
+  await db.collection("notificationPreferences").doc(context.auth.uid).set({ ...preferences, updatedAt: new Date(), version: 1 });
+  return preferences;
+});
+
+exports.revokeNotificationChannel = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para revogar um canal.");
+  const channel = requiredString(data?.channel, "channel");
+  if (!["email", "whatsapp", "push"].includes(channel)) throw new functionsV1.https.HttpsError("invalid-argument", "Canal inválido.");
+  const ref = db.collection("notificationPreferences").doc(context.auth.uid);
+  return db.runTransaction(async (transaction) => {
+    const snap = await transaction.get(ref);
+    let preferences;
+    try { preferences = preferencesFrom(snap.exists ? snap.data() : {}); } catch { preferences = defaultPreferences(); }
+    for (const event of Object.keys(preferences)) preferences[event][channel] = false;
+    transaction.set(ref, { ...preferences, updatedAt: new Date(), version: 1 });
+    return preferences;
+  });
+});
+
+exports.processNotificationOutbox = functionsV1.https.onCall(async (_data, context) => {
+  if (context.auth?.token?.medarioAdmin !== true) throw new functionsV1.https.HttpsError("permission-denied", "Processamento não autorizado.");
+  const pending = await db.collection("notificationOutbox").where("state", "==", "pending").limit(50).get();
+  const batch = db.batch();
+  const now = new Date();
+  pending.docs.forEach((item) => batch.update(item.ref, { state: "blocked_provider_not_configured", attempts: admin.firestore.FieldValue.increment(1), updatedAt: now }));
+  await batch.commit();
+  return { processed: pending.size, providerConfigured: false };
 });
 
 /* ------------------------------------------------------------------

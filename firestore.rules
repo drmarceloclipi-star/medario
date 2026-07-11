@@ -106,5 +106,17 @@ service cloud.firestore {
     match /professionalLeads/{leadId} {
       allow read, write: if false;
     }
+    match /notificationPreferences/{userId} {
+      allow read, write: if false;
+    }
+    match /notificationEndpoints/{endpointId} {
+      allow read, write: if false;
+    }
+    match /notificationOutbox/{notificationId} {
+      allow read, write: if false;
+    }
+    match /notificationDeliveryAttempts/{attemptId} {
+      allow read, write: if false;
+    }
   }
 }
