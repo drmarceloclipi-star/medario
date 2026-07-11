@@ -38,6 +38,7 @@ describe('legacy public SEO contract', () => {
     const firebase = JSON.parse(readRootFile('firebase.json')) as { hosting: { public?: string } };
     const appHosting = readRootFile('apps/web/apphosting.yaml');
     const legacyBuilder = readRootFile('scripts/build-legacy-hosting.mjs');
+    const standaloneNormalizer = readRootFile('scripts/normalize-next-standalone.mjs');
 
     expect(firebase.hosting.public).toBe('.firebase/legacy-public');
     expect(appHosting).not.toContain('buildCommand:');
@@ -45,5 +46,7 @@ describe('legacy public SEO contract', () => {
     expect(appHosting).toContain('NEXT_PUBLIC_FIREBASE_PROJECT_ID');
     expect(legacyBuilder).toContain('diagnostico-presenca-digital.html');
     expect(legacyBuilder).toContain('reivindicar-perfil.html');
+    expect(standaloneNormalizer).toContain('path.join(standaloneRoot, ".next", "static")');
+    expect(standaloneNormalizer).toContain('path.join(standaloneRoot, "public")');
   });
 });

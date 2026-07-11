@@ -6,7 +6,7 @@ function authUser(user: { uid: string; email: string | null; displayName: string
   return { uid: user.uid, email: user.email, displayName: user.displayName };
 }
 
-function requiredUser(auth: { currentUser: { uid: string } | null }) {
+function requiredUser(auth: { currentUser: { uid: string; email: string | null } | null }) {
   if (!auth.currentUser) throw new Error("AUTH_REQUIRED");
   return auth.currentUser;
 }
@@ -18,6 +18,15 @@ export async function createFirebaseAccountPort(options: FirebaseClientOptions =
 
   const profileRef = () => firestoreRuntime.doc(db, "users", requiredUser(client.auth).uid);
   const sessionFor = (user: User | null): AuthSession => user ? { status: "signed_in", user: authUser(user) } : { status: "signed_out" };
+  const writeProfileFields = async (fields: Record<string, unknown>) => {
+    const user = requiredUser(client.auth);
+    const ref = profileRef();
+    await firestoreRuntime.runTransaction(db, async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      if (snapshot.exists()) transaction.update(ref, fields);
+      else transaction.set(ref, { email: user.email, created_at: firestoreRuntime.serverTimestamp(), ...fields }, { merge: true });
+    });
+  };
 
   return {
     subscribe(listener) {
@@ -52,7 +61,7 @@ export async function createFirebaseAccountPort(options: FirebaseClientOptions =
       };
     },
     async updatePreferences(input: AccountPreferences) {
-      await firestoreRuntime.updateDoc(profileRef(), {
+      await writeProfileFields({
         cidade: input.cidade || null,
         convenio: input.convenio || null,
         tipo_atendimento: input.tipoAtendimento || null,
@@ -62,7 +71,7 @@ export async function createFirebaseAccountPort(options: FirebaseClientOptions =
       });
     },
     async setHealthConsent(value) {
-      await firestoreRuntime.updateDoc(profileRef(), {
+      await writeProfileFields({
         consent_preferences: value,
         consent_at: firestoreRuntime.serverTimestamp(),
       });

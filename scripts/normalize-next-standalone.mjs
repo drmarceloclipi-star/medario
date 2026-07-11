@@ -18,4 +18,22 @@ for (const entry of await readdir(nestedAppRoot)) {
   });
 }
 
+// Next intentionally leaves static assets and the public directory outside
+// standalone output. Copy them into the final server root so the standalone
+// server remains runnable outside the App Hosting adapter too.
+await cp(path.join(appRoot, ".next", "static"), path.join(standaloneRoot, ".next", "static"), {
+  recursive: true,
+  force: true,
+});
+
+try {
+  await stat(path.join(appRoot, "public"));
+  await cp(path.join(appRoot, "public"), path.join(standaloneRoot, "public"), {
+    recursive: true,
+    force: true,
+  });
+} catch {
+  // A Next app may not define public assets.
+}
+
 await rm(path.join(standaloneRoot, "apps"), { recursive: true, force: true });

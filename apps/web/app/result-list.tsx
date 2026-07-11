@@ -12,7 +12,7 @@ import { type DirectoryDoctor, type ResultSort, resultPage, searchDirectory } fr
 import { MapResults } from './map-results';
 import { canAddToComparison } from './comparison';
 import { ComparisonPanel } from './comparison-panel';
-import { createSavedItemsStore } from './saved-items';
+import { createSavedItemsStore, savedCriteriaKey } from './saved-items';
 
 const availabilityCopy = {
   confirmed_slot: 'Vaga confirmada',
@@ -83,7 +83,15 @@ export function ResultList({ search, doctors }: { search: DerivedSearch; doctors
     setMergeMessage('');
     try {
       await Promise.all(favoriteIds.map((doctorId) => savedClient.favoriteDoctor(doctorId)));
-      await Promise.all(savedSearches.map((search) => savedClient.saveAccountSearch({ criteria: search.criteria, alertEnabled: false })));
+      const existing = await savedClient.listSavedItems();
+      const knownSearches = new Set(existing.searches.map((search) => savedCriteriaKey(search.criteria)));
+      const searchesToSync = savedSearches.filter((search) => {
+        const key = savedCriteriaKey(search.criteria);
+        if (knownSearches.has(key)) return false;
+        knownSearches.add(key);
+        return true;
+      });
+      await Promise.all(searchesToSync.map((search) => savedClient.saveAccountSearch({ criteria: search.criteria, alertEnabled: false })));
       const synced = await savedClient.listSavedItems();
       setFavoriteIds(synced.favorites.map((item) => item.doctorId));
       setMergeMessage(`Favoritos e buscas sincronizados com sua conta (${synced.favorites.length} favorito(s)).`);

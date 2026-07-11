@@ -31,6 +31,8 @@ test.before(async () => {
     await setDoc(doc(db, "professionalLeadMetrics/doctor-1"), { profileViews: 1 });
     await setDoc(doc(db, "professionalLeads/lead-1"), { doctorId: "doctor-1", action: "appointment_request" });
     await setDoc(doc(db, "publicDoctors/doctor-1"), { published: true, slug: "doctor-1" });
+    await setDoc(doc(db, "users/search-without-consent"), { email: "no-consent@example.com", consent_preferences: false });
+    await setDoc(doc(db, "users/search-with-consent"), { email: "consent@example.com", consent_preferences: true });
   });
 });
 
@@ -97,6 +99,15 @@ test("keeps synchronized favorites and saved searches server-only", async () => 
 
   await assertFails(setDoc(doc(patient, "users/patient-1/favorites/doctor-1"), { doctorId: "doctor-1" }));
   await assertFails(setDoc(doc(patient, "users/patient-1/savedSearches/search-1"), { criteria: { specialty: "psiquiatria" } }));
+});
+
+test("requires explicit health consent before accepting raw search events", async () => {
+  const withoutConsent = environment.authenticatedContext("search-without-consent").firestore();
+  const withConsent = environment.authenticatedContext("search-with-consent").firestore();
+  const event = { query: "psiquiatra em Joinville", timestamp: serverTimestamp() };
+
+  await assertFails(setDoc(doc(withoutConsent, "users/search-without-consent/search_events/event-1"), event));
+  await assertSucceeds(setDoc(doc(withConsent, "users/search-with-consent/search_events/event-1"), event));
 });
 
 test("allows only account-owned profile fields and blocks derived writes", async () => {

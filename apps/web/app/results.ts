@@ -77,7 +77,7 @@ export function directoryDoctorFromPublicProfile(profile: PublicProfile): Direct
     updatedAt: profile.updatedAt,
     availabilityState,
     insuranceDetails: profile.insurances.map((item) => ({ name: item.name, status: item.confirmed ? 'confirmed' : 'informed' })),
-    mapLocation: { latitude: 0, longitude: 0, authorized: false },
+    mapLocation: profile.mapLocation ?? { latitude: 0, longitude: 0, authorized: false },
   };
 }
 

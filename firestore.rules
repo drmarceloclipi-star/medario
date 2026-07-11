@@ -22,6 +22,12 @@ service cloud.firestore {
         (!request.resource.data.diff(resource.data).affectedKeys().hasAny(["consent_at"]) || (request.resource.data.consent_at is timestamp && request.resource.data.consent_at == request.time));
     }
 
+    function hasHealthSearchConsent(userId) {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/users/$(userId)) &&
+        get(/databases/$(database)/documents/users/$(userId)).data.consent_preferences == true;
+    }
+
     // ─── Public directory: doctors ──────────────────────────────
     // Anyone can read the doctor directory (no auth required).
     // Writes are disabled — managed by admin / Cloud Functions only.
@@ -66,7 +72,12 @@ service cloud.firestore {
       // are blocked — the CF processes and deletes these immediately.
       match /search_events/{eventId} {
         allow read: if false; // sensitive — CF processes and deletes immediately
-        allow create: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null && request.auth.uid == userId &&
+          hasHealthSearchConsent(userId) &&
+          request.resource.data.keys().hasOnly(["query", "timestamp"]) &&
+          request.resource.data.query is string &&
+          request.resource.data.query.size() <= 240 &&
+          request.resource.data.timestamp is timestamp;
         allow update, delete: if false; // only Cloud Functions delete these
       }
 

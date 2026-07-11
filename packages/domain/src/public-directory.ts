@@ -17,6 +17,11 @@ export type PublicProfile = {
     state: string;
     authorized: boolean;
   };
+  mapLocation?: {
+    latitude: number;
+    longitude: number;
+    authorized: boolean;
+  };
   insurances: Array<{ name: string; confirmed: boolean }>;
   modalities: Array<"Presencial" | "Teleconsulta externa">;
   availability: string;

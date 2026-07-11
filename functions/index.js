@@ -328,12 +328,12 @@ exports.listSavedItems = functionsV1.https.onCall(async (_data, context) => {
 exports.favoriteDoctor = functionsV1.https.onCall(async (data, context) => {
   if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para sincronizar itens.");
   const doctorId = requiredString(data?.doctorId, "doctorId");
-  const doctorRef = db.collection("doctors").doc(doctorId);
+  const doctorRef = db.collection("publicDoctors").doc(doctorId);
   const favoriteRef = db.collection("users").doc(context.auth.uid).collection("favorites").doc(doctorId);
   const now = new Date();
   await db.runTransaction(async (transaction) => {
     const doctorSnap = await transaction.get(doctorRef);
-    if (!doctorSnap.exists) throw new functionsV1.https.HttpsError("not-found", "Perfil médico não encontrado.");
+    if (!doctorSnap.exists || doctorSnap.data()?.published !== true) throw new functionsV1.https.HttpsError("not-found", "Perfil médico não encontrado.");
     transaction.set(favoriteRef, { doctorId, createdAt: now, updatedAt: now, version: 1 }, { merge: true });
   });
   return { doctorId, favorited: true };
@@ -439,6 +439,12 @@ exports.onSearchEvent = functionsV1.firestore
     }
 
     const { query, timestamp } = snap.data();
+    const userSnap = await db.collection("users").doc(uid).get();
+    if (userSnap.data()?.consent_preferences !== true) {
+      await snap.ref.delete();
+      logger.info(`onSearchEvent: discarded event ${eventId} without health consent for user ${uid}`);
+      return;
+    }
     const specialty = extractSpecialty(query);
 
     if (specialty) {

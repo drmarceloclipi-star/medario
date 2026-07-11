@@ -64,6 +64,11 @@ function mapProfile(id: string, record: Record<string, unknown>): PublicProfile 
   const whatsApp = firstString(contacts.whatsApp ?? contacts.whatsapp ?? record.whatsApp, "");
   const phoneVerified = booleanValue((contacts.phone as Record<string, unknown> | undefined)?.verified);
   const whatsAppVerified = booleanValue((contacts.whatsApp as Record<string, unknown> | undefined)?.verified ?? (contacts.whatsapp as Record<string, unknown> | undefined)?.verified);
+  const latitude = typeof location.latitude === "number" ? location.latitude : null;
+  const longitude = typeof location.longitude === "number" ? location.longitude : null;
+  const mapLocation = location.authorized === true && latitude !== null && longitude !== null
+    ? { latitude, longitude, authorized: true }
+    : undefined;
 
   return {
     slug,
@@ -84,6 +89,7 @@ function mapProfile(id: string, record: Record<string, unknown>): PublicProfile 
       state: stringValue(location.state, "SC"),
       authorized: booleanValue(location.authorized),
     },
+    ...(mapLocation ? { mapLocation } : {}),
     insurances: rawInsurances.map((item) => {
       if (typeof item === "string") return { name: item, confirmed: false };
       const candidate = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;

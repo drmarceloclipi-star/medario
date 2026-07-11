@@ -15,6 +15,10 @@ function criteriaFrom(value: unknown): SavedSearchCriteria {
   };
 }
 
+export function savedCriteriaKey(criteria: SavedSearchCriteria) {
+  return ['specialty', 'city', 'insurance', 'modality'].map((key) => `${key}=${criteria[key as keyof SavedSearchCriteria] ?? ''}`).join('&');
+}
+
 function read(storage: StoragePort): PersistedSavedItems {
   try {
     const value = storage.getItem(storageKey);

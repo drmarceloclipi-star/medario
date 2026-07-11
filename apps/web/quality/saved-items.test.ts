@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createSavedItemsStore } from "../app/saved-items";
+import { createSavedItemsStore, savedCriteriaKey } from "../app/saved-items";
 
 function createStorage() {
   const values = new Map<string, string>();
@@ -78,5 +78,9 @@ describe("saved items", () => {
     expect(store.canCreateAlert(false, true, "confirmed_slot")).toBe(false);
     expect(store.canCreateAlert(true, false, "confirmed_slot")).toBe(false);
     expect(store.canCreateAlert(true, true, "promotion")).toBe(false);
+  });
+
+  it("uses a stable key to avoid syncing the same criteria twice", () => {
+    expect(savedCriteriaKey({ city: "joinville", specialty: "psiquiatria" })).toBe(savedCriteriaKey({ specialty: "psiquiatria", city: "joinville" }));
   });
 });
