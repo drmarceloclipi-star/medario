@@ -13,10 +13,135 @@
 const functionsV1 = require("firebase-functions/v1");
 const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
+const crypto = require("node:crypto");
+const { calendarIsFresh, canTransitionAppointment, createReservationDecision, slotIsEligible } = require("./appointment-policy");
 const { unmatchedSearchLogMessage } = require("./privacy");
 
 admin.initializeApp();
 const db = admin.firestore();
+
+function requiredString(value, name) {
+  if (typeof value !== "string" || !value.trim() || value.length > 200) {
+    throw new functionsV1.https.HttpsError("invalid-argument", `${name} is required.`);
+  }
+  return value.trim();
+}
+
+function digest(value) {
+  return crypto.createHash("sha256").update(value).digest("hex");
+}
+
+function decisionError(decision) {
+  const messages = {
+    idempotency_conflict: "A mesma chave não pode representar outra solicitação.",
+    calendar_stale: "Disponibilidade da agenda precisa ser confirmada.",
+    slot_unavailable: "Este horário não está mais disponível.",
+  };
+  return new functionsV1.https.HttpsError("failed-precondition", messages[decision.code] || "Solicitação não pode ser concluída.");
+}
+
+/* ==================================================================
+ * Appointment orchestration
+ * ------------------------------------------------------------------
+ * Firestore is the source of truth. Google Calendar receives only an
+ * outbox task after a confirmed transaction; it is never called inside
+ * the transaction and never receives patient or health information.
+ * ================================================================== */
+exports.createAppointmentRequest = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para solicitar uma consulta.");
+
+  const doctorId = requiredString(data?.doctorId, "doctorId");
+  const typeId = requiredString(data?.typeId, "typeId");
+  const idempotencyKey = requiredString(data?.idempotencyKey, "idempotencyKey");
+  const slotId = data?.slotId ? requiredString(data.slotId, "slotId") : null;
+  const patientUid = context.auth.uid;
+  const now = new Date();
+  const appointmentRef = db.collection("appointments").doc();
+  const typeRef = db.collection("doctors").doc(doctorId).collection("appointmentTypes").doc(typeId);
+  const slotRef = slotId ? db.collection("doctors").doc(doctorId).collection("slots").doc(slotId) : null;
+  const availabilityRef = db.collection("calendarAvailability").doc(doctorId);
+  const idempotencyRef = db.collection("appointmentIdempotency").doc(`${patientUid}_${digest(idempotencyKey)}`);
+
+  return db.runTransaction(async (transaction) => {
+    const [idempotencySnap, typeSnap, slotSnap, availabilitySnap] = await Promise.all([
+      transaction.get(idempotencyRef),
+      transaction.get(typeRef),
+      slotRef ? transaction.get(slotRef) : Promise.resolve(null),
+      transaction.get(availabilityRef),
+    ]);
+    if (!typeSnap.exists) throw new functionsV1.https.HttpsError("not-found", "Tipo de consulta não encontrado.");
+
+    const appointmentType = { id: typeSnap.id, ...typeSnap.data() };
+    const slot = slotSnap?.exists ? { id: slotSnap.id, ...slotSnap.data() } : null;
+    const requestFingerprint = digest(JSON.stringify({ doctorId, typeId, slotId, patientUid, confirmationPolicy: appointmentType.confirmationPolicy }));
+    const decision = createReservationDecision({
+      requestFingerprint,
+      appointmentId: appointmentRef.id,
+      existingIdempotency: idempotencySnap.exists ? idempotencySnap.data() : null,
+      slot,
+      appointmentType,
+      calendarSnapshot: availabilitySnap.exists ? availabilitySnap.data() : null,
+      now,
+    });
+    if (decision.kind === "replay") return { appointmentId: decision.appointmentId, status: decision.status, replayed: true };
+    if (decision.kind === "reject") throw decisionError(decision);
+
+    const appointment = {
+      doctorId,
+      typeId,
+      patientUid,
+      requestedSlotId: slotId,
+      status: decision.appointment.status,
+      confirmationPolicy: appointmentType.confirmationPolicy,
+      requestedAt: now,
+      ...(decision.appointment.status === "confirmed" ? { confirmedAt: now, slotId } : {}),
+      version: 1,
+    };
+    transaction.create(appointmentRef, appointment);
+    if (decision.slotPatch && slotRef) transaction.update(slotRef, { status: decision.slotPatch.status, appointmentId: appointmentRef.id, updatedAt: now, version: admin.firestore.FieldValue.increment(1) });
+    if (decision.integrationOutbox) transaction.create(db.collection("calendarOutbox").doc(decision.integrationOutbox.id), { ...decision.integrationOutbox, doctorId, state: "pending", attempts: 0, createdAt: now });
+    transaction.create(idempotencyRef, { requestFingerprint, appointmentId: appointmentRef.id, status: appointment.status, expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000) });
+    return { appointmentId: appointmentRef.id, status: appointment.status, replayed: false };
+  });
+});
+
+exports.decideAppointmentRequest = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login como médico.");
+  const appointmentId = requiredString(data?.appointmentId, "appointmentId");
+  const decision = requiredString(data?.decision, "decision");
+  if (decision !== "accept" && decision !== "decline") throw new functionsV1.https.HttpsError("invalid-argument", "Decisão inválida.");
+  const appointmentRef = db.collection("appointments").doc(appointmentId);
+  const now = new Date();
+
+  return db.runTransaction(async (transaction) => {
+    const appointmentSnap = await transaction.get(appointmentRef);
+    if (!appointmentSnap.exists) throw new functionsV1.https.HttpsError("not-found", "Solicitação não encontrada.");
+    const appointment = appointmentSnap.data();
+    const professionalRef = db.collection("professionalAccounts").doc(context.auth.uid);
+    const professionalSnap = await transaction.get(professionalRef);
+    if (!professionalSnap.exists || professionalSnap.data().doctorId !== appointment.doctorId) throw new functionsV1.https.HttpsError("permission-denied", "Perfil médico não autorizado.");
+
+    if (decision === "decline") {
+      if (!canTransitionAppointment(appointment.status, "declined")) throw new functionsV1.https.HttpsError("failed-precondition", "Solicitação não pode ser recusada neste estado.");
+      transaction.update(appointmentRef, { status: "declined", decidedAt: now, version: admin.firestore.FieldValue.increment(1) });
+      return { appointmentId, status: "declined" };
+    }
+
+    if (appointment.status === "confirmed") return { appointmentId, status: "confirmed", replayed: true };
+    if (!canTransitionAppointment(appointment.status, "confirmed") || !appointment.requestedSlotId) throw new functionsV1.https.HttpsError("failed-precondition", "Solicitação não pode ser confirmada sem horário selecionado.");
+    const typeRef = db.collection("doctors").doc(appointment.doctorId).collection("appointmentTypes").doc(appointment.typeId);
+    const slotRef = db.collection("doctors").doc(appointment.doctorId).collection("slots").doc(appointment.requestedSlotId);
+    const availabilityRef = db.collection("calendarAvailability").doc(appointment.doctorId);
+    const [typeSnap, slotSnap, availabilitySnap] = await Promise.all([transaction.get(typeRef), transaction.get(slotRef), transaction.get(availabilityRef)]);
+    const appointmentType = typeSnap.exists ? { id: typeSnap.id, ...typeSnap.data() } : null;
+    const slot = slotSnap.exists ? { id: slotSnap.id, ...slotSnap.data() } : null;
+    if (!calendarIsFresh(availabilitySnap.exists ? availabilitySnap.data() : null, now) || !slotIsEligible(slot, appointmentType, now)) throw new functionsV1.https.HttpsError("failed-precondition", "Agenda ou horário precisa ser confirmado novamente.");
+    transaction.update(slotRef, { status: "reserved", appointmentId, updatedAt: now, version: admin.firestore.FieldValue.increment(1) });
+    transaction.update(appointmentRef, { status: "confirmed", slotId: slotRef.id, confirmedAt: now, decidedAt: now, version: admin.firestore.FieldValue.increment(1) });
+    transaction.create(db.collection("calendarOutbox").doc(`${appointmentId}:confirmed`), { id: `${appointmentId}:confirmed`, medarioAppointmentId: appointmentId, doctorId: appointment.doctorId, startsAt: slot.startsAt, endsAt: slot.endsAt, state: "pending", attempts: 0, createdAt: now });
+    return { appointmentId, status: "confirmed", replayed: false };
+  });
+});
 
 /* ------------------------------------------------------------------
  * Specialty extraction
