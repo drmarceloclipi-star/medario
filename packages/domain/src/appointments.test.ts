@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   canTransitionAppointment,
+  calendarAvailability,
   integrationEvent,
   isSlotEligible,
   type AppointmentTypeConfig,
@@ -54,6 +55,14 @@ describe("slot elegível", () => {
     ["sem buffer reservado", slot({ endsAt: "2030-01-01T10:30:00.000Z" }), "available"],
   ] as const)("não oferece %s", (_reason, unavailableSlot, calendar) => {
     expect(isSlotEligible(unavailableSlot, appointmentType, calendar, now)).toBe(false);
+  });
+});
+
+describe("frescor da agenda", () => {
+  it("rebaixa disponibilidade para confirmar após cinco minutos", () => {
+    expect(calendarAvailability({ status: "available", fetchedAt: "2030-01-01T08:55:00.000Z" }, now)).toBe("available");
+    expect(calendarAvailability({ status: "available", fetchedAt: "2030-01-01T08:54:59.999Z" }, now)).toBe("stale");
+    expect(calendarAvailability({ status: "available" }, now)).toBe("stale");
   });
 });
 

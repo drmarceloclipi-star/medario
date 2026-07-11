@@ -6,8 +6,8 @@ import { type AppointmentTypeConfig, type CalendarAvailability, type Slot, isSlo
 
 const config: AppointmentTypeConfig = { id: 'psychiatry-tele', doctorId: 'doctor-marina-alves', locationId: 'joinville-centro', modality: 'telemedicine', durationMinutes: 50, bufferMinutes: 10, minimumLeadMinutes: 60, maximumWindowDays: 45, confirmationPolicy: 'manual', cancellationPolicy: 'Cancelamento conforme política do profissional.' };
 const slots: Slot[] = [
-  { id: 'slot-1', appointmentTypeId: config.id, doctorId: config.doctorId, locationId: config.locationId, startsAt: '2026-07-15T13:00:00-03:00', endsAt: '2026-07-15T13:50:00-03:00', status: 'open' },
-  { id: 'slot-2', appointmentTypeId: config.id, doctorId: config.doctorId, locationId: config.locationId, startsAt: '2026-07-16T15:00:00-03:00', endsAt: '2026-07-16T15:50:00-03:00', status: 'open' },
+  { id: 'slot-1', appointmentTypeId: config.id, doctorId: config.doctorId, locationId: config.locationId, startsAt: '2026-07-15T13:00:00-03:00', endsAt: '2026-07-15T14:00:00-03:00', status: 'open' },
+  { id: 'slot-2', appointmentTypeId: config.id, doctorId: config.doctorId, locationId: config.locationId, startsAt: '2026-07-16T15:00:00-03:00', endsAt: '2026-07-16T16:00:00-03:00', status: 'open' },
 ];
 
 export function BookingPanel() {

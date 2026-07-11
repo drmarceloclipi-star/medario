@@ -1,6 +1,7 @@
 export type ConfirmationPolicy = "immediate" | "manual";
 export type AppointmentStatus = "requested" | "held" | "confirmed" | "declined" | "reschedule_proposed" | "cancel_requested" | "cancelled" | "completed" | "no_show";
 export type CalendarAvailability = "available" | "conflict" | "stale" | "unavailable";
+export type CalendarSnapshot = { status: Exclude<CalendarAvailability, "stale">; fetchedAt?: string };
 
 export type AppointmentTypeConfig = {
   id: string;
@@ -26,6 +27,14 @@ export type Slot = {
 };
 
 export type IntegrationEvent = { startsAt: string; endsAt: string; medarioAppointmentId: string };
+
+const calendarFreshnessMs = 5 * 60 * 1000;
+
+export function calendarAvailability(snapshot: CalendarSnapshot, now = new Date()): CalendarAvailability {
+  const fetchedAt = snapshot.fetchedAt ? new Date(snapshot.fetchedAt).getTime() : Number.NaN;
+  if (!Number.isFinite(fetchedAt) || now.getTime() - fetchedAt > calendarFreshnessMs) return "stale";
+  return snapshot.status;
+}
 
 export function isSlotEligible(slot: Slot, config: AppointmentTypeConfig, calendar: CalendarAvailability, now = new Date()) {
   const start = new Date(slot.startsAt).getTime();
