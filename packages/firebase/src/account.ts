@@ -40,16 +40,15 @@ export async function createFirebaseAccountPort(options: FirebaseClientOptions =
     signOut: () => authRuntime.signOut(client.auth),
     async getProfile() {
       const snapshot = await firestoreRuntime.getDoc(profileRef());
-      if (!snapshot.exists()) return null;
-      const data = snapshot.data();
+      const data = snapshot.exists() ? snapshot.data() : {};
       return {
         email: typeof data.email === "string" ? data.email : (client.auth.currentUser?.email ?? ""),
+        idioma: typeof data.idioma === "string" ? data.idioma : "Português",
+        acessibilidade: data.acessibilidade === true,
+        consentPreferences: data.consent_preferences === true,
         ...(typeof data.cidade === "string" ? { cidade: data.cidade } : {}),
         ...(typeof data.convenio === "string" ? { convenio: data.convenio } : {}),
         ...(typeof data.tipo_atendimento === "string" ? { tipoAtendimento: data.tipo_atendimento } : {}),
-        ...(typeof data.idioma === "string" ? { idioma: data.idioma } : {}),
-        ...(typeof data.acessibilidade === "boolean" ? { acessibilidade: data.acessibilidade } : {}),
-        ...(typeof data.consent_preferences === "boolean" ? { consentPreferences: data.consent_preferences } : {}),
       };
     },
     async updatePreferences(input: AccountPreferences) {

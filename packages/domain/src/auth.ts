@@ -39,7 +39,7 @@ export interface AuthPort {
 }
 
 export interface AccountPort {
-  getProfile(): Promise<AccountProfile | null>;
+  getProfile(): Promise<AccountProfile>;
   updatePreferences(input: AccountPreferences): Promise<void>;
   setHealthConsent(value: boolean): Promise<void>;
   deleteAccount(): Promise<void>;

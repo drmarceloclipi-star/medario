@@ -1,6 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useEffect } from 'react';
+import type { AuthSession } from '@medario/domain';
+import { createSavedItemsCallableClient, type SavedItemsCallableClient } from '@medario/firebase';
+import { createFirebaseAccountPort } from '@medario/firebase/account';
 import { Button } from '@medario/ui';
 
 import type { DerivedSearch } from './search';
@@ -50,10 +54,43 @@ export function ResultList({ search, doctors }: { search: DerivedSearch; doctors
   const [favoriteIds, setFavoriteIds] = useState(() => savedItems?.favorites().map((item) => item.doctorId) ?? []);
   const [savedSearches, setSavedSearches] = useState(() => savedItems?.savedSearches() ?? []);
   const [savedSearchMessage, setSavedSearchMessage] = useState('');
+  const [accountSession, setAccountSession] = useState<AuthSession>({ status: 'loading' });
+  const [savedClient, setSavedClient] = useState<SavedItemsCallableClient | null>(null);
+  const [mergeBusy, setMergeBusy] = useState(false);
+  const [mergeMessage, setMergeMessage] = useState('');
   const hasPatientLocation = locationStatus === 'available';
   const results = useMemo(() => searchDirectory(search, sort, hasPatientLocation, doctors), [search, sort, hasPatientLocation, doctors]);
   const page = resultPage(results.organic, cursor);
   const visibleOrganic = results.organic.slice(0, cursor * 2 + page.items.length);
+
+  useEffect(() => {
+    let active = true;
+    let unsubscribe: () => void = () => undefined;
+    void createFirebaseAccountPort()
+      .then((account) => {
+        if (!active) return;
+        unsubscribe = account.subscribe(setAccountSession);
+        return createSavedItemsCallableClient();
+      })
+      .then((client) => { if (active && client) setSavedClient(client); })
+      .catch(() => { if (active) setAccountSession({ status: 'signed_out' }); });
+    return () => { active = false; unsubscribe(); };
+  }, []);
+
+  const mergeVisitorItems = async () => {
+    if (!savedClient || accountSession.status !== 'signed_in') return;
+    setMergeBusy(true);
+    setMergeMessage('');
+    try {
+      await Promise.all(favoriteIds.map((doctorId) => savedClient.favoriteDoctor(doctorId)));
+      await Promise.all(savedSearches.map((search) => savedClient.saveAccountSearch({ criteria: search.criteria, alertEnabled: false })));
+      setMergeMessage('Favoritos e buscas sincronizados com sua conta.');
+    } catch {
+      setMergeMessage('Não foi possível sincronizar tudo. Tente novamente.');
+    } finally {
+      setMergeBusy(false);
+    }
+  };
 
   const requestLocation = () => {
     if (!navigator.geolocation) { setLocationStatus('unavailable'); return; }
@@ -77,6 +114,7 @@ export function ResultList({ search, doctors }: { search: DerivedSearch; doctors
       </div>
       <p className="order-explainer"><strong>Ordem orgânica.</strong> Considera filtros exatos, distância quando autorizada, disponibilidade e atualização. Não indica qualidade médica.</p>
       <div className="visitor-save"><div><strong>Salvar esta busca</strong><p>Favoritos e buscas ficam neste dispositivo. Criar conta é opcional para futura sincronização.</p></div><Button variant="secondary" type="button" onClick={() => { savedItems?.saveSearch({ criteria: search.filters }); setSavedSearches(savedItems?.savedSearches() ?? []); setSavedSearchMessage('Busca salva neste dispositivo.'); }}>Salvar busca</Button>{savedSearchMessage && <span role="status">{savedSearchMessage}</span>}</div>
+      {accountSession.status === 'signed_in' && savedClient && (favoriteIds.length > 0 || savedSearches.length > 0) && <aside className="visitor-save account-sync"><div><strong>Sincronizar com sua conta</strong><p>Visitantes guardam itens neste dispositivo. A sincronização só acontece quando você pedir.</p></div><Button variant="secondary" type="button" loading={mergeBusy} onClick={() => void mergeVisitorItems()}>Sincronizar agora</Button>{mergeMessage && <span role="status">{mergeMessage}</span>}</aside>}
       {savedSearches.length > 0 && <aside className="visitor-save saved-searches" aria-label="Buscas salvas neste dispositivo"><div><strong>Buscas salvas neste dispositivo</strong><p>Guardamos somente filtros objetivos.</p></div>{savedSearches.map((savedSearch) => <div className="saved-search-row" key={savedSearch.id}><span>{Object.values(savedSearch.criteria).filter(Boolean).join(' · ') || 'Filtros da busca'}</span><button type="button" onClick={() => { savedItems?.removeSearch(savedSearch.id); setSavedSearches(savedItems?.savedSearches() ?? []); }}>Remover busca salva</button></div>)}</aside>}
       {!hasPatientLocation && <div className="location-prompt"><div><strong>Quer ver distância?</strong><p>Sua localização é usada só nesta busca.</p></div><Button variant="secondary" type="button" loading={locationStatus === 'loading'} onClick={requestLocation}>Usar localização</Button></div>}
       {locationStatus === 'unavailable' && <p className="location-feedback" role="status">Localização não autorizada. Resultados continuam sem quilometragem.</p>}
