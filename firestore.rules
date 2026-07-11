@@ -90,5 +90,21 @@ service cloud.firestore {
     match /appointmentAccess/{tokenHash} {
       allow read, write: if false;
     }
+
+    // Medário Pro data never accepts direct client mutations. Dashboard
+    // data is served by ownership-checked callables until a dedicated
+    // Firebase adapter is introduced.
+    match /profileChangeRequests/{requestId} {
+      allow read, write: if false;
+      match /audit/{eventId} {
+        allow read, write: if false;
+      }
+    }
+    match /professionalLeadMetrics/{doctorId} {
+      allow read, write: if false;
+    }
+    match /professionalLeads/{leadId} {
+      allow read, write: if false;
+    }
   }
 }

@@ -15,6 +15,7 @@ const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
 const crypto = require("node:crypto");
 const { calendarIsFresh, canTransitionAppointment, createReservationDecision, slotIsEligible } = require("./appointment-policy");
+const { leadMetricsFrom, profileChangesFrom } = require("./professional-policy");
 const { unmatchedSearchLogMessage } = require("./privacy");
 
 admin.initializeApp();
@@ -38,6 +39,15 @@ function decisionError(decision) {
     slot_unavailable: "Este horário não está mais disponível.",
   };
   return new functionsV1.https.HttpsError("failed-precondition", messages[decision.code] || "Solicitação não pode ser concluída.");
+}
+
+async function activeProfessionalAccount(transaction, uid) {
+  const accountRef = db.collection("professionalAccounts").doc(uid);
+  const accountSnap = await transaction.get(accountRef);
+  if (!accountSnap.exists || accountSnap.data().status !== "active" || typeof accountSnap.data().doctorId !== "string") {
+    throw new functionsV1.https.HttpsError("permission-denied", "Conta profissional não autorizada.");
+  }
+  return accountSnap.data();
 }
 
 /* ==================================================================
@@ -117,9 +127,8 @@ exports.decideAppointmentRequest = functionsV1.https.onCall(async (data, context
     const appointmentSnap = await transaction.get(appointmentRef);
     if (!appointmentSnap.exists) throw new functionsV1.https.HttpsError("not-found", "Solicitação não encontrada.");
     const appointment = appointmentSnap.data();
-    const professionalRef = db.collection("professionalAccounts").doc(context.auth.uid);
-    const professionalSnap = await transaction.get(professionalRef);
-    if (!professionalSnap.exists || professionalSnap.data().doctorId !== appointment.doctorId) throw new functionsV1.https.HttpsError("permission-denied", "Perfil médico não autorizado.");
+    const professional = await activeProfessionalAccount(transaction, context.auth.uid);
+    if (professional.doctorId !== appointment.doctorId) throw new functionsV1.https.HttpsError("permission-denied", "Perfil médico não autorizado.");
 
     if (decision === "decline") {
       if (!canTransitionAppointment(appointment.status, "declined")) throw new functionsV1.https.HttpsError("failed-precondition", "Solicitação não pode ser recusada neste estado.");
@@ -140,6 +149,86 @@ exports.decideAppointmentRequest = functionsV1.https.onCall(async (data, context
     transaction.update(appointmentRef, { status: "confirmed", slotId: slotRef.id, confirmedAt: now, decidedAt: now, version: admin.firestore.FieldValue.increment(1) });
     transaction.create(db.collection("calendarOutbox").doc(`${appointmentId}:confirmed`), { id: `${appointmentId}:confirmed`, medarioAppointmentId: appointmentId, doctorId: appointment.doctorId, startsAt: slot.startsAt, endsAt: slot.endsAt, state: "pending", attempts: 0, createdAt: now });
     return { appointmentId, status: "confirmed", replayed: false };
+  });
+});
+
+/* ==================================================================
+ * Medário Pro
+ * ------------------------------------------------------------------
+ * Profile changes are proposed for review. The public doctor document
+ * stays unchanged until a backoffice user with medarioAdmin approves.
+ * Lead aggregates intentionally exclude raw queries, health content and
+ * exact visitor location.
+ * ================================================================== */
+exports.requestProfessionalProfileChange = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login como médico.");
+  let fields;
+  try {
+    fields = profileChangesFrom(data?.fields);
+  } catch {
+    throw new functionsV1.https.HttpsError("invalid-argument", "Alteração de perfil inválida.");
+  }
+  const requestRef = db.collection("profileChangeRequests").doc();
+  const now = new Date();
+  return db.runTransaction(async (transaction) => {
+    const professional = await activeProfessionalAccount(transaction, context.auth.uid);
+    transaction.create(requestRef, { doctorId: professional.doctorId, professionalUid: context.auth.uid, status: "pending", fields, requestedAt: now });
+    return { requestId: requestRef.id, status: "pending" };
+  });
+});
+
+exports.reviewProfessionalProfileChange = functionsV1.https.onCall(async (data, context) => {
+  if (context.auth?.token?.medarioAdmin !== true) throw new functionsV1.https.HttpsError("permission-denied", "Revisão não autorizada.");
+  const requestId = requiredString(data?.requestId, "requestId");
+  const decision = requiredString(data?.decision, "decision");
+  if (decision !== "approve" && decision !== "reject") throw new functionsV1.https.HttpsError("invalid-argument", "Decisão inválida.");
+  const requestRef = db.collection("profileChangeRequests").doc(requestId);
+  const now = new Date();
+  return db.runTransaction(async (transaction) => {
+    const requestSnap = await transaction.get(requestRef);
+    if (!requestSnap.exists) throw new functionsV1.https.HttpsError("not-found", "Alteração não encontrada.");
+    const request = requestSnap.data();
+    if (request.status !== "pending") throw new functionsV1.https.HttpsError("failed-precondition", "Alteração já foi revisada.");
+    if (decision === "approve") {
+      transaction.set(db.collection("doctors").doc(request.doctorId), { ...request.fields, updatedAt: now }, { merge: true });
+    }
+    transaction.update(requestRef, { status: decision === "approve" ? "approved" : "rejected", reviewedAt: now, reviewerUid: context.auth.uid });
+    transaction.create(requestRef.collection("audit").doc(), { at: now, decision, reviewerUid: context.auth.uid });
+    return { requestId, status: decision === "approve" ? "approved" : "rejected" };
+  });
+});
+
+exports.getProfessionalDashboard = functionsV1.https.onCall(async (_data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login como médico.");
+  const professional = await db.runTransaction((transaction) => activeProfessionalAccount(transaction, context.auth.uid));
+  const [doctorSnap, calendarSnap, metricsSnap, appointmentsSnap, changesSnap] = await Promise.all([
+    db.collection("doctors").doc(professional.doctorId).get(),
+    db.collection("calendarConnections").doc(professional.doctorId).get(),
+    db.collection("professionalLeadMetrics").doc(professional.doctorId).get(),
+    db.collection("appointments").where("doctorId", "==", professional.doctorId).limit(20).get(),
+    db.collection("profileChangeRequests").where("doctorId", "==", professional.doctorId).where("status", "==", "pending").limit(20).get(),
+  ]);
+  const calendar = calendarSnap.exists ? calendarSnap.data() : {};
+  let metrics;
+  try { metrics = leadMetricsFrom(metricsSnap.exists ? metricsSnap.data() : {}); } catch { metrics = leadMetricsFrom({}); }
+  return {
+    doctorId: professional.doctorId,
+    profile: doctorSnap.exists ? doctorSnap.data() : null,
+    calendar: { status: calendar.status || "not_connected", integrationCalendarId: calendar.integrationCalendarId || null, connectedAt: calendar.connectedAt || null, revokedAt: calendar.revokedAt || null },
+    leadMetrics: metrics,
+    appointments: appointmentsSnap.docs.map((item) => ({ id: item.id, status: item.data().status, requestedAt: item.data().requestedAt || null, confirmedAt: item.data().confirmedAt || null })),
+    pendingChanges: changesSnap.docs.map((item) => ({ id: item.id, status: item.data().status, requestedAt: item.data().requestedAt, fields: item.data().fields })),
+  };
+});
+
+exports.revokeProfessionalCalendarConnection = functionsV1.https.onCall(async (_data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login como médico.");
+  const now = new Date();
+  return db.runTransaction(async (transaction) => {
+    const professional = await activeProfessionalAccount(transaction, context.auth.uid);
+    const connectionRef = db.collection("calendarConnections").doc(professional.doctorId);
+    transaction.set(connectionRef, { status: "revoked", revokedAt: now, updatedAt: now }, { merge: true });
+    return { status: "revoked" };
   });
 });
 

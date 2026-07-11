@@ -45,3 +45,11 @@ test("denies direct writes and all availability reads", async () => {
   await assertFails(setDoc(doc(patient, "appointments/appointment-1"), { status: "confirmed" }, { merge: true }));
   await assertFails(getDoc(doc(patient, "calendarAvailability/doctor-1")));
 });
+
+test("keeps Medário Pro review and lead data server-only", async () => {
+  const professional = environment.authenticatedContext("doctor-user").firestore();
+
+  await assertFails(setDoc(doc(professional, "profileChangeRequests/change-1"), { doctorId: "doctor-1", status: "pending" }));
+  await assertFails(getDoc(doc(professional, "professionalLeadMetrics/doctor-1")));
+  await assertFails(getDoc(doc(professional, "professionalLeads/lead-1")));
+});

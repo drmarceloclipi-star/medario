@@ -6,6 +6,14 @@
       "fields": [
         { "fieldPath": "last_searched", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "profileChangeRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "doctorId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
     }
   ]
 }
