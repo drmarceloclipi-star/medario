@@ -15,7 +15,7 @@ const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
 const crypto = require("node:crypto");
 const { calendarIsFresh, canTransitionAppointment, createReservationDecision, slotIsEligible } = require("./appointment-policy");
-const { defaultPreferences, notificationEnabled, notificationOutboxRecord, preferencesFrom } = require("./notification-policy");
+const { defaultPreferences, enabledChannels, notificationOutboxRecord, preferencesFrom, providerlessDeliveryState } = require("./notification-policy");
 const { leadMetricsFrom, profileChangesFrom } = require("./professional-policy");
 const { savedSearchCriteriaFrom, savedSearchRecord } = require("./saved-items-policy");
 const { userSubcollectionsForDeletion } = require("./user-cleanup-policy");
@@ -53,13 +53,15 @@ async function activeProfessionalAccount(transaction, uid) {
   return accountSnap.data();
 }
 
-function enqueueOptedInNotification(transaction, preferenceSnap, { event, channel, recipientUid, subjectRef, now }) {
+function enqueueOptedInNotifications(transaction, preferenceSnap, { event, recipientUid, subjectRef, now }) {
   let preferences;
   try { preferences = preferenceSnap?.exists ? preferencesFrom(preferenceSnap.data()) : defaultPreferences(); } catch { preferences = defaultPreferences(); }
-  if (!notificationEnabled(preferences, event, channel)) return false;
-  const id = digest(JSON.stringify({ event, channel, recipientUid, subjectRef }));
-  transaction.create(db.collection("notificationOutbox").doc(id), notificationOutboxRecord({ id, event, channel, recipientUid, subjectRef, now }));
-  return true;
+  const channels = enabledChannels(preferences, event);
+  for (const channel of channels) {
+    const id = digest(JSON.stringify({ event, channel, recipientUid, subjectRef }));
+    transaction.create(db.collection("notificationOutbox").doc(id), notificationOutboxRecord({ id, event, channel, recipientUid, subjectRef, now }));
+  }
+  return channels.length;
 }
 
 /* ==================================================================
@@ -124,7 +126,7 @@ exports.createAppointmentRequest = functionsV1.https.onCall(async (data, context
     transaction.create(appointmentRef, appointment);
     if (decision.slotPatch && slotRef) transaction.update(slotRef, { status: decision.slotPatch.status, appointmentId: appointmentRef.id, updatedAt: now, version: admin.firestore.FieldValue.increment(1) });
     if (decision.integrationOutbox) transaction.create(db.collection("calendarOutbox").doc(decision.integrationOutbox.id), { ...decision.integrationOutbox, doctorId, state: "pending", attempts: 0, createdAt: now });
-    if (appointment.status === "confirmed") enqueueOptedInNotification(transaction, preferenceSnap, { event: "appointment_confirmed", channel: "email", recipientUid: patientUid, subjectRef: appointmentRef.id, now });
+    if (appointment.status === "confirmed") enqueueOptedInNotifications(transaction, preferenceSnap, { event: "appointment_confirmed", recipientUid: patientUid, subjectRef: appointmentRef.id, now });
     transaction.create(idempotencyRef, { requestFingerprint, appointmentId: appointmentRef.id, status: appointment.status, expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000) });
     return { appointmentId: appointmentRef.id, status: appointment.status, replayed: false };
   });
@@ -164,7 +166,7 @@ exports.decideAppointmentRequest = functionsV1.https.onCall(async (data, context
     transaction.update(slotRef, { status: "reserved", appointmentId, updatedAt: now, version: admin.firestore.FieldValue.increment(1) });
     transaction.update(appointmentRef, { status: "confirmed", slotId: slotRef.id, confirmedAt: now, decidedAt: now, version: admin.firestore.FieldValue.increment(1) });
     transaction.create(db.collection("calendarOutbox").doc(`${appointmentId}:confirmed`), { id: `${appointmentId}:confirmed`, medarioAppointmentId: appointmentId, doctorId: appointment.doctorId, startsAt: slot.startsAt, endsAt: slot.endsAt, state: "pending", attempts: 0, createdAt: now });
-    enqueueOptedInNotification(transaction, preferenceSnap, { event: "appointment_confirmed", channel: "email", recipientUid: appointment.patientUid, subjectRef: appointmentId, now });
+    enqueueOptedInNotifications(transaction, preferenceSnap, { event: "appointment_confirmed", recipientUid: appointment.patientUid, subjectRef: appointmentId, now });
     return { appointmentId, status: "confirmed", replayed: false };
   });
 });
@@ -210,7 +212,7 @@ exports.reviewProfessionalProfileChange = functionsV1.https.onCall(async (data, 
     const preferenceSnap = await transaction.get(preferenceRef);
     if (decision === "approve") {
       transaction.set(db.collection("doctors").doc(request.doctorId), { ...request.fields, updatedAt: now }, { merge: true });
-      enqueueOptedInNotification(transaction, preferenceSnap, { event: "profile_updated", channel: "email", recipientUid: request.professionalUid, subjectRef: requestId, now });
+      enqueueOptedInNotifications(transaction, preferenceSnap, { event: "profile_updated", recipientUid: request.professionalUid, subjectRef: requestId, now });
     }
     transaction.update(requestRef, { status: decision === "approve" ? "approved" : "rejected", reviewedAt: now, reviewerUid: context.auth.uid });
     transaction.create(requestRef.collection("audit").doc(), { at: now, decision, reviewerUid: context.auth.uid });
@@ -284,9 +286,19 @@ exports.revokeNotificationChannel = functionsV1.https.onCall(async (data, contex
 exports.processNotificationOutbox = functionsV1.https.onCall(async (_data, context) => {
   if (context.auth?.token?.medarioAdmin !== true) throw new functionsV1.https.HttpsError("permission-denied", "Processamento não autorizado.");
   const pending = await db.collection("notificationOutbox").where("state", "==", "pending").limit(50).get();
+  const preferenceRefs = [...new Map(pending.docs.map((item) => [item.data().recipientUid, db.collection("notificationPreferences").doc(item.data().recipientUid)])).values()];
+  const preferenceSnaps = preferenceRefs.length ? await db.getAll(...preferenceRefs) : [];
+  const preferencesByUid = new Map(preferenceSnaps.map((snap) => [snap.id, snap]));
   const batch = db.batch();
   const now = new Date();
-  pending.docs.forEach((item) => batch.update(item.ref, { state: "blocked_provider_not_configured", attempts: admin.firestore.FieldValue.increment(1), updatedAt: now }));
+  pending.docs.forEach((item) => {
+    const record = item.data();
+    const preferenceSnap = preferencesByUid.get(record.recipientUid);
+    let preferences;
+    try { preferences = preferenceSnap?.exists ? preferencesFrom(preferenceSnap.data()) : defaultPreferences(); } catch { preferences = defaultPreferences(); }
+    const state = providerlessDeliveryState(preferences, record.event, record.channel);
+    batch.update(item.ref, { state, attempts: admin.firestore.FieldValue.increment(1), updatedAt: now });
+  });
   await batch.commit();
   return { processed: pending.size, providerConfigured: false };
 });

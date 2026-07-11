@@ -27,9 +27,19 @@ function notificationEnabled(preferences, event, channel) {
   return events.includes(event) && channels.includes(channel) && preferencesFrom(preferences || {})[event][channel] === true;
 }
 
+function enabledChannels(preferences, event) {
+  if (!events.includes(event)) return [];
+  const normalized = preferencesFrom(preferences || {});
+  return channels.filter((channel) => normalized[event][channel] === true);
+}
+
+function providerlessDeliveryState(preferences, event, channel) {
+  return notificationEnabled(preferences, event, channel) ? "blocked_provider_not_configured" : "suppressed_revoked";
+}
+
 function notificationOutboxRecord({ id, event, channel, recipientUid, subjectRef, now }) {
   if (!events.includes(event) || !channels.includes(channel) || typeof recipientUid !== "string" || typeof subjectRef !== "string") throw new Error("Invalid notification outbox record");
   return { id, event, channel, recipientUid, subjectRef, state: "pending", attempts: 0, createdAt: now };
 }
 
-module.exports = { channels, defaultPreferences, events, notificationEnabled, notificationOutboxRecord, preferencesFrom };
+module.exports = { channels, defaultPreferences, enabledChannels, events, notificationEnabled, notificationOutboxRecord, preferencesFrom, providerlessDeliveryState };
