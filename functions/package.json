@@ -3,7 +3,7 @@
   "description": "Cloud Functions for Medário — interest aggregation and affinity computation",
   "main": "index.js",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test appointment-policy.test.js privacy.test.js",
     "test:rules": "node --test firestore.rules.test.js"
   },
   "dependencies": {
