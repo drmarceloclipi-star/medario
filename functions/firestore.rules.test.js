@@ -22,8 +22,13 @@ test.before(async () => {
   await environment.withSecurityRulesDisabled(async (context) => {
     const db = context.firestore();
     await setDoc(doc(db, "appointments/appointment-1"), { patientUid: "patient-1", doctorId: "doctor-1", status: "requested" });
-    await setDoc(doc(db, "professionalAccounts/doctor-user"), { doctorId: "doctor-1" });
+    await setDoc(doc(db, "professionalAccounts/doctor-user"), { doctorId: "doctor-1", status: "active" });
+    await setDoc(doc(db, "professionalAccounts/other-doctor-user"), { doctorId: "doctor-2", status: "active" });
     await setDoc(doc(db, "calendarAvailability/doctor-1"), { status: "available" });
+    await setDoc(doc(db, "calendarConnections/doctor-1"), { status: "active", integrationCalendarId: "integration-calendar" });
+    await setDoc(doc(db, "profileChangeRequests/change-1"), { doctorId: "doctor-1", status: "pending" });
+    await setDoc(doc(db, "professionalLeadMetrics/doctor-1"), { profileViews: 1 });
+    await setDoc(doc(db, "professionalLeads/lead-1"), { doctorId: "doctor-1", action: "appointment_request" });
   });
 });
 
@@ -48,10 +53,25 @@ test("denies direct writes and all availability reads", async () => {
 
 test("keeps Medário Pro review and lead data server-only", async () => {
   const professional = environment.authenticatedContext("doctor-user").firestore();
+  const anonymous = environment.unauthenticatedContext().firestore();
 
   await assertFails(setDoc(doc(professional, "profileChangeRequests/change-1"), { doctorId: "doctor-1", status: "pending" }));
   await assertFails(getDoc(doc(professional, "professionalLeadMetrics/doctor-1")));
   await assertFails(getDoc(doc(professional, "professionalLeads/lead-1")));
+  await assertFails(getDoc(doc(anonymous, "profileChangeRequests/change-1")));
+  await assertFails(getDoc(doc(anonymous, "professionalLeadMetrics/doctor-1")));
+});
+
+test("limits the professional account to its owner and keeps calendar connection data server-only", async () => {
+  const professional = environment.authenticatedContext("doctor-user").firestore();
+  const otherProfessional = environment.authenticatedContext("other-doctor-user").firestore();
+  const patient = environment.authenticatedContext("patient-1").firestore();
+
+  await assertSucceeds(getDoc(doc(professional, "professionalAccounts/doctor-user")));
+  await assertFails(getDoc(doc(otherProfessional, "professionalAccounts/doctor-user")));
+  await assertFails(setDoc(doc(professional, "professionalAccounts/doctor-user"), { doctorId: "doctor-2" }, { merge: true }));
+  await assertFails(getDoc(doc(professional, "calendarConnections/doctor-1")));
+  await assertFails(getDoc(doc(patient, "calendarConnections/doctor-1")));
 });
 
 test("keeps notification preferences and outbox server-only", async () => {
