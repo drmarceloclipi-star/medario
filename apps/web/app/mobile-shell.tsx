@@ -107,15 +107,14 @@ export function MobileShell() {
     <main className="mobile-shell mdr-ui">
       <header className="mobile-topbar">
         <IconButton label="Abrir menu" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)}>☰</IconButton>
-        <span className="mobile-wordmark">Medário</span>
+        {submittedQuery ? <img className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" /> : <span aria-hidden="true" />}
         <button className="avatar-button" type="button" aria-label="Abrir conta">MC</button>
       </header>
 
       <section className="mobile-content" aria-labelledby="home-title">
         <div className="hero-copy">
-          <p className="hero-kicker">Busca médica inteligente</p>
-          <h1 id="home-title">Encontre o cuidado certo, do seu jeito.</h1>
-          <p>Conte o que você precisa. O Medário transforma sua linguagem em uma busca clara por especialidade, local e disponibilidade.</p>
+          {!submittedQuery ? <img className="wordmark wordmark-home" src="/brand/medario-wordmark-home.png" alt="Medário - Conectando você ao melhor da saúde em Joinville, SC" /> : null}
+          <h1 id="home-title">Encontre o médico certo com inteligência e confiança.</h1>
         </div>
 
         <section className="prompt-section" aria-labelledby="prompt-title">
@@ -176,7 +175,7 @@ export function MobileShell() {
       {drawerOpen && (
         <div className="overlay" role="presentation" onMouseDown={() => setDrawerOpen(false)}>
           <aside className="side-drawer" role="dialog" aria-modal="true" aria-label="Menu principal" tabIndex={-1} ref={drawerRef} onMouseDown={(event) => event.stopPropagation()}>
-            <div className="drawer-header"><span className="mobile-wordmark">Medário</span><IconButton label="Fechar menu" onClick={() => setDrawerOpen(false)}>×</IconButton></div>
+            <div className="drawer-header"><img className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" /><IconButton label="Fechar menu" onClick={() => setDrawerOpen(false)}>×</IconButton></div>
             <nav>{navItems.map((item, index) => <a className={index === 0 ? 'active' : ''} href="#" key={item}>{item}</a>)}</nav>
             <div className="drawer-footer"><strong>Encontre o cuidado certo.</strong><span>Joinville · Santa Catarina</span></div>
           </aside>
