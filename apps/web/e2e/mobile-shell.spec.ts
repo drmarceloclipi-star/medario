@@ -97,6 +97,31 @@ test.describe("mobile shell", () => {
     await expect(page.getByRole("heading", { name: "Dra. Marina Alves" })).toBeVisible();
   });
 
+  test("compares at most three doctors using explicit criteria and lets the user remove one", async ({ page }) => {
+    await openShell(page);
+    await page.getByLabel("Descreva o que você precisa").fill("Psiquiatra em Joinville");
+    await page.getByRole("button", { name: "Buscar" }).click();
+
+    await page.getByRole("button", { name: "Comparar" }).nth(0).click();
+    await page.getByRole("button", { name: "Comparar" }).nth(0).click();
+    await page.getByRole("button", { name: "Carregar mais resultados" }).click();
+    await page.getByRole("button", { name: "Comparar" }).click();
+
+    const comparison = page.getByRole("region", { name: "Comparação de médicos" });
+    await expect(comparison.getByRole("heading", { name: "3 de 3 médicos" })).toBeVisible();
+    await expect(comparison.getByRole("button", { name: "Remover" })).toHaveCount(3);
+
+    await comparison.getByLabel("Convênio").check();
+    await comparison.getByLabel("Disponibilidade").check();
+    await expect(comparison.getByText("Compatível com 2 de 2 critérios escolhidos.").first()).toBeVisible();
+
+    const marina = comparison.getByRole("article").filter({ has: page.getByRole("heading", { name: "Dra. Marina Alves" }) });
+    await marina.getByRole("button", { name: "Remover" }).click();
+    await expect(comparison.getByRole("heading", { name: "2 de 3 médicos" })).toBeVisible();
+    await expect(comparison.getByRole("heading", { name: "Dra. Marina Alves" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Comparar" }).first()).toBeVisible();
+  });
+
   for (const width of MOBILE_VIEWPORTS) {
     test(`fits ${width}px without overflow and exposes button names`, async ({ page }) => {
       await page.setViewportSize({ width, height: 844 });
