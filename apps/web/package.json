@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@medario/domain": "file:../../packages/domain",
+    "@medario/firebase": "file:../../packages/firebase",
     "@medario/ui": "file:../../packages/ui",
     "next": "^16.0.0",
     "react": "^19.0.0",
