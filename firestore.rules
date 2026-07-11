@@ -51,7 +51,8 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null && request.auth.uid == userId && request.resource.data.keys().hasOnly(userProfileFields()) && request.resource.data.email == request.auth.token.email && request.resource.data.created_at is timestamp && request.resource.data.created_at == request.time;
       allow update: if request.auth != null && request.auth.uid == userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(userProfileFields()) && request.resource.data.email == request.auth.token.email && (!resource.data.keys().hasAll(["created_at"]) || request.resource.data.created_at == resource.data.created_at) && serverOwnedUserTimestamps();
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      // Deletion must start at Firebase Auth so onUserDelete can erase all owned subcollections.
+      allow delete: if false;
 
       // Interests subcollection — same ownership rule.
       match /interests/{interestId} {

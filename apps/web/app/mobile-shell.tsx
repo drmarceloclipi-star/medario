@@ -13,6 +13,7 @@ import {
   shouldPersistSearch,
 } from './search';
 import { ResultList } from './result-list';
+import type { DirectoryDoctor } from './results';
 import { type SymptomGuidance, orientSymptomSearch, reviewedUrgencyProtocol } from './symptom-protocol';
 
 const historyStorageKey = 'medario.search-history';
@@ -78,7 +79,7 @@ function storedHistory(healthConsent: boolean) {
   }
 }
 
-export function MobileShell() {
+export function MobileShell({ initialDoctors }: { initialDoctors: DirectoryDoctor[] }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -253,7 +254,7 @@ export function MobileShell() {
         )}
         {urgentGuidance && <section className="urgent-guidance" role="alert"><p className="section-label">Alerta de urgência</p><h2>Busque atendimento imediato</h2><p>{urgentGuidance.message}</p><small>Protocolo revisado por {reviewedUrgencyProtocol.reviewedBy} · versão {reviewedUrgencyProtocol.version}</small><Button type="button" onClick={() => setUrgentGuidance(null)}>Entendi</Button></section>}
         {searchPhase === 'ready' && symptomGuidance && <section className="symptom-guidance" aria-live="polite"><p className="section-label">Orientação de busca</p><p>{symptomGuidance.message}</p></section>}
-        {searchPhase === 'ready' && submittedSearch && <ResultList search={submittedSearch} />}
+        {searchPhase === 'ready' && submittedSearch && <ResultList search={submittedSearch} doctors={initialDoctors} />}
         {searchPhase === 'empty' && <section className="state-card" aria-live="polite"><span className="state-icon" aria-hidden="true">⌕</span><div><strong>Escolha um filtro objetivo.</strong><p>Tente citar especialidade, cidade, convênio ou modalidade para preparar a busca.</p></div></section>}
         {searchPhase === 'error' && <section className="state-card" role="alert"><span className="state-icon" aria-hidden="true">!</span><div><strong>Não foi possível preparar sua busca.</strong><p>Seus dados não foram enviados. Tente novamente.</p><button className="consent-link" type="button" onClick={() => requestSearch(query, 'composer')}>Tentar novamente</button></div></section>}
         {searchPhase === 'idle' && <section className="state-card" aria-label="Estado inicial"><span className="state-icon" aria-hidden="true">✦</span><div><strong>Comece pela sua necessidade.</strong><p>Você pode escrever sintomas, especialidade, convênio ou o tipo de atendimento que procura.</p></div></section>}

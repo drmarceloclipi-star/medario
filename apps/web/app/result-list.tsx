@@ -40,7 +40,7 @@ function DoctorResultCard({ doctor, sponsored = false, selected = false, onSelec
   );
 }
 
-export function ResultList({ search }: { search: DerivedSearch }) {
+export function ResultList({ search, doctors }: { search: DerivedSearch; doctors: DirectoryDoctor[] }) {
   const [sort, setSort] = useState<ResultSort>('relevance');
   const [cursor, setCursor] = useState(0);
   const [locationStatus, setLocationStatus] = useState<'unknown' | 'loading' | 'available' | 'unavailable'>('unknown');
@@ -51,7 +51,7 @@ export function ResultList({ search }: { search: DerivedSearch }) {
   const [savedSearches, setSavedSearches] = useState(() => savedItems?.savedSearches() ?? []);
   const [savedSearchMessage, setSavedSearchMessage] = useState('');
   const hasPatientLocation = locationStatus === 'available';
-  const results = useMemo(() => searchDirectory(search, sort, hasPatientLocation), [search, sort, hasPatientLocation]);
+  const results = useMemo(() => searchDirectory(search, sort, hasPatientLocation, doctors), [search, sort, hasPatientLocation, doctors]);
   const page = resultPage(results.organic, cursor);
   const visibleOrganic = results.organic.slice(0, cursor * 2 + page.items.length);
 

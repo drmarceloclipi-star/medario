@@ -30,7 +30,11 @@ export async function createFirebaseAccountPort(options: FirebaseClientOptions =
     },
     async createPatientAccount(input: PatientAccountInput) {
       const result = await authRuntime.createUserWithEmailAndPassword(client.auth, input.email.trim(), input.password);
-      await authRuntime.updateProfile(result.user, { displayName: input.email.trim().split("@")[0] });
+      try {
+        await authRuntime.updateProfile(result.user, { displayName: input.email.trim().split("@")[0] });
+      } catch {
+        // Auth account + server-triggered user profile remain valid if display-name enrichment fails.
+      }
       return authUser(result.user);
     },
     signOut: () => authRuntime.signOut(client.auth),

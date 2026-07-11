@@ -1,4 +1,4 @@
-import type { AppointmentType, Doctor } from "@medario/domain";
+import type { AppointmentType, Doctor, PublicProfile } from "@medario/domain";
 
 import type { DerivedSearch } from "./search";
 
@@ -17,7 +17,7 @@ export type DirectoryDoctor = Doctor & {
 const specialty = { id: "specialty-psychiatry", slug: "psiquiatria", name: "Psiquiatria" };
 const joinville = { id: "joinville-centro", city: "Joinville", state: "SC", district: "Centro" };
 
-const directoryDoctors: DirectoryDoctor[] = [
+export const fixtureDirectoryDoctors: DirectoryDoctor[] = [
   {
     id: "doctor-marina-alves", slug: "dra-marina-alves", name: "Dra. Marina Alves", crm: "CRM-SC 12345", rqe: "RQE 6789",
     specialties: [specialty], insurances: ["Unimed", "Particular"], languages: ["Português"], appointmentTypes: ["in_person", "telemedicine"], locations: [joinville], verificationStatus: "verified", sponsored: false,
@@ -47,6 +47,39 @@ const directoryDoctors: DirectoryDoctor[] = [
     mapLocation: { latitude: -26.32, longitude: -48.84, authorized: true },
   },
 ];
+
+function slugify(value: string) {
+  return value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+export function directoryDoctorFromPublicProfile(profile: PublicProfile): DirectoryDoctor {
+  const availabilityState: AvailabilityState = profile.availability.includes('Vaga confirmada')
+    ? 'confirmed_slot'
+    : profile.availability.includes('Aceita novos pacientes')
+      ? 'accepts_new_patients'
+      : 'to_confirm';
+  const location = { id: `${profile.slug}-location`, city: profile.location.city, state: profile.location.state, district: profile.location.district, ...(profile.location.authorized ? { addressLine: profile.location.address } : {}) };
+  return {
+    id: `doctor-${profile.slug}`,
+    slug: profile.slug,
+    name: profile.name,
+    crm: profile.crm,
+    ...(profile.rqe ? { rqe: profile.rqe } : {}),
+    bio: profile.bio,
+    specialties: [{ id: `specialty-${slugify(profile.specialty)}`, slug: slugify(profile.specialty), name: profile.specialty }],
+    insurances: profile.insurances.map((item) => item.name),
+    languages: ['Português'],
+    appointmentTypes: profile.modalities.map((item): AppointmentType => item === 'Teleconsulta externa' ? 'telemedicine' : 'in_person'),
+    locations: [location],
+    verificationStatus: profile.verified ? 'verified' : 'pending',
+    sponsored: false,
+    availability: availabilityState === 'to_confirm' ? undefined : { acceptsNewPatients: true },
+    updatedAt: profile.updatedAt,
+    availabilityState,
+    insuranceDetails: profile.insurances.map((item) => ({ name: item.name, status: item.confirmed ? 'confirmed' : 'informed' })),
+    mapLocation: { latitude: 0, longitude: 0, authorized: false },
+  };
+}
 
 function availabilityRank(state: AvailabilityState) {
   return state === "confirmed_slot" ? 0 : state === "accepts_new_patients" ? 1 : 2;
@@ -84,8 +117,8 @@ function forPatient(doctor: DirectoryDoctor, patientLocationAuthorized: boolean)
   return patientLocationAuthorized ? doctor : { ...doctor, distanceKm: undefined };
 }
 
-export function searchDirectory(search: Pick<DerivedSearch, "filters">, sort: ResultSort, patientLocationAuthorized: boolean) {
-  const matching = directoryDoctors.filter((doctor) => matches(doctor, search.filters));
+export function searchDirectory(search: Pick<DerivedSearch, "filters">, sort: ResultSort, patientLocationAuthorized: boolean, doctors = fixtureDirectoryDoctors) {
+  const matching = doctors.filter((doctor) => matches(doctor, search.filters));
   const organic = matching.filter((doctor) => !doctor.sponsored).sort(compareOrganic(sort, patientLocationAuthorized)).map((doctor) => forPatient(doctor, patientLocationAuthorized));
   const sponsored = matching.filter((doctor) => doctor.sponsored).map((doctor) => forPatient(doctor, patientLocationAuthorized));
   return { organic, sponsored };

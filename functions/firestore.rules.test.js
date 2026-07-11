@@ -5,7 +5,7 @@ const { resolve } = require("node:path");
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const { assertFails, assertSucceeds, initializeTestEnvironment } = require("@firebase/rules-unit-testing");
-const { doc, getDoc, serverTimestamp, setDoc } = require("firebase/firestore");
+const { deleteDoc, doc, getDoc, serverTimestamp, setDoc } = require("firebase/firestore");
 
 const projectId = "medario-rules-test";
 const emulatorPort = Number(process.env.FIRESTORE_EMULATOR_PORT || 8080);
@@ -111,5 +111,6 @@ test("allows only account-owned profile fields and blocks derived writes", async
     created_at: serverTimestamp(),
   }));
   await assertFails(setDoc(doc(patient, `users/${userId}`), { affinity: { psiquiatria: 1 } }, { merge: true }));
+  await assertFails(deleteDoc(doc(patient, `users/${userId}`)));
   await assertFails(setDoc(doc(patient, `users/${userId}/interests/psiquiatria`), { specialty: "psiquiatria" }));
 });

@@ -62,6 +62,8 @@ function mapProfile(id: string, record: Record<string, unknown>): PublicProfile 
   const slug = stringValue(record.slug, id);
   const phone = firstString(contacts.phone ?? record.phone, "");
   const whatsApp = firstString(contacts.whatsApp ?? contacts.whatsapp ?? record.whatsApp, "");
+  const phoneVerified = booleanValue((contacts.phone as Record<string, unknown> | undefined)?.verified);
+  const whatsAppVerified = booleanValue((contacts.whatsApp as Record<string, unknown> | undefined)?.verified ?? (contacts.whatsapp as Record<string, unknown> | undefined)?.verified);
 
   return {
     slug,
@@ -90,8 +92,8 @@ function mapProfile(id: string, record: Record<string, unknown>): PublicProfile 
     modalities: rawModalities.map((item) => item === "telemedicine" || item === "Teleconsulta externa" ? "Teleconsulta externa" : "Presencial"),
     availability: safeAvailability(record, availability),
     contacts: {
-      whatsApp: { verified: booleanValue((contacts.whatsApp as Record<string, unknown> | undefined)?.verified), href: whatsApp.startsWith("http") ? whatsApp : whatsApp ? `https://wa.me/${whatsApp.replace(/\D/g, "")}` : "#" },
-      phone: { verified: booleanValue((contacts.phone as Record<string, unknown> | undefined)?.verified), href: phone.startsWith("tel:") ? phone : phone ? `tel:${phone.replace(/\D/g, "")}` : "#" },
+      whatsApp: { verified: whatsAppVerified, href: whatsAppVerified ? (whatsApp.startsWith("http") ? whatsApp : whatsApp ? `https://wa.me/${whatsApp.replace(/\D/g, "")}` : "#") : "#" },
+      phone: { verified: phoneVerified, href: phoneVerified ? (phone.startsWith("tel:") ? phone : phone ? `tel:${phone.replace(/\D/g, "")}` : "#") : "#" },
     },
   };
 }
