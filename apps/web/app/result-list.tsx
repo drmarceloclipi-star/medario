@@ -6,6 +6,8 @@ import { Button } from '@medario/ui';
 import type { DerivedSearch } from './search';
 import { type DirectoryDoctor, type ResultSort, resultPage, searchDirectory } from './results';
 import { MapResults } from './map-results';
+import { canAddToComparison } from './comparison';
+import { ComparisonPanel } from './comparison-panel';
 
 const availabilityCopy = {
   confirmed_slot: 'Vaga confirmada',
@@ -17,7 +19,7 @@ function dateLabel(value: string) {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(value)).replace('.', '');
 }
 
-function DoctorResultCard({ doctor, sponsored = false, selected = false, onSelect }: { doctor: DirectoryDoctor; sponsored?: boolean; selected?: boolean; onSelect?: () => void }) {
+function DoctorResultCard({ doctor, sponsored = false, selected = false, onSelect, comparing = false, onCompare }: { doctor: DirectoryDoctor; sponsored?: boolean; selected?: boolean; onSelect?: () => void; comparing?: boolean; onCompare?: () => void }) {
   const mainLocation = doctor.locations[0];
   return (
     <article className={`result-card ${selected ? 'selected' : ''}`} onClick={onSelect}>
@@ -32,7 +34,7 @@ function DoctorResultCard({ doctor, sponsored = false, selected = false, onSelec
         <div><dt>Disponibilidade</dt><dd>{availabilityCopy[doctor.availabilityState]}{doctor.availability?.nextAvailableAt ? ` · ${dateLabel(doctor.availability.nextAvailableAt)}` : ''}</dd></div>
         <div><dt>Convênios</dt><dd>{doctor.insuranceDetails.map((insurance) => `${insurance.name} · ${insurance.status === 'confirmed' ? 'Convênio confirmado' : 'Convênio informado: confirme antes'}`).join(' · ')}</dd></div>
       </dl>
-      <footer><span>Dado atualizado em {dateLabel(doctor.updatedAt)}</span><a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${mainLocation?.district ?? ''} ${mainLocation?.city ?? ''}`)}`} target="_blank" rel="noreferrer">Rota no Google Maps</a><a href={`/medicos/${doctor.slug}`}>Ver perfil</a></footer>
+      <footer><span>Dado atualizado em {dateLabel(doctor.updatedAt)}</span>{onCompare && <button type="button" onClick={(event) => { event.stopPropagation(); onCompare(); }}>{comparing ? 'Remover comparação' : 'Comparar'}</button>}<a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${mainLocation?.district ?? ''} ${mainLocation?.city ?? ''}`)}`} target="_blank" rel="noreferrer">Rota no Google Maps</a><a href={`/medicos/${doctor.slug}`}>Ver perfil</a></footer>
     </article>
   );
 }
@@ -42,6 +44,7 @@ export function ResultList({ search }: { search: DerivedSearch }) {
   const [cursor, setCursor] = useState(0);
   const [locationStatus, setLocationStatus] = useState<'unknown' | 'loading' | 'available' | 'unavailable'>('unknown');
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
+  const [comparisonIds, setComparisonIds] = useState<string[]>([]);
   const hasPatientLocation = locationStatus === 'available';
   const results = useMemo(() => searchDirectory(search, sort, hasPatientLocation), [search, sort, hasPatientLocation]);
   const page = resultPage(results.organic, cursor);
@@ -70,8 +73,9 @@ export function ResultList({ search }: { search: DerivedSearch }) {
       <p className="order-explainer"><strong>Ordem orgânica.</strong> Considera filtros exatos, distância quando autorizada, disponibilidade e atualização. Não indica qualidade médica.</p>
       {!hasPatientLocation && <div className="location-prompt"><div><strong>Quer ver distância?</strong><p>Sua localização é usada só nesta busca.</p></div><Button variant="secondary" type="button" loading={locationStatus === 'loading'} onClick={requestLocation}>Usar localização</Button></div>}
       {locationStatus === 'unavailable' && <p className="location-feedback" role="status">Localização não autorizada. Resultados continuam sem quilometragem.</p>}
+      <ComparisonPanel doctors={results.organic.filter((doctor) => comparisonIds.includes(doctor.id))} onRemove={(id) => setComparisonIds((current) => current.filter((item) => item !== id))} />
       <MapResults doctors={results.organic} selectedDoctorId={selectedDoctorId} onSelect={setSelectedDoctorId} />
-      <div className="organic-results">{visibleOrganic.map((doctor) => <DoctorResultCard doctor={doctor} selected={doctor.id === selectedDoctorId} onSelect={() => setSelectedDoctorId(doctor.id)} key={doctor.id} />)}</div>
+      <div className="organic-results">{visibleOrganic.map((doctor) => <DoctorResultCard doctor={doctor} selected={doctor.id === selectedDoctorId} onSelect={() => setSelectedDoctorId(doctor.id)} comparing={comparisonIds.includes(doctor.id)} onCompare={() => setComparisonIds((current) => current.includes(doctor.id) ? current.filter((item) => item !== doctor.id) : canAddToComparison(current, doctor.id) ? [...current, doctor.id] : current)} key={doctor.id} />)}</div>
       {page.nextCursor !== null && <Button className="load-more" type="button" variant="secondary" onClick={() => setCursor(page.nextCursor!)}>Carregar mais resultados</Button>}
       {results.sponsored.length > 0 && <section className="sponsored-results" aria-labelledby="sponsored-title"><p className="section-label">Posicionamento pago</p><h2 id="sponsored-title">Patrocinados</h2>{results.sponsored.map((doctor) => <DoctorResultCard doctor={doctor} sponsored key={doctor.id} />)}</section>}
     </section>
