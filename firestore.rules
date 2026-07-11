@@ -49,6 +49,15 @@ service cloud.firestore {
         allow create: if request.auth != null && request.auth.uid == userId;
         allow update, delete: if false; // only Cloud Functions delete these
       }
+
+      // Account synchronization is callable-only. A visitor keeps saved
+      // items only in local storage; account sync occurs after explicit login.
+      match /favorites/{doctorId} {
+        allow read, write: if false;
+      }
+      match /savedSearches/{searchId} {
+        allow read, write: if false;
+      }
     }
 
     // ─── Appointment orchestration ─────────────────────────────
