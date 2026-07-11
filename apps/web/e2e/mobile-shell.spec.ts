@@ -53,6 +53,20 @@ test.describe("mobile shell", () => {
     await expect(page.getByRole("button", { name: /Dor no peito e cardiologista/ })).toBeVisible();
   });
 
+  test("shows factual results, separated sponsorship and accessible pagination", async ({ page }) => {
+    await openShell(page);
+
+    await page.getByLabel("Descreva o que você precisa").fill("Psiquiatra em Joinville");
+    await page.getByRole("button", { name: "Buscar" }).click();
+    await expect(page.getByRole("heading", { name: "Dra. Marina Alves" })).toBeVisible();
+    await expect(page.getByText("Ordem orgânica")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Patrocinados" })).toBeVisible();
+    await expect(page.getByText(/km/)).toHaveCount(0);
+
+    await page.getByRole("button", { name: "Carregar mais resultados" }).click();
+    await expect(page.getByRole("heading", { name: "Dr. Rafael Nunes" })).toBeVisible();
+  });
+
   for (const width of MOBILE_VIEWPORTS) {
     test(`fits ${width}px without overflow and exposes button names`, async ({ page }) => {
       await page.setViewportSize({ width, height: 844 });
