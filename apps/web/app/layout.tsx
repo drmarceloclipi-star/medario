@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Medário",
   description: "Encontre médicos com uma experiência clara, local e verificável.",
   applicationName: "Medário",
+  icons: { icon: "/brand/medario-mark.svg" },
 };
 
 export const viewport: Viewport = {
