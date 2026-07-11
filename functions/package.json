@@ -2,6 +2,9 @@
   "name": "medario-functions",
   "description": "Cloud Functions for Medário — interest aggregation and affinity computation",
   "main": "index.js",
+  "scripts": {
+    "test": "node --test"
+  },
   "dependencies": {
     "firebase-admin": "^12.1.0",
     "firebase-functions": "^5.0.0"
