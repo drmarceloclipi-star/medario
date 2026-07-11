@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: workspaceRoot,
   },
+  async redirects() {
+    return [
+      { source: "/institucional.html", destination: "/institucional", permanent: true },
+      { source: "/privacidade.html", destination: "/privacidade", permanent: true },
+      { source: "/termos.html", destination: "/termos", permanent: true },
+      { source: "/medicos/joinville.html", destination: "/medicos/joinville", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
