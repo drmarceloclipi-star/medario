@@ -6,7 +6,7 @@ Atualização: 2026-07-11
 
 - Firebase Hosting legado usa `.firebase/legacy-public`, gerado por allowlist em `scripts/build-legacy-hosting.mjs`.
 - App Hosting backend `medario`, região `us-east4`, root `/apps/web`, runtime Node 22.
-- Rollout validado: build `build-2026-07-11-049`, commit `57157f4`, rollout `rollout-2026-07-11-042`, tráfego 100% na revisão nova.
+- Rollout validado: build `build-2026-07-11-050`, commit `a85841c`, rollout `rollout-2026-07-11-043`, tráfego 100% na revisão nova.
 - Perfil `doctors/doctor-mariana-andrade` e projeção `publicDoctors/doctor-mariana-andrade` migrados.
 - Rotas públicas `/institucional`, `/privacidade`, `/termos` e `/medicos/joinville` servidas pelo Next; diretório real permanece `noindex,follow` até três perfis confirmados.
 - `robots.txt` e `sitemap.xml` servidos pelo App Hosting; sitemap inclui somente home, páginas públicas legais e perfis confirmados.
