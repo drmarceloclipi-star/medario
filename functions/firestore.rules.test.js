@@ -8,6 +8,7 @@ const { assertFails, assertSucceeds, initializeTestEnvironment } = require("@fir
 const { doc, getDoc, setDoc } = require("firebase/firestore");
 
 const projectId = "medario-rules-test";
+const emulatorPort = Number(process.env.FIRESTORE_EMULATOR_PORT || 8080);
 let environment;
 
 test.before(async () => {
@@ -15,7 +16,7 @@ test.before(async () => {
     projectId,
     firestore: {
       host: "127.0.0.1",
-      port: 8080,
+      port: emulatorPort,
       rules: readFileSync(resolve(__dirname, "../firestore.rules"), "utf8"),
     },
   });
@@ -80,6 +81,8 @@ test("keeps notification preferences and outbox server-only", async () => {
   await assertFails(setDoc(doc(patient, "notificationPreferences/patient-1"), { appointment_confirmed: { email: true } }));
   await assertFails(getDoc(doc(patient, "notificationPreferences/patient-1")));
   await assertFails(getDoc(doc(patient, "notificationOutbox/notification-1")));
+  await assertFails(getDoc(doc(patient, "notificationEndpoints/endpoint-1")));
+  await assertFails(getDoc(doc(patient, "notificationDeliveryAttempts/attempt-1")));
 });
 
 test("keeps synchronized favorites and saved searches server-only", async () => {
