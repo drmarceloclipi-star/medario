@@ -32,4 +32,18 @@ test.describe('public institutional pages', () => {
     await expect(page.getByRole('heading', { level: 2, name: 'Dra. Mariana Andrade' })).toBeVisible();
     await expect(page.getByText(/três perfis confirmados/)).toBeVisible();
   });
+
+  test('keeps robots and sitemap available on the Next surface', async ({ request }) => {
+    const robots = await request.get('/robots.txt');
+    expect(robots.ok()).toBe(true);
+    expect(await robots.text()).toContain('Sitemap: https://medario.com.br/sitemap.xml');
+    expect(await robots.text()).toContain('Disallow: /conta');
+
+    const sitemap = await request.get('/sitemap.xml');
+    expect(sitemap.ok()).toBe(true);
+    const sitemapText = await sitemap.text();
+    expect(sitemapText).toContain('https://medario.com.br/');
+    expect(sitemapText).toContain('https://medario.com.br/medicos/mariana-andrade');
+    expect(sitemapText).not.toContain('https://medario.com.br/medicos/joinville');
+  });
 });
