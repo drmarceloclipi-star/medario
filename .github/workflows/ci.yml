@@ -37,3 +37,6 @@ jobs:
 
       - name: Typecheck UI package
         run: npm --workspace @medario/ui run typecheck
+
+      - name: Typecheck domain package
+        run: npm --workspace @medario/domain run typecheck
