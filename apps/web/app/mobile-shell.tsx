@@ -113,8 +113,8 @@ export function MobileShell() {
 
       <section className="mobile-content" aria-labelledby="home-title">
         <div className="hero-copy">
-          <img className="wordmark wordmark-home" src="/brand/medario-wordmark-home.png" alt="Medário - Conectando você ao melhor da saúde em Joinville, SC" />
-          <p id="home-title">Encontre o médico certo com inteligência e confiança.</p>
+          {!submittedQuery ? <img className="wordmark wordmark-home" src="/brand/medario-wordmark-home.png" alt="Medário - Conectando você ao melhor da saúde em Joinville, SC" /> : null}
+          <h1 id="home-title">Encontre o médico certo com inteligência e confiança.</h1>
         </div>
 
         <section className="prompt-section" aria-labelledby="prompt-title">
