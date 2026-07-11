@@ -84,6 +84,19 @@ test.describe("mobile shell", () => {
     expect(page.url()).not.toContain("dor");
   });
 
+  test("keeps map and list synchronized while map failure preserves results", async ({ page }) => {
+    await openShell(page);
+    await page.getByLabel("Descreva o que você precisa").fill("Psiquiatra em Joinville");
+    await page.getByRole("button", { name: "Buscar" }).click();
+    await expect(page.getByRole("button", { name: /2 local/ })).toBeVisible();
+    await page.getByRole("button", { name: /2 local/ }).click();
+    await expect(page.locator(".result-card.selected")).toContainText("Dra. Marina Alves");
+    await expect(page.getByRole("link", { name: "Rota no Google Maps" }).first()).toHaveAttribute("href", /google\.com\/maps/);
+    await page.getByRole("button", { name: "Mapa indisponível" }).click();
+    await expect(page.getByText("Use a lista e os filtros para continuar sua busca.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dra. Marina Alves" })).toBeVisible();
+  });
+
   for (const width of MOBILE_VIEWPORTS) {
     test(`fits ${width}px without overflow and exposes button names`, async ({ page }) => {
       await page.setViewportSize({ width, height: 844 });
