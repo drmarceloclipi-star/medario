@@ -3,6 +3,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsProfessionalAccount(doctorId) {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/professionalAccounts/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/professionalAccounts/$(request.auth.uid)).data.doctorId == doctorId;
+    }
+
     // ─── Public directory: doctors ──────────────────────────────
     // Anyone can read the doctor directory (no auth required).
     // Writes are disabled — managed by admin / Cloud Functions only.
@@ -39,6 +49,46 @@ service cloud.firestore {
         allow create: if request.auth != null && request.auth.uid == userId;
         allow update, delete: if false; // only Cloud Functions delete these
       }
+    }
+
+    // ─── Appointment orchestration ─────────────────────────────
+    // All mutations happen inside callable Cloud Functions. Patients
+    // may read only their own requests; professionals only their own
+    // doctor's requests. Visitor access remains server-mediated.
+    match /appointments/{appointmentId} {
+      allow read: if signedIn() &&
+        (resource.data.patientUid == request.auth.uid || ownsProfessionalAccount(resource.data.doctorId));
+      allow write: if false;
+
+      match /audit/{eventId} {
+        allow read: if ownsProfessionalAccount(get(/databases/$(database)/documents/appointments/$(appointmentId)).data.doctorId);
+        allow write: if false;
+      }
+    }
+
+    // A professional account maps one authenticated doctor to one
+    // claimed Profile médico. Claim/review is server-only.
+    match /professionalAccounts/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow write: if false;
+    }
+
+    // Availability, OAuth connection data, idempotency, outbox and
+    // guest access tokens are never client-readable or client-writable.
+    match /calendarAvailability/{doctorId} {
+      allow read, write: if false;
+    }
+    match /calendarConnections/{doctorId} {
+      allow read, write: if false;
+    }
+    match /calendarOutbox/{outboxId} {
+      allow read, write: if false;
+    }
+    match /appointmentIdempotency/{key} {
+      allow read, write: if false;
+    }
+    match /appointmentAccess/{tokenHash} {
+      allow read, write: if false;
     }
   }
 }
