@@ -4,3 +4,11 @@
 .firebase/
 functions/node_modules/
 functions/.runtimeconfig.json
+node_modules/
+apps/*/.next/
+apps/*/out/
+apps/*/.turbo/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
