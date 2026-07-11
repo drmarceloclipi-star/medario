@@ -115,8 +115,8 @@ export function createPublicDirectoryReader(options: PublicDirectoryServerOption
       return document ? mapProfile(document.id, document.data()) : null;
     },
     async list(query) {
-      const snapshot = await firestore.collection("publicDoctors").where("published", "==", true).orderBy("slug").get();
-      const filtered = snapshot.docs.map((document) => mapProfile(document.id, document.data())).filter((profile) => matches(profile, query));
+      const snapshot = await firestore.collection("publicDoctors").where("published", "==", true).get();
+      const filtered = snapshot.docs.map((document) => mapProfile(document.id, document.data())).sort((left, right) => left.slug.localeCompare(right.slug)).filter((profile) => matches(profile, query));
       const limit = Math.min(Math.max(query.limit ?? 50, 1), 100);
       const offset = Math.max(Number.parseInt(query.cursor ?? "0", 10) || 0, 0);
       const profiles = filtered.slice(offset, offset + limit);
