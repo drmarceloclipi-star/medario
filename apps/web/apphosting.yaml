@@ -1,0 +1,3 @@
+scripts:
+  buildCommand: npm ci && npm run build
+  runCommand: node .next/standalone/server.js
