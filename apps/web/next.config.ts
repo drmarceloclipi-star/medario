@@ -6,6 +6,7 @@ const appRoot = dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = dirname(dirname(appRoot));
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   transpilePackages: ["@medario/firebase", "@medario/ui"],
   reactStrictMode: true,
   poweredByHeader: false,
