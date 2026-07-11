@@ -13,6 +13,7 @@
 const functionsV1 = require("firebase-functions/v1");
 const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
+const { unmatchedSearchLogMessage } = require("./privacy");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -96,7 +97,7 @@ exports.onSearchEvent = functionsV1.firestore
 
       logger.info(`onSearchEvent: interest "${specialty}" incremented for user ${uid}`);
     } else {
-      logger.info(`onSearchEvent: no specialty matched in query "${query}" for user ${uid}`);
+      logger.info(unmatchedSearchLogMessage());
     }
 
     // Always delete the raw search event (minimisation).

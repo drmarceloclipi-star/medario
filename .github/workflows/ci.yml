@@ -41,3 +41,6 @@ jobs:
 
       - name: Typecheck domain package
         run: npm --workspace @medario/domain run typecheck
+
+      - name: Run Functions privacy tests
+        run: npm --prefix functions test
