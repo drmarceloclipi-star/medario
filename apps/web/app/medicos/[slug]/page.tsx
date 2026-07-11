@@ -1,0 +1,31 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound, permanentRedirect } from 'next/navigation';
+
+import { ProfileContactActions } from '../../profile-contact-actions';
+import { getPublicProfile, publicProfileSlugs, resolvePublicProfileSlug } from '../../profile-data';
+
+type ProfilePageProps = { params: Promise<{ slug: string }> };
+
+export function generateStaticParams() {
+  return publicProfileSlugs().map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({ params }: ProfilePageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const profile = getPublicProfile(slug);
+  if (!profile) return {};
+  const canonical = `https://medario.com.br/medicos/${profile.slug}`;
+  return { title: `${profile.name} — ${profile.specialty} em ${profile.location.city}/${profile.location.state} | Medário`, description: `${profile.name}, ${profile.specialty} em ${profile.location.city}. ${profile.crm}, ${profile.rqe}.`, alternates: { canonical }, openGraph: { type: 'profile', url: canonical, title: `${profile.name} | Medário` } };
+}
+
+export default async function PublicProfilePage({ params }: ProfilePageProps) {
+  const { slug } = await params;
+  const canonicalSlug = resolvePublicProfileSlug(slug);
+  if (canonicalSlug !== slug) permanentRedirect(`/medicos/${canonicalSlug}`);
+  const profile = getPublicProfile(canonicalSlug);
+  if (!profile) notFound();
+  const schema = { '@context': 'https://schema.org', '@type': 'Physician', name: profile.name, medicalSpecialty: profile.specialty, url: `https://medario.com.br/medicos/${profile.slug}`, telephone: profile.contacts.phone.href.replace('tel:', ''), address: { '@type': 'PostalAddress', streetAddress: profile.location.address, addressLocality: profile.location.city, addressRegion: profile.location.state }, identifier: { '@type': 'PropertyValue', name: 'CRM', value: profile.crm } };
+
+  return <main className="public-profile"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} /><Link className="profile-back" href="/">← Voltar à busca</Link><header><p className="section-label">Dossiê profissional</p><h1>{profile.name}</h1><p>{profile.specialty} · {profile.crm} · {profile.rqe}</p><div className="profile-badges">{profile.verified && <span>Perfil verificado</span>}{profile.claimed && <span>Perfil reivindicado</span>}<span>Dados atualizados em {profile.updatedAt}</span></div></header><ProfileContactActions profile={profile} />{profile.pendingChange && <aside className="review-notice"><strong>Alteração em revisão</strong><p>{profile.pendingChange}</p></aside>}<section><h2>Sobre</h2><p>{profile.bio}</p></section><section><h2>Local de atendimento</h2><p>{profile.location.name} · {profile.location.address}</p><p>{profile.location.district}, {profile.location.city}/{profile.location.state}</p>{profile.location.authorized && <span>Localização autorizada</span>}</section><section><h2>Convênios</h2><ul>{profile.insurances.map((item) => <li key={item.name}>{item.name} · {item.confirmed ? 'Convênio confirmado' : 'Convênio informado: confirme antes'}</li>)}</ul></section><section><h2>Atendimento</h2><p>{profile.modalities.join(' · ')} · {profile.availability}</p></section></main>;
+}

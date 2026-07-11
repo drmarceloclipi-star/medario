@@ -67,6 +67,14 @@ test.describe("mobile shell", () => {
     await expect(page.getByRole("heading", { name: "Dr. Rafael Nunes" })).toBeVisible();
   });
 
+  test("shows a public verified profile without moving the legacy site", async ({ page }) => {
+    await page.goto("/medicos/dra-marina-alves");
+    await expect(page.getByRole("heading", { name: "Dra. Marina Alves" })).toBeVisible();
+    await expect(page.getByText("Alteração em revisão")).toBeVisible();
+    await expect(page.getByRole("link", { name: "WhatsApp verificado" })).toHaveAttribute("href", /wa\.me/);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://medario.com.br/medicos/dra-marina-alves");
+  });
+
   for (const width of MOBILE_VIEWPORTS) {
     test(`fits ${width}px without overflow and exposes button names`, async ({ page }) => {
       await page.setViewportSize({ width, height: 844 });
