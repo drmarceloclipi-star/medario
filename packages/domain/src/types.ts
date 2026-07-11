@@ -95,6 +95,29 @@ export interface SavedSearch {
   createdAt: ISODateString;
 }
 
+export type SearchSource = "composer" | "quick_prompt" | "suggestion" | "history";
+
+export interface SearchSuggestion {
+  id: EntityId;
+  label: string;
+  detail: string;
+  query: string;
+  specialtyId?: EntityId;
+}
+
+export interface SearchHistoryEntry {
+  id: EntityId;
+  query: string;
+  source: SearchSource;
+  createdAt: ISODateString;
+}
+
+export interface SearchSession {
+  query: string;
+  source: SearchSource;
+  submittedAt: ISODateString;
+}
+
 export interface Lead {
   id: EntityId;
   doctorId: EntityId;
