@@ -11,6 +11,7 @@ import {
   searchUrl,
   shouldPersistSearch,
 } from './search';
+import { ResultList } from './result-list';
 
 const historyStorageKey = 'medario.search-history';
 const healthConsentStorageKey = 'medario.health-search-consent';
@@ -231,6 +232,7 @@ export function MobileShell() {
             </div>
           </section>
         )}
+        {searchPhase === 'ready' && submittedSearch && <ResultList search={submittedSearch} />}
         {searchPhase === 'empty' && <section className="state-card" aria-live="polite"><span className="state-icon" aria-hidden="true">⌕</span><div><strong>Escolha um filtro objetivo.</strong><p>Tente citar especialidade, cidade, convênio ou modalidade para preparar a busca.</p></div></section>}
         {searchPhase === 'error' && <section className="state-card" role="alert"><span className="state-icon" aria-hidden="true">!</span><div><strong>Não foi possível preparar sua busca.</strong><p>Seus dados não foram enviados. Tente novamente.</p><button className="consent-link" type="button" onClick={() => requestSearch(query, 'composer')}>Tentar novamente</button></div></section>}
         {searchPhase === 'idle' && <section className="state-card" aria-label="Estado inicial"><span className="state-icon" aria-hidden="true">✦</span><div><strong>Comece pela sua necessidade.</strong><p>Você pode escrever sintomas, especialidade, convênio ou o tipo de atendimento que procura.</p></div></section>}
