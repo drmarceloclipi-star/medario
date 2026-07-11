@@ -23,11 +23,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Verify web dependency lockfile
-        run: npm ci --prefix apps/web
-
-      - name: Install dependencies
-        run: npm install
+      - name: Install workspace dependencies
+        run: npm ci
 
       - name: Typecheck web
         run: npm run typecheck:web
