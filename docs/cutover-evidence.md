@@ -27,24 +27,28 @@ Atualização: 2026-07-11
 
 ## QA final
 
-- `npm run qa:web`: 38 testes unitários, 21 E2E, typecheck, lint sem warnings e build standalone verdes.
-- Functions: 18 testes verdes. Rules Emulator: 9 testes verdes, incluindo consentimento explícito para `search_events`.
+- `npm run qa:web` reexecutado em 2026-07-11 20:46 -03: 38 testes unitários, 21 E2E, typecheck, lint e build standalone verdes.
+- Functions reexecutado: 18/18 testes verdes. Rules Emulator: 9/9 testes verdes, incluindo consentimento explícito para `search_events`; o teste usa IDs de evento únicos para permanecer repetível contra o emulador persistente.
 - Lighthouse no standalone local: home 96 performance / 100 acessibilidade / 100 best-practices / 100 SEO; institucional 99 / 100 / 100 / 100; diretório 99 / 100 / 100, com `noindex` intencional.
 - Axe live: zero violações em home, institucional e diretório.
 
 ## Domínio App Hosting
 
-`app.medario.com.br` foi vinculado ao backend, mas aguarda DNS do provedor:
+`app.medario.com.br` foi vinculado ao backend. Em 2026-07-11, os registros foram adicionados no painel DNS da Hostinger. O primeiro CNAME foi salvo na raiz por engano; depois foi corrigido para o host `_acme-challenge_w2lv6yenuls7hto7.app`. A, TXT e CNAME agora respondem nos nameservers autoritativos, Google DNS e Cloudflare.
 
 - A `app.medario.com.br` → `35.219.200.200`
 - TXT `app.medario.com.br` → `fah-claim=023-02-ecae48a6-00a5-4455-b246-82a1ff0caaa9`
 - CNAME `_acme-challenge_w2lv6yenuls7hto7.app.medario.com.br.` → `2c314b74-2596-4e27-b117-48fa7dfcd05a.0.authorize.certificatemanager.goog.`
 
+Verificação DNS executada com `dig` contra `apollo.dns-parking.com`, `athena.dns-parking.com`, `8.8.8.8` e `1.1.1.1`: A/TXT/CNAME confirmados; não há AAAA, CNAME concorrente ou CAA restritiva. Nova verificação no console Firebase em 2026-07-11 20:47 -03 ainda informa `Mudanças de DNS ainda não detectadas`; às 20:48 -03 o CLI confirmou o backend saudável (`/apps/web`, Node 22, `reconciling=false`), enquanto HTTP responde redirect para HTTPS e TLS ainda não foi provisionado. A documentação do App Hosting informa que a emissão pode levar algumas horas e, em casos raros, até 24 horas.
+
+Gate reproduzível: `PATH=/usr/local/bin:$PATH npm run verify:app-hosting-domain` confirmou A/TXT/CNAME (`ok: true`) e falhou somente no HTTPS (`ECONNRESET`).
+
 Não houve alteração de `medario.com.br`, remoção do Hosting legado ou cutover apex.
 
 ## Gates ainda abertos
 
-- DNS e SSL de `app.medario.com.br` dependem do provedor DNS.
+- SSL e status conectado de `app.medario.com.br` ainda dependem da emissão do certificado pelo App Hosting.
 - Diretório SEO continua `noindex` até existirem três perfis confirmados e conteúdo único.
 - Agenda, Medário Pro, observabilidade e analytics permanecem fora do cutover público.
 - Snapshot visual mobile gerado e revisado; Lighthouse/Axe verdes. SEO do preview permanece bloqueado deliberadamente por `robots`.

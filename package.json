@@ -11,7 +11,8 @@
     "lint:web": "npm run lint --workspace @medario/web",
     "typecheck:web": "npm run typecheck --workspace @medario/web",
     "test:web": "npm run test --workspace @medario/web",
-    "qa:web": "npm run qa --workspace @medario/web"
+    "qa:web": "npm run qa --workspace @medario/web",
+    "verify:app-hosting-domain": "node scripts/verify-app-hosting-domain.mjs"
   },
   "engines": {
     "node": ">=22.0.0"
