@@ -104,10 +104,11 @@ test("keeps synchronized favorites and saved searches server-only", async () => 
 test("requires explicit health consent before accepting raw search events", async () => {
   const withoutConsent = environment.authenticatedContext("search-without-consent").firestore();
   const withConsent = environment.authenticatedContext("search-with-consent").firestore();
-  const event = { query: "psiquiatra em Joinville", timestamp: serverTimestamp() };
+  const event = () => ({ query: "psiquiatra em Joinville", timestamp: serverTimestamp() });
+  const eventId = `event-${Date.now()}`;
 
-  await assertFails(setDoc(doc(withoutConsent, "users/search-without-consent/search_events/event-1"), event));
-  await assertSucceeds(setDoc(doc(withConsent, "users/search-with-consent/search_events/event-1"), event));
+  await assertFails(setDoc(doc(withoutConsent, `users/search-without-consent/search_events/${eventId}`), event()));
+  await assertSucceeds(setDoc(doc(withConsent, `users/search-with-consent/search_events/${eventId}`), event()));
 });
 
 test("allows only account-owned profile fields and blocks derived writes", async () => {
