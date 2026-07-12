@@ -12,3 +12,4 @@ apps/*/.turbo/
 .env
 .env.*
 !.env.example
+.aider*

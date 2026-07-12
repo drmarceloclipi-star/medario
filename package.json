@@ -1,20 +1,12 @@
 {
-  "name": "medario",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "name": "pong-game",
+  "version": "1.0.0",
+  "description": "A simple Pong game",
+  "main": "index.js",
   "scripts": {
-    "dev:web": "npm run dev --workspace @medario/web",
-    "build:web": "npm run build --workspace @medario/web",
-    "lint:web": "npm run lint --workspace @medario/web",
-    "typecheck:web": "npm run typecheck --workspace @medario/web",
-    "test:web": "npm run test --workspace @medario/web",
-    "qa:web": "npm run qa --workspace @medario/web",
-    "verify:app-hosting-domain": "node scripts/verify-app-hosting-domain.mjs"
+    "start": "node index.js"
   },
-  "engines": {
-    "node": ">=22.0.0"
-  }
+  "keywords": ["pong", "game", "arcade"],
+  "author": "",
+  "license": "ISC"
 }
