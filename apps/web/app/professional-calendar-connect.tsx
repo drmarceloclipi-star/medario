@@ -1,11 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createFirebaseBrowserClient } from '@medario/firebase';
 
 export function ProfessionalCalendarConnect() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const { auth } = await createFirebaseBrowserClient();
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+      const response = await fetch('/api/oauth/google/status', { headers: { authorization: `Bearer ${token}` } });
+      const payload = await response.json() as { connected?: unknown };
+      if (!cancelled && response.ok) setConnected(payload.connected === true);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const connect = async () => {
     setBusy(true); setMessage('');
@@ -19,5 +33,5 @@ export function ProfessionalCalendarConnect() {
       window.location.assign(payload.url);
     } catch { setMessage('Calendário disponível somente para Conta profissional ativa.'); setBusy(false); }
   };
-  return <section className="account-card"><h2>Google Calendar</h2><p>Conecte uma agenda de integração. O Medário consulta livre/ocupado e cria somente eventos mínimos após confirmação.</p><button type="button" disabled={busy} onClick={() => void connect()}>{busy ? 'Redirecionando…' : 'Conectar Google Calendar'}</button>{message && <p role="status">{message}</p>}</section>;
+  return <section className="account-card"><h2>Google Calendar</h2><p>Conecte uma agenda de integração. O Medário consulta livre/ocupado e cria somente eventos mínimos após confirmação.</p>{connected ? <p role="status">Google Calendar conectado.</p> : <button type="button" disabled={busy} onClick={() => void connect()}>{busy ? 'Redirecionando…' : 'Conectar Google Calendar'}</button>}{message && <p role="status">{message}</p>}</section>;
 }
