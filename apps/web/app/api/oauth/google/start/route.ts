@@ -6,7 +6,7 @@ import { adminFirestore } from '@medario/firebase/server';
 export const runtime = 'nodejs';
 
 const callback = 'https://app.medario.com.br/api/oauth/google/callback';
-const scope = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.freebusy';
+const scope = 'https://www.googleapis.com/auth/calendar.calendars https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.freebusy';
 
 export async function POST(request: Request) {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');

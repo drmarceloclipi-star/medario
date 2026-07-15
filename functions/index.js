@@ -15,6 +15,7 @@ const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
 const crypto = require("node:crypto");
 const { calendarIsFresh, canTransitionAppointment, createReservationDecision, slotIsEligible } = require("./appointment-policy");
+const { busyIntervalsFrom, calendarEventId, calendarSlotIsAvailable } = require("./calendar-policy");
 const { defaultPreferences, enabledChannels, notificationOutboxRecord, preferencesFrom, providerlessDeliveryState } = require("./notification-policy");
 const { leadMetricsFrom, profileChangesFrom } = require("./professional-policy");
 const { savedSearchCriteriaFrom, savedSearchRecord } = require("./saved-items-policy");
@@ -50,6 +51,56 @@ async function googleAccessToken(connection) {
   const payload = await response.json();
   if (!response.ok || typeof payload.access_token !== "string") throw new Error("calendar refresh failed");
   return payload.access_token;
+}
+
+function integrationCalendarId(connection) {
+  const calendarId = connection?.integrationCalendarId;
+  if (typeof calendarId !== "string" || !calendarId.trim() || calendarId === "primary") throw new Error("integration calendar unavailable");
+  return calendarId;
+}
+
+async function googleBusyIntervals(accessToken, calendarId) {
+  const now = new Date();
+  const response = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
+    method: "POST",
+    headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json" },
+    body: JSON.stringify({ timeMin: now.toISOString(), timeMax: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString(), items: [{ id: calendarId }] }),
+  });
+  const payload = await response.json();
+  if (!response.ok) throw new Error("calendar availability failed");
+  return { busy: busyIntervalsFrom(payload, calendarId), fetchedAt: now };
+}
+
+async function refreshCalendarAvailability(doctorId) {
+  const connectionSnap = await db.collection("calendarConnections").doc(doctorId).get();
+  const connection = connectionSnap.data();
+  if (!connectionSnap.exists || connection.status !== "active") throw new Error("calendar disconnected");
+  const calendarId = integrationCalendarId(connection);
+  try {
+    const accessToken = await googleAccessToken(connection);
+    const availability = await googleBusyIntervals(accessToken, calendarId);
+    await db.collection("calendarAvailability").doc(doctorId).set({ status: "available", integrationCalendarId: calendarId, ...availability, updatedAt: new Date() });
+    return { calendarId, ...availability };
+  } catch (error) {
+    await db.collection("calendarAvailability").doc(doctorId).set({ status: "unavailable", fetchedAt: new Date(), updatedAt: new Date() }, { merge: true });
+    throw error;
+  }
+}
+
+async function deliverCalendarOutboxItem(item) {
+  const task = item.data();
+  const connectionSnap = await db.collection("calendarConnections").doc(task.doctorId).get();
+  const connection = connectionSnap.data();
+  if (!connectionSnap.exists || connection.status !== "active") throw new Error("calendar disconnected");
+  const accessToken = await googleAccessToken(connection);
+  const calendarId = integrationCalendarId(connection);
+  const eventId = calendarEventId(task.medarioAppointmentId);
+  const startsAt = new Date(task.startsAt); const endsAt = new Date(task.endsAt);
+  if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime()) || startsAt >= endsAt) throw new Error("calendar event time invalid");
+  const event = { summary: `Medário ${task.medarioAppointmentId}`, start: { dateTime: startsAt.toISOString() }, end: { dateTime: endsAt.toISOString() }, extendedProperties: { private: { medarioAppointmentId: task.medarioAppointmentId } } };
+  const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${eventId}`, { method: "PUT", headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json" }, body: JSON.stringify(event) });
+  if (!response.ok) throw new Error(`calendar event ${response.status}`);
+  await item.ref.update({ state: "delivered", eventId, deliveredAt: new Date(), attempts: admin.firestore.FieldValue.increment(1) });
 }
 
 function decisionError(decision) {
@@ -179,7 +230,8 @@ exports.decideAppointmentRequest = functionsV1.https.onCall(async (data, context
     const [typeSnap, slotSnap, availabilitySnap, preferenceSnap] = await Promise.all([transaction.get(typeRef), transaction.get(slotRef), transaction.get(availabilityRef), transaction.get(preferenceRef)]);
     const appointmentType = typeSnap.exists ? { id: typeSnap.id, ...typeSnap.data() } : null;
     const slot = slotSnap.exists ? { id: slotSnap.id, ...slotSnap.data() } : null;
-    if (!calendarIsFresh(availabilitySnap.exists ? availabilitySnap.data() : null, now) || !slotIsEligible(slot, appointmentType, now)) throw new functionsV1.https.HttpsError("failed-precondition", "Agenda ou horário precisa ser confirmado novamente.");
+    const availability = availabilitySnap.exists ? availabilitySnap.data() : null;
+    if (!calendarIsFresh(availability, now) || !slotIsEligible(slot, appointmentType, now) || !calendarSlotIsAvailable(availability, slot)) throw new functionsV1.https.HttpsError("failed-precondition", "Agenda ou horário precisa ser confirmado novamente.");
     transaction.update(slotRef, { status: "reserved", appointmentId, updatedAt: now, version: admin.firestore.FieldValue.increment(1) });
     transaction.update(appointmentRef, { status: "confirmed", slotId: slotRef.id, confirmedAt: now, decidedAt: now, version: admin.firestore.FieldValue.increment(1) });
     transaction.create(db.collection("calendarOutbox").doc(`${appointmentId}:confirmed`), { id: `${appointmentId}:confirmed`, medarioAppointmentId: appointmentId, doctorId: appointment.doctorId, startsAt: slot.startsAt, endsAt: slot.endsAt, state: "pending", attempts: 0, createdAt: now });
@@ -271,22 +323,36 @@ exports.revokeProfessionalCalendarConnection = functionsV1.https.onCall(async (_
   });
 });
 
+exports.syncProfessionalCalendarAvailability = functionsV1.runWith({ secrets: ["MEDARIO_CALENDAR_TOKEN_KEY", "MEDARIO_GOOGLE_OAUTH_CLIENT_ID", "MEDARIO_GOOGLE_OAUTH_CLIENT_SECRET"] }).https.onCall(async (_data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login como médico.");
+  const professional = await db.runTransaction((transaction) => activeProfessionalAccount(transaction, context.auth.uid));
+  try {
+    const availability = await refreshCalendarAvailability(professional.doctorId);
+    return { status: "available", fetchedAt: availability.fetchedAt };
+  } catch {
+    throw new functionsV1.https.HttpsError("unavailable", "Não foi possível atualizar a agenda agora.");
+  }
+});
+
+const calendarSecretOptions = { secrets: ["MEDARIO_CALENDAR_TOKEN_KEY", "MEDARIO_GOOGLE_OAUTH_CLIENT_ID", "MEDARIO_GOOGLE_OAUTH_CLIENT_SECRET"] };
+
+exports.deliverCalendarOutbox = functionsV1.runWith({ ...calendarSecretOptions, failurePolicy: true }).firestore.document("calendarOutbox/{outboxId}").onCreate(async (item) => {
+  try {
+    await deliverCalendarOutboxItem(item);
+  } catch (error) {
+    logger.error("calendar outbox delivery failed", { outboxId: item.id, code: error instanceof Error ? error.message : "unknown" });
+    await item.ref.update({ state: "retry", attempts: admin.firestore.FieldValue.increment(1), updatedAt: new Date() });
+    throw error;
+  }
+});
+
 exports.processCalendarOutbox = functionsV1.runWith({ secrets: ["MEDARIO_CALENDAR_TOKEN_KEY", "MEDARIO_GOOGLE_OAUTH_CLIENT_ID", "MEDARIO_GOOGLE_OAUTH_CLIENT_SECRET"] }).https.onCall(async (_data, context) => {
   if (context.auth?.token?.medarioAdmin !== true) throw new functionsV1.https.HttpsError("permission-denied", "Processamento não autorizado.");
-  const pending = await db.collection("calendarOutbox").where("state", "==", "pending").limit(25).get();
+  const pending = await db.collection("calendarOutbox").where("state", "in", ["pending", "retry"]).limit(25).get();
   let delivered = 0;
   for (const item of pending.docs) {
-    const task = item.data();
     try {
-      const connectionSnap = await db.collection("calendarConnections").doc(task.doctorId).get();
-      const connection = connectionSnap.data();
-      if (!connectionSnap.exists || connection.status !== "active") throw new Error("calendar disconnected");
-      const accessToken = await googleAccessToken(connection);
-      const calendarId = encodeURIComponent(connection.integrationCalendarId || "primary");
-      const event = { summary: `Medário ${task.medarioAppointmentId}`, start: { dateTime: new Date(task.startsAt).toISOString() }, end: { dateTime: new Date(task.endsAt).toISOString() }, extendedProperties: { private: { medarioAppointmentId: task.medarioAppointmentId } } };
-      const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, { method: "POST", headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json" }, body: JSON.stringify(event) });
-      if (!response.ok) throw new Error(`calendar event ${response.status}`);
-      await item.ref.update({ state: "delivered", deliveredAt: new Date(), attempts: admin.firestore.FieldValue.increment(1) }); delivered += 1;
+      await deliverCalendarOutboxItem(item); delivered += 1;
     } catch (error) {
       logger.error("calendar outbox delivery failed", { outboxId: item.id, code: error instanceof Error ? error.message : "unknown" });
       await item.ref.update({ state: "retry", attempts: admin.firestore.FieldValue.increment(1), updatedAt: new Date() });
