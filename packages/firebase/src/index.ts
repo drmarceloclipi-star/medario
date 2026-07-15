@@ -31,7 +31,8 @@ export type FirebasePublicEnvironment = {
   | "NEXT_PUBLIC_FIREBASE_APP_ID"
   | "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET"
   | "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"
-  | "NEXT_PUBLIC_FIREBASE_FUNCTIONS_REGION"]?: string | undefined;
+  | "NEXT_PUBLIC_FIREBASE_FUNCTIONS_REGION"
+  | "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID"]?: string | undefined;
 };
 
 const requiredConfiguration = [
@@ -73,6 +74,7 @@ function publicEnvironmentFromProcess(): FirebasePublicEnvironment {
     NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
     NEXT_PUBLIC_FIREBASE_FUNCTIONS_REGION: process.env.NEXT_PUBLIC_FIREBASE_FUNCTIONS_REGION,
+    NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
   };
 }
 
@@ -90,6 +92,8 @@ export function firebasePublicConfigFrom(environment: FirebasePublicEnvironment)
   const messagingSenderId = optionalValue(environment.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID);
   if (storageBucket) config.storageBucket = storageBucket;
   if (messagingSenderId) config.messagingSenderId = messagingSenderId;
+  const measurementId = optionalValue(environment.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID);
+  if (measurementId) config.measurementId = measurementId;
   return config;
 }
 

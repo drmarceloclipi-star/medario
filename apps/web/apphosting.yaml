@@ -7,6 +7,8 @@ env:
     value: medario-doctor
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: 1:702082375310:web:46be3b2b6dc2f66bdb73df
+  - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    value: G-27C2929YRC
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: medario-doctor.firebasestorage.app
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
