@@ -11,9 +11,10 @@ const scope = 'https://www.googleapis.com/auth/calendar.calendars https://www.go
 export async function POST(request: Request) {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
   if (!token) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
+  // Initializing Firestore also registers the default Admin app used by getAuth().
+  const db = adminFirestore();
   const user = await getAuth().verifyIdToken(token).catch(() => null);
   if (!user) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-  const db = adminFirestore();
   const professional = await db.collection('professionalAccounts').doc(user.uid).get();
   const doctorId = professional.data()?.doctorId;
   if (!professional.exists || professional.data()?.status !== 'active' || typeof doctorId !== 'string') return NextResponse.json({ error: 'professional_required' }, { status: 403 });
