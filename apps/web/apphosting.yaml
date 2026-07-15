@@ -15,3 +15,11 @@ env:
     value: "702082375310"
   - variable: NEXT_PUBLIC_FIREBASE_FUNCTIONS_REGION
     value: us-central1
+  - variable: MEDARIO_GOOGLE_OAUTH_CLIENT_ID
+    secret: MEDARIO_GOOGLE_OAUTH_CLIENT_ID
+    availability:
+      - RUNTIME
+  - variable: MEDARIO_GOOGLE_OAUTH_CLIENT_SECRET
+    secret: MEDARIO_GOOGLE_OAUTH_CLIENT_SECRET
+    availability:
+      - RUNTIME
