@@ -35,6 +35,23 @@ function digest(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
 }
 
+function decryptCalendarToken(record) {
+  const key = Buffer.from(process.env.MEDARIO_CALENDAR_TOKEN_KEY || "", "base64");
+  if (key.length !== 32 || !record?.ciphertext || !record?.iv || !record?.tag) throw new Error("calendar token unavailable");
+  const decipher = crypto.createDecipheriv("aes-256-gcm", key, Buffer.from(record.iv, "base64"));
+  decipher.setAuthTag(Buffer.from(record.tag, "base64"));
+  return Buffer.concat([decipher.update(Buffer.from(record.ciphertext, "base64")), decipher.final()]).toString("utf8");
+}
+
+async function googleAccessToken(connection) {
+  const refreshToken = decryptCalendarToken(connection.refreshToken);
+  const body = new URLSearchParams({ client_id: process.env.MEDARIO_GOOGLE_OAUTH_CLIENT_ID || "", client_secret: process.env.MEDARIO_GOOGLE_OAUTH_CLIENT_SECRET || "", refresh_token: refreshToken, grant_type: "refresh_token" });
+  const response = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body });
+  const payload = await response.json();
+  if (!response.ok || typeof payload.access_token !== "string") throw new Error("calendar refresh failed");
+  return payload.access_token;
+}
+
 function decisionError(decision) {
   const messages = {
     idempotency_conflict: "A mesma chave não pode representar outra solicitação.",
@@ -252,6 +269,30 @@ exports.revokeProfessionalCalendarConnection = functionsV1.https.onCall(async (_
     transaction.set(connectionRef, { status: "revoked", revokedAt: now, updatedAt: now }, { merge: true });
     return { status: "revoked" };
   });
+});
+
+exports.processCalendarOutbox = functionsV1.runWith({ secrets: ["MEDARIO_CALENDAR_TOKEN_KEY", "MEDARIO_GOOGLE_OAUTH_CLIENT_ID", "MEDARIO_GOOGLE_OAUTH_CLIENT_SECRET"] }).https.onCall(async (_data, context) => {
+  if (context.auth?.token?.medarioAdmin !== true) throw new functionsV1.https.HttpsError("permission-denied", "Processamento não autorizado.");
+  const pending = await db.collection("calendarOutbox").where("state", "==", "pending").limit(25).get();
+  let delivered = 0;
+  for (const item of pending.docs) {
+    const task = item.data();
+    try {
+      const connectionSnap = await db.collection("calendarConnections").doc(task.doctorId).get();
+      const connection = connectionSnap.data();
+      if (!connectionSnap.exists || connection.status !== "active") throw new Error("calendar disconnected");
+      const accessToken = await googleAccessToken(connection);
+      const calendarId = encodeURIComponent(connection.integrationCalendarId || "primary");
+      const event = { summary: `Medário ${task.medarioAppointmentId}`, start: { dateTime: new Date(task.startsAt).toISOString() }, end: { dateTime: new Date(task.endsAt).toISOString() }, extendedProperties: { private: { medarioAppointmentId: task.medarioAppointmentId } } };
+      const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, { method: "POST", headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json" }, body: JSON.stringify(event) });
+      if (!response.ok) throw new Error(`calendar event ${response.status}`);
+      await item.ref.update({ state: "delivered", deliveredAt: new Date(), attempts: admin.firestore.FieldValue.increment(1) }); delivered += 1;
+    } catch (error) {
+      logger.error("calendar outbox delivery failed", { outboxId: item.id, code: error instanceof Error ? error.message : "unknown" });
+      await item.ref.update({ state: "retry", attempts: admin.firestore.FieldValue.increment(1), updatedAt: new Date() });
+    }
+  }
+  return { processed: pending.size, delivered };
 });
 
 exports.getNotificationPreferences = functionsV1.https.onCall(async (_data, context) => {
