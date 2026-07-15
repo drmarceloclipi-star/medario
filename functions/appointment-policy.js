@@ -1,5 +1,7 @@
 "use strict";
 
+const { calendarSlotIsAvailable } = require("./calendar-policy");
+
 const CALENDAR_FRESHNESS_MS = 5 * 60 * 1000;
 
 function calendarIsFresh(availability, now = new Date()) {
@@ -32,7 +34,7 @@ function createReservationDecision({ requestFingerprint, appointmentId, existing
   }
 
   if (!calendarIsFresh(calendarSnapshot, now)) return { kind: "reject", code: "calendar_stale" };
-  if (!slotIsEligible(slot, appointmentType, now)) return { kind: "reject", code: "slot_unavailable" };
+  if (!slotIsEligible(slot, appointmentType, now) || !calendarSlotIsAvailable(calendarSnapshot, slot)) return { kind: "reject", code: "slot_unavailable" };
 
   return {
     kind: "create",

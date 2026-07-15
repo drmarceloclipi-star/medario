@@ -24,7 +24,7 @@ test("rejects double-booked, short, and incompatible slots", () => {
 
 test("does not reserve a manual request but atomically confirms an immediate request", () => {
   const manual = createReservationDecision({ requestFingerprint: "a", appointmentId: "appointment-1", appointmentType: { ...appointmentType, confirmationPolicy: "manual" }, now });
-  const immediate = createReservationDecision({ requestFingerprint: "b", appointmentId: "appointment-2", slot, appointmentType: { ...appointmentType, confirmationPolicy: "immediate" }, calendarSnapshot: { status: "available", fetchedAt: "2030-01-01T08:59:00.000Z" }, now });
+  const immediate = createReservationDecision({ requestFingerprint: "b", appointmentId: "appointment-2", slot, appointmentType: { ...appointmentType, confirmationPolicy: "immediate" }, calendarSnapshot: { status: "available", fetchedAt: "2030-01-01T08:59:00.000Z", busy: [] }, now });
 
   assert.deepEqual(manual, { kind: "create", appointment: { id: "appointment-1", status: "requested" } });
   assert.equal(immediate.appointment.status, "confirmed");
@@ -43,7 +43,8 @@ test("never confirms an immediate request with stale availability or an unavaila
   const input = { requestFingerprint: "a", appointmentId: "appointment-1", slot, appointmentType: { ...appointmentType, confirmationPolicy: "immediate" }, now };
 
   assert.deepEqual(createReservationDecision({ ...input, calendarSnapshot: { status: "available", fetchedAt: "2030-01-01T08:54:59.999Z" } }), { kind: "reject", code: "calendar_stale" });
-  assert.deepEqual(createReservationDecision({ ...input, slot: { ...slot, status: "reserved" }, calendarSnapshot: { status: "available", fetchedAt: "2030-01-01T08:59:00.000Z" } }), { kind: "reject", code: "slot_unavailable" });
+  assert.deepEqual(createReservationDecision({ ...input, slot: { ...slot, status: "reserved" }, calendarSnapshot: { status: "available", fetchedAt: "2030-01-01T08:59:00.000Z", busy: [] } }), { kind: "reject", code: "slot_unavailable" });
+  assert.deepEqual(createReservationDecision({ ...input, calendarSnapshot: { status: "available", fetchedAt: "2030-01-01T08:59:00.000Z", busy: [{ start: "2030-01-01T10:00:00.000Z", end: "2030-01-01T10:30:00.000Z" }] } }), { kind: "reject", code: "slot_unavailable" });
 });
 
 test("does not resurrect cancelled or completed appointments", () => {
