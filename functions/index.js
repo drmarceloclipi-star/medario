@@ -112,6 +112,36 @@ function decisionError(decision) {
   return new functionsV1.https.HttpsError("failed-precondition", messages[decision.code] || "Solicitação não pode ser concluída.");
 }
 
+function boundedInteger(value, name, min, max) {
+  if (!Number.isInteger(value) || value < min || value > max) {
+    throw new functionsV1.https.HttpsError("invalid-argument", `${name} must be an integer between ${min} and ${max}.`);
+  }
+  return value;
+}
+
+function appointmentTypeInput(data) {
+  const confirmationPolicy = requiredString(data?.confirmationPolicy, "confirmationPolicy");
+  if (confirmationPolicy !== "immediate" && confirmationPolicy !== "manual") {
+    throw new functionsV1.https.HttpsError("invalid-argument", "confirmationPolicy inválida.");
+  }
+  return {
+    label: requiredString(data?.label, "label"),
+    locationId: requiredString(data?.locationId, "locationId"),
+    durationMinutes: boundedInteger(data?.durationMinutes, "durationMinutes", 10, 480),
+    bufferMinutes: boundedInteger(data?.bufferMinutes, "bufferMinutes", 0, 180),
+    minimumLeadMinutes: boundedInteger(data?.minimumLeadMinutes, "minimumLeadMinutes", 0, 10080),
+    maximumWindowDays: boundedInteger(data?.maximumWindowDays, "maximumWindowDays", 1, 365),
+    confirmationPolicy,
+    enabled: data?.enabled !== false,
+  };
+}
+
+function appointmentTime(value, name) {
+  const date = new Date(requiredString(value, name));
+  if (Number.isNaN(date.getTime())) throw new functionsV1.https.HttpsError("invalid-argument", `${name} inválido.`);
+  return date;
+}
+
 async function activeProfessionalAccount(transaction, uid) {
   const accountRef = db.collection("professionalAccounts").doc(uid);
   const accountSnap = await transaction.get(accountRef);
@@ -139,6 +169,69 @@ function enqueueOptedInNotifications(transaction, preferenceSnap, { event, recip
  * outbox task after a confirmed transaction; it is never called inside
  * the transaction and never receives patient or health information.
  * ================================================================== */
+exports.listPublicAppointmentOptions = functionsV1.https.onCall(async (data) => {
+  const slug = requiredString(data?.slug, "slug");
+  const publicDoctorSnap = await db.collection("publicDoctors").where("slug", "==", slug).where("published", "==", true).limit(1).get();
+  const publicDoctor = publicDoctorSnap.docs[0];
+  if (!publicDoctor) throw new functionsV1.https.HttpsError("not-found", "Perfil médico não encontrado.");
+
+  const doctorId = publicDoctor.id;
+  const [typesSnap, slotsSnap, availabilitySnap] = await Promise.all([
+    db.collection("doctors").doc(doctorId).collection("appointmentTypes").get(),
+    db.collection("doctors").doc(doctorId).collection("slots").where("status", "==", "open").limit(100).get(),
+    db.collection("calendarAvailability").doc(doctorId).get(),
+  ]);
+  const types = new Map(typesSnap.docs.map((item) => [item.id, { id: item.id, ...item.data() }]));
+  const availability = availabilitySnap.exists ? availabilitySnap.data() : null;
+  const calendarAvailable = calendarIsFresh(availability);
+  const slots = calendarAvailable
+    ? slotsSnap.docs.map((item) => ({ id: item.id, ...item.data() })).filter((slot) => {
+      const type = types.get(slot.appointmentTypeId);
+      return slotIsEligible(slot, type) && calendarSlotIsAvailable(availability, slot);
+    }).sort((left, right) => new Date(left.startsAt).getTime() - new Date(right.startsAt).getTime())
+    : [];
+  const offeredTypeIds = new Set(slots.map((slot) => slot.appointmentTypeId));
+  return {
+    doctorId,
+    calendarAvailable,
+    types: [...types.values()].filter((type) => type.enabled !== false && offeredTypeIds.has(type.id)).map((type) => ({ id: type.id, label: type.label, confirmationPolicy: type.confirmationPolicy })),
+    slots: slots.map((slot) => ({ id: slot.id, typeId: slot.appointmentTypeId, startsAt: slot.startsAt, endsAt: slot.endsAt })),
+  };
+});
+
+exports.saveProfessionalAppointmentType = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login como médico.");
+  const input = appointmentTypeInput(data);
+  const now = new Date();
+  return db.runTransaction(async (transaction) => {
+    const professional = await activeProfessionalAccount(transaction, context.auth.uid);
+    const typeId = data?.typeId ? requiredString(data.typeId, "typeId") : db.collection("doctors").doc(professional.doctorId).collection("appointmentTypes").doc().id;
+    const typeRef = db.collection("doctors").doc(professional.doctorId).collection("appointmentTypes").doc(typeId);
+    transaction.set(typeRef, { ...input, updatedAt: now }, { merge: true });
+    return { id: typeId, ...input };
+  });
+});
+
+exports.createProfessionalAppointmentSlot = functionsV1.https.onCall(async (data, context) => {
+  if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login como médico.");
+  const typeId = requiredString(data?.typeId, "typeId");
+  const startsAt = appointmentTime(data?.startsAt, "startsAt");
+  const endsAt = appointmentTime(data?.endsAt, "endsAt");
+  const now = new Date();
+  return db.runTransaction(async (transaction) => {
+    const professional = await activeProfessionalAccount(transaction, context.auth.uid);
+    const typeRef = db.collection("doctors").doc(professional.doctorId).collection("appointmentTypes").doc(typeId);
+    const typeSnap = await transaction.get(typeRef);
+    if (!typeSnap.exists) throw new functionsV1.https.HttpsError("not-found", "Tipo de consulta não encontrado.");
+    const appointmentType = { id: typeSnap.id, ...typeSnap.data() };
+    const slot = { appointmentTypeId: typeId, locationId: appointmentType.locationId, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString(), status: "open" };
+    if (!slotIsEligible(slot, appointmentType, now)) throw new functionsV1.https.HttpsError("failed-precondition", "Horário fora das regras da agenda.");
+    const slotRef = db.collection("doctors").doc(professional.doctorId).collection("slots").doc();
+    transaction.create(slotRef, { ...slot, createdAt: now, updatedAt: now, version: 1 });
+    return { id: slotRef.id, ...slot };
+  });
+});
+
 exports.createAppointmentRequest = functionsV1.https.onCall(async (data, context) => {
   if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login para solicitar uma consulta.");
 
@@ -151,18 +244,21 @@ exports.createAppointmentRequest = functionsV1.https.onCall(async (data, context
   const appointmentRef = db.collection("appointments").doc();
   const typeRef = db.collection("doctors").doc(doctorId).collection("appointmentTypes").doc(typeId);
   const slotRef = slotId ? db.collection("doctors").doc(doctorId).collection("slots").doc(slotId) : null;
+  const publicDoctorRef = db.collection("publicDoctors").doc(doctorId);
   const availabilityRef = db.collection("calendarAvailability").doc(doctorId);
   const preferenceRef = db.collection("notificationPreferences").doc(patientUid);
   const idempotencyRef = db.collection("appointmentIdempotency").doc(`${patientUid}_${digest(idempotencyKey)}`);
 
   return db.runTransaction(async (transaction) => {
-    const [idempotencySnap, typeSnap, slotSnap, availabilitySnap, preferenceSnap] = await Promise.all([
+    const [idempotencySnap, typeSnap, slotSnap, availabilitySnap, preferenceSnap, publicDoctorSnap] = await Promise.all([
       transaction.get(idempotencyRef),
       transaction.get(typeRef),
       slotRef ? transaction.get(slotRef) : Promise.resolve(null),
       transaction.get(availabilityRef),
       transaction.get(preferenceRef),
+      transaction.get(publicDoctorRef),
     ]);
+    if (!publicDoctorSnap.exists || publicDoctorSnap.data().published !== true) throw new functionsV1.https.HttpsError("failed-precondition", "Perfil médico não está disponível para agendamento.");
     if (!typeSnap.exists) throw new functionsV1.https.HttpsError("not-found", "Tipo de consulta não encontrado.");
 
     const appointmentType = { id: typeSnap.id, ...typeSnap.data() };
@@ -292,12 +388,14 @@ exports.reviewProfessionalProfileChange = functionsV1.https.onCall(async (data, 
 exports.getProfessionalDashboard = functionsV1.https.onCall(async (_data, context) => {
   if (!context.auth?.uid) throw new functionsV1.https.HttpsError("unauthenticated", "Faça login como médico.");
   const professional = await db.runTransaction((transaction) => activeProfessionalAccount(transaction, context.auth.uid));
-  const [doctorSnap, calendarSnap, metricsSnap, appointmentsSnap, changesSnap] = await Promise.all([
+  const [doctorSnap, calendarSnap, metricsSnap, appointmentsSnap, changesSnap, typesSnap, slotsSnap] = await Promise.all([
     db.collection("doctors").doc(professional.doctorId).get(),
     db.collection("calendarConnections").doc(professional.doctorId).get(),
     db.collection("professionalLeadMetrics").doc(professional.doctorId).get(),
     db.collection("appointments").where("doctorId", "==", professional.doctorId).limit(20).get(),
     db.collection("profileChangeRequests").where("doctorId", "==", professional.doctorId).where("status", "==", "pending").limit(20).get(),
+    db.collection("doctors").doc(professional.doctorId).collection("appointmentTypes").get(),
+    db.collection("doctors").doc(professional.doctorId).collection("slots").where("status", "==", "open").limit(50).get(),
   ]);
   const calendar = calendarSnap.exists ? calendarSnap.data() : {};
   let metrics;
@@ -308,6 +406,8 @@ exports.getProfessionalDashboard = functionsV1.https.onCall(async (_data, contex
     calendar: { status: calendar.status || "not_connected", integrationCalendarId: calendar.integrationCalendarId || null, connectedAt: calendar.connectedAt || null, revokedAt: calendar.revokedAt || null },
     leadMetrics: metrics,
     appointments: appointmentsSnap.docs.map((item) => ({ id: item.id, status: item.data().status, requestedAt: item.data().requestedAt || null, confirmedAt: item.data().confirmedAt || null })),
+    appointmentTypes: typesSnap.docs.map((item) => ({ id: item.id, label: item.data().label, confirmationPolicy: item.data().confirmationPolicy, durationMinutes: item.data().durationMinutes, enabled: item.data().enabled !== false })),
+    openSlots: slotsSnap.docs.map((item) => ({ id: item.id, typeId: item.data().appointmentTypeId, startsAt: item.data().startsAt, endsAt: item.data().endsAt })),
     pendingChanges: changesSnap.docs.map((item) => ({ id: item.id, status: item.data().status, requestedAt: item.data().requestedAt, fields: item.data().fields })),
   };
 });
