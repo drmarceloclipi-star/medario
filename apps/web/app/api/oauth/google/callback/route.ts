@@ -4,6 +4,7 @@ import { adminFirestore } from '@medario/firebase/server';
 
 export const runtime = 'nodejs';
 const callback = 'https://app.medario.com.br/api/oauth/google/callback';
+const accountPage = 'https://app.medario.com.br/conta?calendar=connected';
 const integrationCalendarSummary = 'Medário — Integração';
 
 function encrypt(refreshToken: string) {
@@ -69,5 +70,7 @@ export async function GET(request: Request) {
     connectionRef.set({ status: 'active', provider: 'google', integrationCalendarId, refreshToken: encrypt(refreshToken), connectedAt: new Date(), updatedAt: new Date() }, { merge: true }),
     db.collection('calendarAvailability').doc(doctorId).set({ status: 'available', integrationCalendarId, ...availability, updatedAt: new Date() }),
   ]);
-  return NextResponse.redirect(new URL('/conta?calendar=connected', url));
+  // App Hosting forwards requests internally through 0.0.0.0. Never derive a
+  // browser redirect from that internal request origin.
+  return NextResponse.redirect(accountPage);
 }
