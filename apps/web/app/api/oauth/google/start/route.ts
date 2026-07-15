@@ -8,7 +8,7 @@ export const runtime = 'nodejs';
 const callback = 'https://app.medario.com.br/api/oauth/google/callback';
 const scope = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.freebusy';
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
   if (!token) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
   const user = await getAuth().verifyIdToken(token).catch(() => null);
@@ -21,5 +21,5 @@ export async function GET(request: Request) {
   await db.collection('calendarOAuthStates').doc(createHash('sha256').update(state).digest('hex')).create({ doctorId, uid: user.uid, expiresAt: new Date(Date.now() + 10 * 60 * 1000), createdAt: new Date() });
   const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   url.search = new URLSearchParams({ client_id: process.env.MEDARIO_GOOGLE_OAUTH_CLIENT_ID!, redirect_uri: callback, response_type: 'code', scope, access_type: 'offline', prompt: 'consent', state }).toString();
-  return NextResponse.redirect(url);
+  return NextResponse.json({ url: url.toString() });
 }
