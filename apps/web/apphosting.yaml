@@ -23,3 +23,7 @@ env:
     secret: MEDARIO_GOOGLE_OAUTH_CLIENT_SECRET
     availability:
       - RUNTIME
+  - variable: MEDARIO_CALENDAR_TOKEN_KEY
+    secret: MEDARIO_CALENDAR_TOKEN_KEY
+    availability:
+      - RUNTIME

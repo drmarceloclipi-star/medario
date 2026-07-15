@@ -6,7 +6,7 @@ type PublicDirectoryServerOptions = {
   firestore?: Firestore;
 };
 
-function adminFirestore() {
+export function adminFirestore() {
   const projectId = process.env.FIREBASE_PROJECT_ID ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const app = getApps()[0] ?? initializeApp({ credential: applicationDefault(), ...(projectId ? { projectId } : {}) });
   return getFirestore(app);
