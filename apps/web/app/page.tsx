@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { MobileShell } from './mobile-shell';
+import { readJourneyUrl } from './journey-url';
 import { createPublicProfileReader } from './profile-data';
 import { directoryDoctorFromPublicProfile, fixtureDirectoryDoctors } from './results';
 
@@ -18,6 +19,14 @@ async function loadDirectory() {
   }
 }
 
-export default async function HomePage() {
-  return <MobileShell initialDoctors={await loadDirectory()} />;
+export default async function HomePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = await searchParams;
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (typeof value === 'string') query.set(key, value);
+  }
+  const { filters } = readJourneyUrl(query);
+  const initialSearch = Object.keys(filters).length ? { filters, hasHealthSignal: false } : null;
+
+  return <MobileShell initialDoctors={await loadDirectory()} initialSearch={initialSearch} />;
 }

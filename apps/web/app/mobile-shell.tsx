@@ -89,7 +89,7 @@ function storedHistory(healthConsent: boolean) {
   }
 }
 
-export function MobileShell({ initialDoctors }: { initialDoctors: DirectoryDoctor[] }) {
+export function MobileShell({ initialDoctors, initialSearch }: { initialDoctors: DirectoryDoctor[]; initialSearch: DerivedSearch | null }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -97,8 +97,8 @@ export function MobileShell({ initialDoctors }: { initialDoctors: DirectoryDocto
   const [healthConsent, setHealthConsent] = useState(storedHealthConsent);
   const [history, setHistory] = useState<SearchHistoryEntry[]>(() => storedHistory(storedHealthConsent()));
   const [pendingSearch, setPendingSearch] = useState<PendingSearch | null>(null);
-  const [submittedSearch, setSubmittedSearch] = useState<DerivedSearch | null>(initialJourneySearch);
-  const [searchPhase, setSearchPhase] = useState<SearchPhase>(() => initialJourneySearch() ? 'ready' : 'idle');
+  const [submittedSearch, setSubmittedSearch] = useState<DerivedSearch | null>(() => initialSearch ?? initialJourneySearch());
+  const [searchPhase, setSearchPhase] = useState<SearchPhase>(() => initialSearch || initialJourneySearch() ? 'ready' : 'idle');
   const [symptomGuidance, setSymptomGuidance] = useState<SymptomGuidance | null>(null);
   const [urgentGuidance, setUrgentGuidance] = useState<SymptomGuidance | null>(null);
   const drawerRef = useRef<HTMLElement>(null);
