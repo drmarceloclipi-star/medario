@@ -8,7 +8,7 @@ const workspaceRoot = dirname(dirname(appRoot));
 const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingRoot: workspaceRoot,
-  transpilePackages: ["@medario/firebase", "@medario/ui"],
+  transpilePackages: ["@medario/domain", "@medario/firebase", "@medario/ui"],
   reactStrictMode: true,
   poweredByHeader: false,
   turbopack: {

@@ -12,7 +12,12 @@ try {
 }
 
 for (const entry of await readdir(nestedAppRoot)) {
-  await cp(path.join(nestedAppRoot, entry), path.join(standaloneRoot, entry), {
+  const destination = path.join(standaloneRoot, entry);
+  // Turbopack can emit a directory at the root and a symlink/file at the
+  // nested app path (notably for React packages). Replace the destination so
+  // the standalone bundle has one coherent module tree.
+  await rm(destination, { recursive: true, force: true });
+  await cp(path.join(nestedAppRoot, entry), destination, {
     recursive: true,
     force: true,
   });
