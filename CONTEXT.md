@@ -7,6 +7,9 @@ Glossário do domínio Medário. Termos resolvidos durante a entrevista de plane
 **Medário**:
 Catálogo médico digital nascido em Joinville/SC. Conecta pacientes a médicos com informações verificáveis e ajuda médicos a serem encontrados localmente.
 
+**Jornada contínua**:
+Experiência percebida como um único Medário, mesmo quando a pessoa passa entre o frontend público indexável em `medario.com.br` e o frontend de produto em `app.medario.com.br`. Preserva identidade, intenção e contexto seguro; nunca transporta texto livre de busca, sintomas ou outros dados de saúde pela URL.
+
 **Card preview**:
 Card minimalista de médico exibido na home como teaser. Não é o Card completo do diretório.
 
