@@ -162,4 +162,13 @@ test.describe("mobile shell", () => {
       expect(metrics.unnamedButtons).toBe(0);
     });
   }
+
+  test('fits 1280px with the same accessible app shell', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await openShell(page);
+    const metrics = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, viewportWidth: window.innerWidth }));
+    expect(hasHorizontalOverflow(metrics)).toBe(false);
+    await expect(page.getByRole('link', { name: 'Entrar' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Abrir menu' })).toBeVisible();
+  });
 });
