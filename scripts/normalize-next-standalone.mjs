@@ -72,8 +72,15 @@ try {
 for (const packageName of ["react", "react-dom"]) {
   const source = path.join(nestedModules, packageName);
   const destination = path.join(standaloneModules, packageName);
-  await rm(destination, { recursive: true, force: true });
-  await cp(source, destination, { recursive: true, force: true, dereference: true });
+  try {
+    await stat(source);
+    await rm(destination, { recursive: true, force: true });
+    await cp(source, destination, { recursive: true, force: true, dereference: true });
+  } catch (error) {
+    if (error?.code !== "ENOENT") {
+      throw error;
+    }
+  }
 }
 
 // Next intentionally leaves static assets and the public directory outside
