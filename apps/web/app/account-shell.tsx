@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import type { AccountPort, AccountPreferences, AuthPort, AuthSession } from '@medario/domain';
 
 import { createFirebaseAccountPort } from '@medario/firebase/account';
+import { createFirebaseBrowserClient } from '@medario/firebase';
 import { ProfessionalCalendarConnect } from './professional-calendar-connect';
 import { ProfessionalScheduling } from './professional-scheduling';
 
@@ -42,6 +43,30 @@ export function AccountShell() {
       })
       .catch(() => setMessage('Conta indisponível neste ambiente.'));
     return () => { active = false; unsubscribe(); };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      try {
+        const { isSignInWithEmailLink, signInWithEmailLink } = await import('firebase/auth');
+        const firebase = await createFirebaseBrowserClient();
+        if (!isSignInWithEmailLink(firebase.auth, window.location.href)) return;
+        const email = window.sessionStorage.getItem('medario.appointment-email');
+        if (!email) {
+          if (active) setMessage('Abra o link no mesmo navegador em que solicitou o acesso de visitante.');
+          return;
+        }
+        await signInWithEmailLink(firebase.auth, email, window.location.href);
+        window.sessionStorage.removeItem('medario.appointment-email');
+        const continueTo = new URLSearchParams(window.location.search).get('continue');
+        if (continueTo && /^\/perfil\/[a-z0-9-]+(?:\?.*)?$/i.test(continueTo)) window.location.replace(continueTo);
+        else if (active) setMessage('E-mail confirmado. Você já pode continuar seu agendamento como visitante.');
+      } catch {
+        if (active) setMessage('Não foi possível confirmar este link de acesso. Solicite outro pelo perfil médico.');
+      }
+    })();
+    return () => { active = false; };
   }, []);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
