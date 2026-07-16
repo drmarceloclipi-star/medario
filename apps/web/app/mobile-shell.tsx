@@ -16,6 +16,7 @@ import {
 import { ResultList } from './result-list';
 import type { DirectoryDoctor } from './results';
 import { type SymptomGuidance, orientSymptomSearch, reviewedUrgencyProtocol } from './symptom-protocol';
+import { journeyUrl, readJourneyUrl } from './journey-url';
 
 const historyStorageKey = 'medario.search-history';
 const healthConsentStorageKey = 'medario.health-search-consent';
@@ -59,6 +60,13 @@ function countFilters(search: DerivedSearch) {
   return Object.values(search.filters).filter(Boolean).length;
 }
 
+function initialJourneySearch() {
+  if (typeof window === 'undefined') return null;
+  const { filters } = readJourneyUrl(window.location.search);
+  const search = { filters, hasHealthSignal: false };
+  return countFilters(search) > 0 ? search : null;
+}
+
 function readableFilter(value: string) {
   if (value === 'telemedicine') return 'Teleconsulta';
   if (value === 'in_person') return 'Presencial';
@@ -88,13 +96,14 @@ export function MobileShell({ initialDoctors }: { initialDoctors: DirectoryDocto
   const [healthConsent, setHealthConsent] = useState(storedHealthConsent);
   const [history, setHistory] = useState<SearchHistoryEntry[]>(() => storedHistory(storedHealthConsent()));
   const [pendingSearch, setPendingSearch] = useState<PendingSearch | null>(null);
-  const [submittedSearch, setSubmittedSearch] = useState<DerivedSearch | null>(null);
-  const [searchPhase, setSearchPhase] = useState<SearchPhase>('idle');
+  const [submittedSearch, setSubmittedSearch] = useState<DerivedSearch | null>(initialJourneySearch);
+  const [searchPhase, setSearchPhase] = useState<SearchPhase>(() => initialJourneySearch() ? 'ready' : 'idle');
   const [symptomGuidance, setSymptomGuidance] = useState<SymptomGuidance | null>(null);
   const [urgentGuidance, setUrgentGuidance] = useState<SymptomGuidance | null>(null);
   const drawerRef = useRef<HTMLElement>(null);
   const sheetRef = useRef<HTMLElement>(null);
   const searchTimerRef = useRef<number | null>(null);
+  const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
 
   const matchingSuggestions = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('pt-BR');
@@ -126,6 +135,16 @@ export function MobileShell({ initialDoctors }: { initialDoctors: DirectoryDocto
   useEffect(() => { if (drawerOpen) drawerRef.current?.focus(); }, [drawerOpen]);
   useEffect(() => { if (sheetOpen) sheetRef.current?.focus(); }, [sheetOpen]);
   useEffect(() => () => { if (searchTimerRef.current) window.clearTimeout(searchTimerRef.current); }, []);
+
+  useEffect(() => {
+    const { filters } = readJourneyUrl(window.location.search);
+    const canonicalUrl = journeyUrl(filters);
+    if (`${window.location.pathname}${window.location.search}` !== canonicalUrl) window.history.replaceState(null, '', canonicalUrl);
+  }, []);
+
+  useEffect(() => {
+    if (searchPhase === 'ready') resultsHeadingRef.current?.focus();
+  }, [searchPhase]);
 
   const persistHistory = (nextQuery: string, source: SearchSource, canPersistHealthSearch: boolean) => {
     if (!shouldPersistSearch(nextQuery, canPersistHealthSearch)) return;
@@ -217,8 +236,8 @@ export function MobileShell({ initialDoctors }: { initialDoctors: DirectoryDocto
     <main className="mobile-shell mdr-ui">
       <header className="mobile-topbar">
         <IconButton label="Abrir menu" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)}>☰</IconButton>
-        {submittedSearch ? <Image className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" width={1402} height={323} /> : <span aria-hidden="true" />}
-        <Link className="avatar-button" href="/conta" aria-label="Abrir conta">MC</Link>
+        {submittedSearch ? <Link href="/" aria-label="Medário, página inicial"><Image className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" width={1402} height={323} /></Link> : <span aria-hidden="true" />}
+        <Link className="account-entry" href="/conta">Entrar</Link>
       </header>
 
       <section className="mobile-content" aria-labelledby="home-title">
@@ -240,7 +259,7 @@ export function MobileShell({ initialDoctors }: { initialDoctors: DirectoryDocto
             <span className="state-icon" aria-hidden="true">✦</span>
             <div>
               <p className="section-label">Busca interpretada</p>
-              <h2>Filtros prontos para resultados</h2>
+              <h2 ref={resultsHeadingRef} tabIndex={-1}>Filtros prontos para resultados</h2>
               <p>Orientação de busca, não diagnóstico nem prescrição.</p>
               <div className="derived-filters" aria-label="Filtros editáveis">
                 {Object.entries(submittedSearch.filters).filter(([, value]) => value).map(([key, value]) => (
@@ -277,7 +296,7 @@ export function MobileShell({ initialDoctors }: { initialDoctors: DirectoryDocto
 
       {pendingSearch && <div className="overlay" role="presentation"><section className="consent-dialog" role="dialog" aria-modal="true" aria-label="Dados de saúde nesta busca"><p className="section-label">Consentimento em duas camadas</p><h2>Usar este relato para orientar a busca?</h2><p>Com sua permissão, este termo pode entrar no seu histórico por até 90 dias. Sem permissão, mantemos apenas filtros objetivos e não salvamos o relato.</p><div className="consent-actions"><Button variant="secondary" type="button" onClick={() => { commitSearch(pendingSearch.query, pendingSearch.source, false); setPendingSearch(null); }}>Continuar sem consentimento</Button><Button type="button" onClick={() => { window.localStorage.setItem(healthConsentStorageKey, 'granted'); setHealthConsent(true); commitSearch(pendingSearch.query, pendingSearch.source, true); setPendingSearch(null); }}>Permitir e continuar</Button></div></section></div>}
 
-      {drawerOpen && <div className="overlay" role="presentation" onMouseDown={() => setDrawerOpen(false)}><aside className="side-drawer" role="dialog" aria-modal="true" aria-label="Menu principal" tabIndex={-1} ref={drawerRef} onMouseDown={(event) => event.stopPropagation()}><div className="drawer-header"><Image className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" width={1402} height={323} /><IconButton label="Fechar menu" onClick={() => setDrawerOpen(false)}>×</IconButton></div><nav>{navItems.map((item, index) => <Link className={index === 0 ? 'active' : ''} href={item.href} key={item.label}>{item.label}</Link>)}</nav><div className="drawer-footer"><strong>Encontre o cuidado certo.</strong><span>Joinville · Santa Catarina</span></div></aside></div>}
+      {drawerOpen && <div className="overlay" role="presentation" onMouseDown={() => setDrawerOpen(false)}><aside className="side-drawer" role="dialog" aria-modal="true" aria-label="Menu principal" tabIndex={-1} ref={drawerRef} onMouseDown={(event) => event.stopPropagation()}><div className="drawer-header"><Link href="/" aria-label="Medário, página inicial"><Image className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" width={1402} height={323} /></Link><IconButton label="Fechar menu" onClick={() => setDrawerOpen(false)}>×</IconButton></div><nav>{navItems.map((item, index) => <Link className={index === 0 ? 'active' : ''} href={item.href} key={item.label}>{item.label}</Link>)}</nav><div className="drawer-footer"><strong>Encontre o cuidado certo.</strong><span>Joinville · Santa Catarina</span></div></aside></div>}
 
       {sheetOpen && <div className="overlay sheet-overlay" role="presentation" onMouseDown={() => setSheetOpen(false)}><section className="bottom-sheet" role="dialog" aria-modal="true" aria-label="Filtros da busca" tabIndex={-1} ref={sheetRef} onMouseDown={(event) => event.stopPropagation()}><div className="sheet-handle" aria-hidden="true" /><div className="sheet-heading"><div><span className="sheet-eyebrow">Busca Medário</span><h2>Refinar sua busca</h2></div><IconButton label="Fechar" onClick={() => setSheetOpen(false)}>×</IconButton></div><div className="sheet-options"><button type="button"><span>⌖</span><div><strong>Usar minha localização</strong><small>Solicita autorização antes de calcular proximidade</small></div></button><button type="button"><span>▤</span><div><strong>Filtrar por convênio</strong><small>Mostrar apenas planos aceitos</small></div></button><button type="button"><span>◷</span><div><strong>Disponibilidade</strong><small>Hoje, esta semana ou data específica</small></div></button></div><Button type="button" onClick={() => setSheetOpen(false)}>Continuar</Button></section></div>}
     </main>

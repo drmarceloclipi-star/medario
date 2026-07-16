@@ -34,6 +34,16 @@ describe('legacy public SEO contract', () => {
     expect(sitemap).not.toContain('conta');
   });
 
+  it('keeps public entries on their decided surfaces', () => {
+    for (const file of ['termos.html', 'privacidade.html', 'sou-medico.html', 'medario-pro.html', 'medicos/joinville.html', 'medicos/mariana-andrade.html']) {
+      const page = readRootFile(file);
+      expect(page).toContain('href="https://app.medario.com.br/conta">Entrar</a>');
+      expect(page).toContain('href="https://app.medario.com.br/">Encontrar médicos</a>');
+    }
+    expect(readRootFile('medario-pro.html')).toContain('href="medario-pro.html" aria-current="page">Medário Pro</a>');
+    expect(readRootFile('medicos/joinville.html')).toContain('href="../medicos/joinville.html" aria-current="page">Especialidades</a>');
+  });
+
   it('isolates the Firebase Hosting bundle and keeps App Hosting on the native adapter path', () => {
     const firebase = JSON.parse(readRootFile('firebase.json')) as { hosting: { public?: string } };
     const appHosting = readRootFile('apps/web/apphosting.yaml');

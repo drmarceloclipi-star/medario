@@ -31,6 +31,7 @@ test.describe('public institutional pages', () => {
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex,\s*follow/);
     await expect(page.getByRole('heading', { level: 2, name: 'Dra. Mariana Andrade' })).toBeVisible();
     await expect(page.getByText(/três perfis confirmados/)).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Ver médicos em Joinville' })).toHaveAttribute('href', 'https://app.medario.com.br/?city=joinville&entry=directory-joinville');
   });
 
   test('keeps robots and sitemap available on the Next surface', async ({ request }) => {

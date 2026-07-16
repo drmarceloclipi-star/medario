@@ -1,3 +1,5 @@
+import { journeyUrl } from './journey-url';
+
 export type SearchFilters = {
   specialty?: string;
   city?: string;
@@ -48,13 +50,8 @@ export function deriveSearch(query: string): DerivedSearch {
 }
 
 export function searchUrl({ filters }: DerivedSearch) {
-  const params = new URLSearchParams();
-  if (filters.specialty) params.set("specialty", filters.specialty);
-  if (filters.city) params.set("city", filters.city);
-  if (filters.insurance) params.set("insurance", filters.insurance);
-  if (filters.modality) params.set("modality", filters.modality);
-  const query = params.toString();
-  return query ? `/?${query}` : "/";
+  // Keep the established API while making every emitted URL pass the shared contract.
+  return journeyUrl(filters);
 }
 
 export function shouldPersistSearch(query: string, healthConsent: boolean) {

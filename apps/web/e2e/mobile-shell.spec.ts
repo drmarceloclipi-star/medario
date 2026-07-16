@@ -42,6 +42,14 @@ test.describe("mobile shell", () => {
     await expect(page.getByText("Tenho ansiedade, psiquiatra em Joinville")).toHaveCount(0);
   });
 
+  test("consumes a public Joinville bridge URL and preserves only its objective filter", async ({ page }) => {
+    await page.goto("/?city=joinville&entry=directory-joinville&q=ansiedade&email=patient@example.com");
+    await expect(page).toHaveURL("/?city=joinville");
+    await expect(page.getByRole("heading", { name: "Filtros prontos para resultados" })).toBeFocused();
+    await expect(page.getByText("Cidade: Joinville ×")).toBeVisible();
+    expect(page.url()).not.toContain("ansiedade");
+  });
+
   test("asks contextual consent before retaining a symptom search", async ({ page }) => {
     await openShell(page);
 
@@ -154,4 +162,13 @@ test.describe("mobile shell", () => {
       expect(metrics.unnamedButtons).toBe(0);
     });
   }
+
+  test('fits 1280px with the same accessible app shell', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await openShell(page);
+    const metrics = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, viewportWidth: window.innerWidth }));
+    expect(hasHorizontalOverflow(metrics)).toBe(false);
+    await expect(page.getByRole('link', { name: 'Entrar' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Abrir menu' })).toBeVisible();
+  });
 });
