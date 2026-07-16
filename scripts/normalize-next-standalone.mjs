@@ -9,21 +9,18 @@ const nestedAppRoot = path.join(standaloneRoot, "apps", "web");
 // The Firebase App Hosting adapter owns its production bundle. Rewriting its
 // standalone tree strips runtime dependencies from the final image.
 if (process.env.FIREBASE_CONFIG) {
-  await cp(
-    path.join(appRoot, ".next", "routes-manifest.json"),
-    path.join(standaloneRoot, ".next", "routes-manifest.json"),
-    { force: true },
-  );
-  await cp(
-    path.join(appRoot, ".next", "server"),
-    path.join(standaloneRoot, ".next", "server"),
-    { recursive: true, force: true },
-  );
-  await cp(
-    path.join(appRoot, ".next", "BUILD_ID"),
-    path.join(standaloneRoot, ".next", "BUILD_ID"),
-    { force: true },
-  );
+  // The standalone server reads manifests from its own `.next` directory.
+  // Bring every build artifact across, but never recurse into standalone itself.
+  for (const entry of await readdir(path.join(appRoot, ".next"))) {
+    if (entry === "standalone") {
+      continue;
+    }
+    await cp(
+      path.join(appRoot, ".next", entry),
+      path.join(standaloneRoot, ".next", entry),
+      { recursive: true, force: true },
+    );
+  }
   await cp(path.join(nestedAppRoot, "server.js"), path.join(standaloneRoot, "server.js"), {
     force: true,
   });
@@ -41,9 +38,9 @@ if (process.env.FIREBASE_CONFIG) {
     "styled-jsx",
   ]) {
     const sources = [
-      path.join(nestedAppRoot, "node_modules", packageName),
       path.join(appRoot, "node_modules", packageName),
       path.join(workspaceRoot, "node_modules", packageName),
+      path.join(nestedAppRoot, "node_modules", packageName),
     ];
     let source;
     for (const candidate of sources) {
