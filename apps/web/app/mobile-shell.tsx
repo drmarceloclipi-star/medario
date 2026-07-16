@@ -60,6 +60,13 @@ function countFilters(search: DerivedSearch) {
   return Object.values(search.filters).filter(Boolean).length;
 }
 
+function initialJourneySearch() {
+  if (typeof window === 'undefined') return null;
+  const { filters } = readJourneyUrl(window.location.search);
+  const search = { filters, hasHealthSignal: false };
+  return countFilters(search) > 0 ? search : null;
+}
+
 function readableFilter(value: string) {
   if (value === 'telemedicine') return 'Teleconsulta';
   if (value === 'in_person') return 'Presencial';
@@ -89,8 +96,8 @@ export function MobileShell({ initialDoctors }: { initialDoctors: DirectoryDocto
   const [healthConsent, setHealthConsent] = useState(storedHealthConsent);
   const [history, setHistory] = useState<SearchHistoryEntry[]>(() => storedHistory(storedHealthConsent()));
   const [pendingSearch, setPendingSearch] = useState<PendingSearch | null>(null);
-  const [submittedSearch, setSubmittedSearch] = useState<DerivedSearch | null>(null);
-  const [searchPhase, setSearchPhase] = useState<SearchPhase>('idle');
+  const [submittedSearch, setSubmittedSearch] = useState<DerivedSearch | null>(initialJourneySearch);
+  const [searchPhase, setSearchPhase] = useState<SearchPhase>(() => initialJourneySearch() ? 'ready' : 'idle');
   const [symptomGuidance, setSymptomGuidance] = useState<SymptomGuidance | null>(null);
   const [urgentGuidance, setUrgentGuidance] = useState<SymptomGuidance | null>(null);
   const drawerRef = useRef<HTMLElement>(null);
@@ -133,10 +140,6 @@ export function MobileShell({ initialDoctors }: { initialDoctors: DirectoryDocto
     const { filters } = readJourneyUrl(window.location.search);
     const canonicalUrl = journeyUrl(filters);
     if (`${window.location.pathname}${window.location.search}` !== canonicalUrl) window.history.replaceState(null, '', canonicalUrl);
-    if (countFilters({ filters, hasHealthSignal: false }) > 0) {
-      setSubmittedSearch({ filters, hasHealthSignal: false });
-      setSearchPhase('ready');
-    }
   }, []);
 
   useEffect(() => {
