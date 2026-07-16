@@ -2,6 +2,7 @@ import { cp, lstat, readlink, readdir, rm, stat, symlink } from "node:fs/promise
 import path from "node:path";
 
 const appRoot = process.cwd();
+const workspaceRoot = path.dirname(path.dirname(appRoot));
 const standaloneRoot = path.join(appRoot, ".next", "standalone");
 const nestedAppRoot = path.join(standaloneRoot, "apps", "web");
 
@@ -21,16 +22,44 @@ if (process.env.FIREBASE_CONFIG) {
   await cp(path.join(nestedAppRoot, "server.js"), path.join(standaloneRoot, "server.js"), {
     force: true,
   });
-  for (const packageName of ["next", "react", "react-dom"]) {
-    await rm(path.join(standaloneRoot, "node_modules", packageName), {
-      recursive: true,
-      force: true,
-    });
-    await cp(
+
+  // The App Hosting build adapter installs workspace packages at the repository
+  // root, while local pnpm builds normally expose them at apps/web. Materialize
+  // the bootstrap packages at the standalone root so Cloud Run never follows a
+  // workspace symlink removed by the adapter.
+  for (const packageName of [
+    "next",
+    "react",
+    "react-dom",
+    "@next/env",
+    "@swc/helpers",
+    "styled-jsx",
+  ]) {
+    const sources = [
+      path.join(nestedAppRoot, "node_modules", packageName),
       path.join(appRoot, "node_modules", packageName),
-      path.join(standaloneRoot, "node_modules", packageName),
-      { recursive: true, force: true, dereference: true },
-    );
+      path.join(workspaceRoot, "node_modules", packageName),
+    ];
+    let source;
+    for (const candidate of sources) {
+      try {
+        await stat(candidate);
+        source = candidate;
+        break;
+      } catch (error) {
+        if (error?.code !== "ENOENT") {
+          throw error;
+        }
+      }
+    }
+    if (!source) {
+      continue;
+    }
+
+    const destination = path.join(standaloneRoot, "node_modules", packageName);
+    await rm(destination, { recursive: true, force: true });
+    await cp(source, destination, { recursive: true, force: true, dereference: true });
+    console.log(`App Hosting standalone package: ${packageName} <- ${source}`);
   }
   process.exit(0);
 }
