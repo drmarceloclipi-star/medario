@@ -25,6 +25,7 @@ const navItems = [
   { label: 'Buscar médicos', href: '/#buscar' },
   { label: 'Favoritos', href: '/conta#favoritos' },
   { label: 'Agendamentos', href: '/conta#agendamentos' },
+  { label: 'Privacidade e telemetria', href: '/?telemetry=preferences' },
   { label: 'Medário Pro', href: 'https://medario.com.br/medario-pro.html' },
 ];
 const quickPrompts = [

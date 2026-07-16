@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 import { recordTechnicalEvent, telemetryConsent, setTelemetryConsent } from './telemetry';
 
 export function TelemetryConsent() {
-  const [visible, setVisible] = useState(() => telemetryConsent() === 'unknown');
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const params = new URLSearchParams(window.location.search);
+    return params.get('telemetry') === 'preferences' && telemetryConsent() === 'unknown';
+  });
   useEffect(() => {
     if (telemetryConsent() !== 'granted') return;
     const runtimeError = () => { void recordTechnicalEvent('client_runtime_error').catch(() => undefined); };
@@ -19,6 +23,9 @@ export function TelemetryConsent() {
   if (!visible) return null;
   const choose = (value: 'granted' | 'denied') => {
     void setTelemetryConsent(value).catch(() => window.localStorage.setItem('medario.telemetry-consent', 'denied'));
+    const url = new URL(window.location.href);
+    url.searchParams.delete('telemetry');
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
     setVisible(false);
   };
   return <section className="consent-dialog" role="dialog" aria-modal="false" aria-label="Consentimento de telemetria"><p className="section-label">Telemetria opcional</p><h2>Ajude a melhorar o Medário</h2><p>Com sua permissão, usamos métricas agregadas de uso e falhas técnicas. Nunca enviamos texto de busca, sintomas, identidade ou localização exata.</p><div className="consent-actions"><button className="mdr-button" type="button" onClick={() => choose('granted')}>Permitir telemetria</button><button className="mdr-button secondary" type="button" onClick={() => choose('denied')}>Continuar sem telemetria</button></div></section>;
