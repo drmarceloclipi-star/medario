@@ -70,7 +70,16 @@ try {
 // App Hosting removes hidden pnpm stores from the final image. React is loaded
 // by Next during bootstrap, so make these runtime packages physical entries.
 for (const packageName of ["react", "react-dom"]) {
-  const source = path.join(nestedModules, packageName);
+  const nestedSource = path.join(nestedModules, packageName);
+  const source = await stat(nestedSource).then(
+    () => nestedSource,
+    (error) => {
+      if (error?.code === "ENOENT") {
+        return path.join(appRoot, "node_modules", packageName);
+      }
+      throw error;
+    },
+  );
   const destination = path.join(standaloneModules, packageName);
   try {
     await stat(source);
