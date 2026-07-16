@@ -127,3 +127,11 @@ Legado não recebe reescrita ampla em tokens compartilhados: valores compatívei
 - O tema escuro atual do app não é a referência visual para novas telas ou para a convergência entre superfícies.
 - Design system, navegação e parâmetros permitidos passam a ser contratos compartilhados entre os dois frontends.
 - Qualquer rota migrada deve preservar seu papel de descoberta pública ou declarar explicitamente sua nova estratégia de indexação.
+
+## Registro de entrega — 2026-07-16
+
+- Tema claro, contrato de URL, ponte Joinville, ponte de Perfil médico, ações de Visitante e entradas públicas foram entregues e verificados em produção.
+- O backend App Hosting `medario` está no build `2026-07-16-019`, com 100% do tráfego restaurado após teste de rollback e restauração.
+- A URL de chegada `https://app.medario.com.br/?city=joinville&entry=directory-joinville` apresentou LCP de 2,04 s em auditoria direta.
+- `medario.com.br` permanece no Firebase Hosting; `app.medario.com.br` permanece no Firebase App Hosting.
+- `www.medario.com.br` foi configurado no Firebase Hosting para redirecionamento permanente ao apex. A ativação depende apenas da propagação do CNAME `www -> medario-doctor.web.app`; não apontar `www` ao App Hosting.
