@@ -13,6 +13,11 @@ if (process.env.FIREBASE_CONFIG) {
     path.join(standaloneRoot, ".next", "routes-manifest.json"),
     { force: true },
   );
+  await cp(
+    path.join(appRoot, ".next", "server"),
+    path.join(standaloneRoot, ".next", "server"),
+    { recursive: true, force: true },
+  );
   process.exit(0);
 }
 
