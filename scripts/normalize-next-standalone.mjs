@@ -1,4 +1,4 @@
-import { cp, readdir, rm, stat } from "node:fs/promises";
+import { cp, lstat, readlink, readdir, rm, stat, symlink } from "node:fs/promises";
 import path from "node:path";
 
 const appRoot = process.cwd();
@@ -21,6 +21,42 @@ for (const entry of await readdir(nestedAppRoot)) {
     recursive: true,
     force: true,
   });
+}
+
+// App Hosting keeps the standalone root but strips the nested workspace tree.
+// Move pnpm's package store into that root and retarget package links there.
+const nestedModules = path.join(nestedAppRoot, "node_modules");
+const standaloneModules = path.join(standaloneRoot, "node_modules");
+await rm(path.join(standaloneModules, ".pnpm"), { recursive: true, force: true });
+await cp(path.join(nestedModules, ".pnpm"), path.join(standaloneModules, ".pnpm"), {
+  recursive: true,
+  force: true,
+});
+
+for (const entry of await readdir(nestedModules, { recursive: true })) {
+  if (entry.startsWith(".pnpm/")) {
+    continue;
+  }
+
+  const source = path.join(nestedModules, entry);
+  const destination = path.join(standaloneModules, entry);
+  const sourceStats = await lstat(source);
+  if (!sourceStats.isSymbolicLink()) {
+    continue;
+  }
+
+  const target = await readlink(source);
+  const resolvedTarget = path.resolve(path.dirname(source), target);
+  if (!resolvedTarget.startsWith(nestedModules)) {
+    continue;
+  }
+
+  const relocatedTarget = path.join(
+    standaloneModules,
+    path.relative(nestedModules, resolvedTarget),
+  );
+  await rm(destination, { recursive: true, force: true });
+  await symlink(relocatedTarget, destination);
 }
 
 // Next intentionally leaves static assets and the public directory outside
