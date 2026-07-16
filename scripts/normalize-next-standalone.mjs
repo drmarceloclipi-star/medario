@@ -5,6 +5,12 @@ const appRoot = process.cwd();
 const standaloneRoot = path.join(appRoot, ".next", "standalone");
 const nestedAppRoot = path.join(standaloneRoot, "apps", "web");
 
+// The Firebase App Hosting adapter owns its production bundle. Rewriting its
+// standalone tree strips runtime dependencies from the final image.
+if (process.env.FIREBASE_CONFIG) {
+  process.exit(0);
+}
+
 try {
   await stat(path.join(nestedAppRoot, ".next", "routes-manifest.json"));
 } catch {
