@@ -19,6 +19,11 @@ if (process.env.FIREBASE_CONFIG) {
     path.join(standaloneRoot, ".next", "server"),
     { recursive: true, force: true },
   );
+  await cp(
+    path.join(appRoot, ".next", "BUILD_ID"),
+    path.join(standaloneRoot, ".next", "BUILD_ID"),
+    { force: true },
+  );
   await cp(path.join(nestedAppRoot, "server.js"), path.join(standaloneRoot, "server.js"), {
     force: true,
   });
