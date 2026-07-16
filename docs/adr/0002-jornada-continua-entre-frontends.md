@@ -134,4 +134,4 @@ Legado não recebe reescrita ampla em tokens compartilhados: valores compatívei
 - O backend App Hosting `medario` está no build `2026-07-16-019`, com 100% do tráfego restaurado após teste de rollback e restauração.
 - A URL de chegada `https://app.medario.com.br/?city=joinville&entry=directory-joinville` apresentou LCP de 2,04 s em auditoria direta.
 - `medario.com.br` permanece no Firebase Hosting; `app.medario.com.br` permanece no Firebase App Hosting.
-- `www.medario.com.br` foi configurado no Firebase Hosting para redirecionamento permanente ao apex. A ativação depende apenas da propagação do CNAME `www -> medario-doctor.web.app`; não apontar `www` ao App Hosting.
+- `www.medario.com.br` está ativo no Firebase Hosting e redireciona permanentemente ao apex, preservando caminho e query. O provedor emite HTTP 301 para esse tipo de redirecionamento. O CNAME `www -> medario-doctor.web.app` não aponta o domínio ao App Hosting.
