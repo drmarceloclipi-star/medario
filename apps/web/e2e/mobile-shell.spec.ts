@@ -42,6 +42,14 @@ test.describe("mobile shell", () => {
     await expect(page.getByText("Tenho ansiedade, psiquiatra em Joinville")).toHaveCount(0);
   });
 
+  test("consumes a public Joinville bridge URL and preserves only its objective filter", async ({ page }) => {
+    await page.goto("/?city=joinville&entry=directory-joinville&q=ansiedade&email=patient@example.com");
+    await expect(page).toHaveURL("/?city=joinville");
+    await expect(page.getByRole("heading", { name: "Filtros prontos para resultados" })).toBeFocused();
+    await expect(page.getByText("Cidade: Joinville ×")).toBeVisible();
+    expect(page.url()).not.toContain("ansiedade");
+  });
+
   test("asks contextual consent before retaining a symptom search", async ({ page }) => {
     await openShell(page);
 

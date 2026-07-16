@@ -29,6 +29,12 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.medario.com.br" }],
+        destination: "https://medario.com.br/:path*",
+        permanent: true,
+      },
       { source: "/institucional.html", destination: "/institucional", permanent: true },
       { source: "/privacidade.html", destination: "/privacidade", permanent: true },
       { source: "/termos.html", destination: "/termos", permanent: true },

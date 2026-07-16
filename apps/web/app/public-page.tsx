@@ -11,7 +11,8 @@ type PublicPageProps = {
 
 const navItems = [
   { label: 'Início', href: '/' },
-  { label: 'Buscar médicos', href: '/#buscar' },
+  { label: 'Encontrar médicos', href: 'https://app.medario.com.br/' },
+  { label: 'Especialidades', href: '/medicos/joinville' },
   { label: 'Para médicos', href: 'https://medario.com.br/sou-medico.html' },
   { label: 'Medário Pro', href: 'https://medario.com.br/medario-pro.html' },
 ];
@@ -23,7 +24,7 @@ export function PublicPage({ eyebrow, title, description, children, updatedAt }:
         <Link className="public-brand" href="/" aria-label="Medário, página inicial">Medário</Link>
         <nav aria-label="Navegação institucional" className="public-nav">
           {navItems.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}
-          <Link className="public-account-link" href="/conta">Minha conta</Link>
+          <a className="public-account-link" href="https://app.medario.com.br/conta">Entrar</a>
         </nav>
       </header>
 

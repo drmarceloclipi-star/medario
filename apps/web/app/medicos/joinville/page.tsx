@@ -84,6 +84,7 @@ export default async function JoinvilleDirectoryPage() {
     <PublicPage eyebrow="Diretório médico" title="Médicos em Joinville/SC" description="Perfis profissionais com CRM, RQE, convênios e modalidades de atendimento verificáveis.">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }} />
       {!indexable && <p className="directory-gate" role="note">Diretório em expansão. A indexação pública será habilitada após três perfis confirmados e conteúdo local suficiente.</p>}
+      <p className="directory-bridge"><a href="https://app.medario.com.br/?city=joinville&entry=directory-joinville">Ver médicos em Joinville</a></p>
       <section className="directory-grid" aria-label="Perfis médicos">
         {profiles.length > 0 ? profiles.map((profile) => <ProfileCard key={profile.slug} profile={profile} />) : <p className="directory-empty">Nenhum perfil confirmado disponível no momento.</p>}
       </section>
