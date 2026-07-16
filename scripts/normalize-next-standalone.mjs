@@ -67,6 +67,15 @@ try {
   }
 }
 
+// App Hosting removes hidden pnpm stores from the final image. React is loaded
+// by Next during bootstrap, so make these runtime packages physical entries.
+for (const packageName of ["react", "react-dom"]) {
+  const source = path.join(nestedModules, packageName);
+  const destination = path.join(standaloneModules, packageName);
+  await rm(destination, { recursive: true, force: true });
+  await cp(source, destination, { recursive: true, force: true, dereference: true });
+}
+
 // Next intentionally leaves static assets and the public directory outside
 // standalone output. Copy them into the final server root so the standalone
 // server remains runnable outside the App Hosting adapter too.
