@@ -41,4 +41,5 @@ try {
   // A Next app may not define public assets.
 }
 
-await rm(path.join(standaloneRoot, "apps"), { recursive: true, force: true });
+// Keep the nested app tree. pnpm package links in the flattened root module
+// tree point into it; deleting it leaves the Cloud Run server without React.
