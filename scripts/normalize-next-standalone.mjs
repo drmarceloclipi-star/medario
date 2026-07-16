@@ -21,6 +21,17 @@ if (process.env.FIREBASE_CONFIG) {
   await cp(path.join(nestedAppRoot, "server.js"), path.join(standaloneRoot, "server.js"), {
     force: true,
   });
+  for (const packageName of ["next", "react", "react-dom"]) {
+    await rm(path.join(standaloneRoot, "node_modules", packageName), {
+      recursive: true,
+      force: true,
+    });
+    await cp(
+      path.join(appRoot, "node_modules", packageName),
+      path.join(standaloneRoot, "node_modules", packageName),
+      { recursive: true, force: true, dereference: true },
+    );
+  }
   process.exit(0);
 }
 
