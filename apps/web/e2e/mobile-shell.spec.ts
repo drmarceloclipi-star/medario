@@ -154,14 +154,16 @@ test.describe("mobile shell", () => {
   test("reflows search results when text is enlarged to 200 percent", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/?specialty=psiquiatria&city=joinville");
-    await page.locator("html").evaluate((element) => { element.style.fontSize = "200%"; });
+    await page.locator("html").evaluate(async (element) => {
+      element.style.fontSize = "200%";
+      await document.fonts.ready;
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    });
     await expect(page.getByRole("heading", { name: "Dra. Marina Alves" })).toBeVisible();
 
-    const metrics = await page.evaluate(() => ({
-      scrollWidth: document.documentElement.scrollWidth,
-      viewportWidth: window.innerWidth,
-    }));
-    expect(hasHorizontalOverflow(metrics)).toBe(false);
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), {
+      message: "document overflow in CSS pixels after text enlargement",
+    }).toBeLessThanOrEqual(0);
   });
 
   test("shows the migrated public profile without moving the legacy site", async ({ page }) => {
