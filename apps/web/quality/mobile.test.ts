@@ -4,10 +4,7 @@ import { MOBILE_VIEWPORTS, hasHorizontalOverflow, isSupportedMobileViewport, Lay
 describe('mobile', () => {
   it('should have mobile viewports', () => {
     expect(MOBILE_VIEWPORTS).toBeDefined();
-    expect(MOBILE_VIEWPORTS[0]).toBe(360);
-    expect(MOBILE_VIEWPORTS[1]).toBe(390);
-    expect(MOBILE_VIEWPORTS[2]).toBe(412);
-    expect(MOBILE_VIEWPORTS[3]).toBe(430);
+    expect(MOBILE_VIEWPORTS).toEqual([320, 360, 390, 412, 430]);
   });
 
   it('should detect horizontal overflow', () => {
@@ -24,6 +21,7 @@ describe('mobile', () => {
   });
 
   it('should support standard mobile viewports', () => {
+    expect(isSupportedMobileViewport(320)).toBe(true);
     expect(isSupportedMobileViewport(360)).toBe(true);
     expect(isSupportedMobileViewport(390)).toBe(true);
     expect(isSupportedMobileViewport(412)).toBe(true);

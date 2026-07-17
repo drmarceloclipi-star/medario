@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, type RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { SearchHistoryEntry, SearchSource, SearchSuggestion } from '@medario/domain';
@@ -89,6 +89,53 @@ function storedHistory(healthConsent: boolean) {
   }
 }
 
+const focusableSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
+
+function useDialogFocus(open: boolean, dialogRef: RefObject<HTMLElement | null>, returnFocusRef: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    if (!open || !dialogRef.current) return;
+    const dialog = dialogRef.current;
+    const previousFocus = returnFocusRef.current ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    dialog.focus();
+
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+      const controls = [...dialog.querySelectorAll<HTMLElement>(focusableSelector)]
+        .filter((element) => element.getClientRects().length > 0);
+      if (controls.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+      const first = controls[0]!;
+      const last = controls.at(-1)!;
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === dialog) {
+        event.preventDefault();
+        first.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', trapFocus);
+    return () => {
+      document.removeEventListener('keydown', trapFocus);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [dialogRef, open, returnFocusRef]);
+}
+
 export function MobileShell({ initialDoctors, initialSearch }: { initialDoctors: DirectoryDoctor[]; initialSearch: DerivedSearch | null }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -103,8 +150,15 @@ export function MobileShell({ initialDoctors, initialSearch }: { initialDoctors:
   const [urgentGuidance, setUrgentGuidance] = useState<SymptomGuidance | null>(null);
   const drawerRef = useRef<HTMLElement>(null);
   const sheetRef = useRef<HTMLElement>(null);
+  const consentRef = useRef<HTMLElement>(null);
+  const dialogReturnFocusRef = useRef<HTMLElement>(null);
   const searchTimerRef = useRef<number | null>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const modalOpen = drawerOpen || sheetOpen || pendingSearch !== null;
+
+  useDialogFocus(drawerOpen, drawerRef, dialogReturnFocusRef);
+  useDialogFocus(sheetOpen, sheetRef, dialogReturnFocusRef);
+  useDialogFocus(pendingSearch !== null, consentRef, dialogReturnFocusRef);
 
   const matchingSuggestions = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('pt-BR');
@@ -193,6 +247,7 @@ export function MobileShell({ initialDoctors, initialSearch }: { initialDoctors:
       return;
     }
     if (deriveSearch(cleanQuery).hasHealthSignal && !healthConsent) {
+      dialogReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       setPendingSearch({ query: cleanQuery, source });
       setComposerFocused(false);
       return;
@@ -235,15 +290,15 @@ export function MobileShell({ initialDoctors, initialSearch }: { initialDoctors:
 
   return (
     <main className="mobile-shell mdr-ui">
-      <header className="mobile-topbar">
-        <IconButton label="Abrir menu" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)}>☰</IconButton>
-        {submittedSearch ? <Link href="/" aria-label="Medário, página inicial"><Image className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" width={1402} height={323} /></Link> : <span aria-hidden="true" />}
+      <header className="mobile-topbar" inert={modalOpen} aria-hidden={modalOpen || undefined}>
+        <IconButton label="Abrir menu" aria-expanded={drawerOpen} onClick={(event) => { dialogReturnFocusRef.current = event.currentTarget; setDrawerOpen(true); }}>☰</IconButton>
+        {submittedSearch ? <Link href="/" aria-label="Medário, página inicial"><Image className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" width={1402} height={323} sizes="132px" /></Link> : <span aria-hidden="true" />}
         <Link className="account-entry" href="/conta">Entrar</Link>
       </header>
 
-      <section className="mobile-content" aria-labelledby="home-title">
+      <section className="mobile-content" aria-labelledby="home-title" inert={modalOpen} aria-hidden={modalOpen || undefined}>
         <div className="hero-copy">
-          {!submittedSearch ? <Image className="wordmark wordmark-home" src="/brand/medario-wordmark-home.png" alt="Medário - Conectando você ao melhor da saúde em Joinville, SC" width={1405} height={421} priority /> : null}
+          {!submittedSearch ? <Image className="wordmark wordmark-home" src="/brand/medario-wordmark-home.png" alt="Medário - Conectando você ao melhor da saúde em Joinville, SC" width={1405} height={421} sizes="(max-width: 768px) 76vw, 368px" priority /> : null}
           <h1 id="home-title">Encontre o médico certo com inteligência e confiança.</h1>
         </div>
 
@@ -281,23 +336,23 @@ export function MobileShell({ initialDoctors, initialSearch }: { initialDoctors:
         {searchPhase === 'idle' && <section className="state-card" aria-label="Estado inicial"><span className="state-icon" aria-hidden="true">✦</span><div><strong>Comece pela sua necessidade.</strong><p>Você pode escrever sintomas, especialidade, convênio ou o tipo de atendimento que procura.</p></div></section>}
       </section>
 
-      <form className="search-composer" onSubmit={submitSearch}>
-        <IconButton label="Adicionar filtros" className="composer-action" onClick={() => setSheetOpen(true)}>＋</IconButton>
+      <form className="search-composer" onSubmit={submitSearch} inert={modalOpen} aria-hidden={modalOpen || undefined}>
+        <IconButton label="Adicionar filtros" className="composer-action" onClick={(event) => { dialogReturnFocusRef.current = event.currentTarget; setSheetOpen(true); }}>＋</IconButton>
         <label className="sr-only" htmlFor="doctor-search">Descreva o que você precisa</label>
         <Input id="doctor-search" value={query} onChange={(event) => setQuery(event.target.value)} onFocus={() => setComposerFocused(true)} placeholder="Descreva o que você precisa" autoComplete="off" />
         <Button className="send-button" type="submit" aria-label="Buscar">↑</Button>
       </form>
 
       {composerFocused && (
-        <section className="search-context" aria-label="Sugestões de busca">
+        <section className="search-context" aria-label="Sugestões de busca" inert={modalOpen} aria-hidden={modalOpen || undefined}>
           {matchingSuggestions.length > 0 && <div className="search-context-group"><p className="section-label">Sugestões gerais</p>{matchingSuggestions.map((suggestion) => <button className="suggestion-row" type="button" key={suggestion.id} onMouseDown={(event) => event.preventDefault()} onClick={() => selectQuery(suggestion.query, 'suggestion')}><span aria-hidden="true">⌕</span><div><strong>{suggestion.label}</strong><small>{suggestion.detail}</small></div><b aria-hidden="true">↗</b></button>)}</div>}
           {history.length > 0 && <div className="search-context-group history-group"><div className="context-heading"><p className="section-label">Buscas recentes</p><button type="button" onClick={clearHistory}>Limpar</button></div>{history.slice(0, 3).map((item) => <button className="history-row" type="button" key={item.id} onMouseDown={(event) => event.preventDefault()} onClick={() => selectQuery(item.query, 'history')}><span aria-hidden="true">◷</span>{item.query}</button>)}</div>}
         </section>
       )}
 
-      {pendingSearch && <div className="overlay" role="presentation"><section className="consent-dialog" role="dialog" aria-modal="true" aria-label="Dados de saúde nesta busca"><p className="section-label">Consentimento em duas camadas</p><h2>Usar este relato para orientar a busca?</h2><p>Com sua permissão, este termo pode entrar no seu histórico por até 90 dias. Sem permissão, mantemos apenas filtros objetivos e não salvamos o relato.</p><div className="consent-actions"><Button variant="secondary" type="button" onClick={() => { commitSearch(pendingSearch.query, pendingSearch.source, false); setPendingSearch(null); }}>Continuar sem consentimento</Button><Button type="button" onClick={() => { window.localStorage.setItem(healthConsentStorageKey, 'granted'); setHealthConsent(true); commitSearch(pendingSearch.query, pendingSearch.source, true); setPendingSearch(null); }}>Permitir e continuar</Button></div></section></div>}
+      {pendingSearch && <div className="overlay" role="presentation"><section className="consent-dialog" role="dialog" aria-modal="true" aria-label="Dados de saúde nesta busca" tabIndex={-1} ref={consentRef}><p className="section-label">Consentimento em duas camadas</p><h2>Usar este relato para orientar a busca?</h2><p>Com sua permissão, este termo pode entrar no seu histórico por até 90 dias. Sem permissão, mantemos apenas filtros objetivos e não salvamos o relato.</p><div className="consent-actions"><Button variant="secondary" type="button" onClick={() => { commitSearch(pendingSearch.query, pendingSearch.source, false); setPendingSearch(null); }}>Continuar sem consentimento</Button><Button type="button" onClick={() => { window.localStorage.setItem(healthConsentStorageKey, 'granted'); setHealthConsent(true); commitSearch(pendingSearch.query, pendingSearch.source, true); setPendingSearch(null); }}>Permitir e continuar</Button></div></section></div>}
 
-      {drawerOpen && <div className="overlay" role="presentation" onMouseDown={() => setDrawerOpen(false)}><aside className="side-drawer" role="dialog" aria-modal="true" aria-label="Menu principal" tabIndex={-1} ref={drawerRef} onMouseDown={(event) => event.stopPropagation()}><div className="drawer-header"><Link href="/" aria-label="Medário, página inicial"><Image className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" width={1402} height={323} /></Link><IconButton label="Fechar menu" onClick={() => setDrawerOpen(false)}>×</IconButton></div><nav>{navItems.map((item, index) => <Link className={index === 0 ? 'active' : ''} href={item.href} key={item.label}>{item.label}</Link>)}</nav><div className="drawer-footer"><strong>Encontre o cuidado certo.</strong><span>Joinville · Santa Catarina</span></div></aside></div>}
+      {drawerOpen && <div className="overlay" role="presentation" onMouseDown={() => setDrawerOpen(false)}><aside className="side-drawer" role="dialog" aria-modal="true" aria-label="Menu principal" tabIndex={-1} ref={drawerRef} onMouseDown={(event) => event.stopPropagation()}><div className="drawer-header"><Link href="/" aria-label="Medário, página inicial"><Image className="wordmark wordmark-topbar" src="/brand/medario-wordmark.png" alt="Medário" width={1402} height={323} sizes="132px" /></Link><IconButton label="Fechar menu" onClick={() => setDrawerOpen(false)}>×</IconButton></div><nav>{navItems.map((item, index) => <Link className={index === 0 ? 'active' : ''} href={item.href} key={item.label}>{item.label}</Link>)}</nav><div className="drawer-footer"><strong>Encontre o cuidado certo.</strong><span>Joinville · Santa Catarina</span></div></aside></div>}
 
       {sheetOpen && <div className="overlay sheet-overlay" role="presentation" onMouseDown={() => setSheetOpen(false)}><section className="bottom-sheet" role="dialog" aria-modal="true" aria-label="Filtros da busca" tabIndex={-1} ref={sheetRef} onMouseDown={(event) => event.stopPropagation()}><div className="sheet-handle" aria-hidden="true" /><div className="sheet-heading"><div><span className="sheet-eyebrow">Busca Medário</span><h2>Refinar sua busca</h2></div><IconButton label="Fechar" onClick={() => setSheetOpen(false)}>×</IconButton></div><div className="sheet-options"><button type="button"><span>⌖</span><div><strong>Usar minha localização</strong><small>Solicita autorização antes de calcular proximidade</small></div></button><button type="button"><span>▤</span><div><strong>Filtrar por convênio</strong><small>Mostrar apenas planos aceitos</small></div></button><button type="button"><span>◷</span><div><strong>Disponibilidade</strong><small>Hoje, esta semana ou data específica</small></div></button></div><Button type="button" onClick={() => setSheetOpen(false)}>Continuar</Button></section></div>}
     </main>

@@ -34,6 +34,22 @@ test.describe('public institutional pages', () => {
     await expect(page.getByRole('link', { name: 'Ver médicos em Joinville' })).toHaveAttribute('href', 'https://app.medario.com.br/?city=joinville&entry=directory-joinville');
   });
 
+  test('keeps institutional actions touch-sized at 320px', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 700 });
+    await page.goto('/institucional');
+    const metrics = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      undersized: [...document.querySelectorAll<HTMLElement>('a[href],button,input,select')]
+        .filter((element) => {
+          const rect = element.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0 && (rect.width < 44 || rect.height < 44);
+        })
+        .map((element) => element.textContent?.trim()),
+    }));
+    expect(metrics.scrollWidth).toBe(320);
+    expect(metrics.undersized).toEqual([]);
+  });
+
   test('keeps robots and sitemap available on the Next surface', async ({ request }) => {
     const robots = await request.get('/robots.txt');
     expect(robots.ok()).toBe(true);
