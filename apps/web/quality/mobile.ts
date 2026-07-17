@@ -1,4 +1,4 @@
-export const MOBILE_VIEWPORTS = [360, 390, 412, 430] as const;
+export const MOBILE_VIEWPORTS = [320, 360, 390, 412, 430] as const;
 
 export type LayoutMetrics = {
   scrollWidth: number;

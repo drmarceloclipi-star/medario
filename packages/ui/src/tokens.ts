@@ -1,27 +1,27 @@
 export const colors = {
   background: {
-    canvas: "#090D14",
-    elevated: "#101722",
-    surface: "#151E2B",
-    overlay: "rgba(3, 7, 12, 0.72)",
+    canvas: "#F1FAEE",
+    elevated: "#EAF6F5",
+    surface: "#FFFFFF",
+    overlay: "rgba(29, 53, 87, 0.28)",
   },
   text: {
-    primary: "#F4F7FB",
-    secondary: "#A8B3C2",
-    muted: "#748196",
-    inverse: "#07111C",
+    primary: "#1D3557",
+    secondary: "#344D66",
+    muted: "#52687D",
+    inverse: "#FFFFFF",
   },
   accent: {
-    primary: "#76A9FF",
-    primaryStrong: "#4E8FF7",
-    success: "#5DD6C0",
-    danger: "#F26B75",
-    warning: "#E8B86D",
+    primary: "#356F91",
+    primaryStrong: "#1D3557",
+    success: "#246D49",
+    danger: "#B33A45",
+    warning: "#76521E",
   },
   border: {
-    subtle: "rgba(255, 255, 255, 0.08)",
-    default: "rgba(255, 255, 255, 0.14)",
-    strong: "rgba(255, 255, 255, 0.22)",
+    subtle: "rgba(29, 53, 87, 0.12)",
+    default: "rgba(29, 53, 87, 0.20)",
+    strong: "rgba(29, 53, 87, 0.34)",
   },
 } as const;
 
@@ -47,9 +47,9 @@ export const radii = {
 } as const;
 
 export const shadows = {
-  card: "0 18px 50px rgba(0, 0, 0, 0.28)",
-  floating: "0 22px 70px rgba(0, 0, 0, 0.42)",
-  focus: "0 0 0 3px rgba(118, 169, 255, 0.42)",
+  card: "none",
+  floating: "0 4px 8px rgba(29, 53, 87, 0.16)",
+  focus: "0 0 0 3px #356F91",
 } as const;
 
 export const motion = {

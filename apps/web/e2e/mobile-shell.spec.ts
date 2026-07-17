@@ -27,15 +27,57 @@ test.describe("mobile shell", () => {
     await expect(sheet).toBeHidden();
   });
 
+  test("keeps modal focus contained and restores the opener", async ({ page }) => {
+    await openShell(page);
+
+    const filterOpener = page.getByRole("button", { name: "Adicionar filtros" });
+    await filterOpener.click();
+    const sheet = page.getByRole("dialog", { name: "Filtros da busca" });
+    await expect(sheet).toBeFocused();
+    for (let index = 0; index < 8; index += 1) {
+      await page.keyboard.press("Tab");
+      await expect.poll(() => page.evaluate(() => Boolean(document.activeElement?.closest('[role="dialog"]')))).toBe(true);
+    }
+    await page.keyboard.press("Escape");
+    await expect(filterOpener).toBeFocused();
+
+    const menuOpener = page.getByRole("button", { name: "Abrir menu" });
+    await menuOpener.click();
+    await expect(page.getByRole("dialog", { name: "Menu principal" })).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect.poll(() => page.evaluate(() => Boolean(document.activeElement?.closest('[role="dialog"]')))).toBe(true);
+    await page.keyboard.press("Escape");
+    await expect(menuOpener).toBeFocused();
+  });
+
+  test("uses WCAG-compliant contrast in the filter sheet", async ({ page }) => {
+    await openShell(page);
+    await page.getByRole("button", { name: "Adicionar filtros" }).click();
+
+    const ratio = await page.getByRole("heading", { name: "Refinar sua busca" }).evaluate((heading) => {
+      const parse = (value: string) => value.match(/[\d.]+/g)!.slice(0, 3).map(Number);
+      const luminance = (value: string) => parse(value).map((channel) => {
+        const normalized = channel / 255;
+        return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+      }).reduce((total, channel, index) => total + channel * [0.2126, 0.7152, 0.0722][index]!, 0);
+      const foreground = luminance(getComputedStyle(heading).color);
+      const background = luminance(getComputedStyle(heading.closest('[role="dialog"]')!).backgroundColor);
+      return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+    });
+
+    expect(ratio).toBeGreaterThanOrEqual(4.5);
+  });
+
   test("does not persist symptom search after consent refusal and shares derived filters only", async ({ page }) => {
     await openShell(page);
 
     await page.getByLabel("Descreva o que você precisa").fill("Tenho ansiedade, psiquiatra em Joinville");
     await page.getByRole("button", { name: "Buscar" }).click();
-    await expect(page.getByRole("dialog", { name: "Dados de saúde nesta busca" })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "Dados de saúde nesta busca" })).toBeFocused();
     await page.getByRole("button", { name: "Continuar sem consentimento" }).click();
 
     await expect(page).toHaveURL(/specialty=psiquiatria/);
+    await expect(page.getByRole("button", { name: "Buscar" })).toBeFocused();
     await expect(page).toHaveURL(/city=joinville/);
     expect(page.url()).not.toContain("ansiedade");
     await page.getByLabel("Descreva o que você precisa").focus();
@@ -75,6 +117,53 @@ test.describe("mobile shell", () => {
     await expect(page.getByRole("heading", { name: "Dr. Rafael Nunes" })).toBeVisible();
   });
 
+  test("keeps result actions keyboard-operable", async ({ page }) => {
+    await openShell(page);
+    await page.getByLabel("Descreva o que você precisa").fill("Psiquiatra em Joinville");
+    await page.getByRole("button", { name: "Buscar" }).click();
+
+    const select = page.getByRole("button", { name: "Selecionar no mapa" }).first();
+    await select.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("button", { name: "Selecionado no mapa" }).first()).toBeFocused();
+    await expect(page.locator(".result-card.selected")).toContainText("Dra. Marina Alves");
+  });
+
+  test("fits search results at 320px with 44px touch targets", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 700 });
+    await openShell(page);
+    await page.getByLabel("Descreva o que você precisa").fill("Psiquiatra em Joinville");
+    await page.getByRole("button", { name: "Buscar" }).click();
+    await expect(page.getByRole("heading", { name: "Dra. Marina Alves" })).toBeVisible();
+
+    const metrics = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      viewportWidth: window.innerWidth,
+      undersized: [...document.querySelectorAll<HTMLElement>('a[href],button,input,select')]
+        .filter((element) => {
+          const rect = element.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0 && (rect.width < 44 || rect.height < 44);
+        })
+        .map((element) => element.getAttribute('aria-label') || element.textContent?.trim()),
+    }));
+
+    expect(hasHorizontalOverflow(metrics)).toBe(false);
+    expect(metrics.undersized).toEqual([]);
+  });
+
+  test("reflows search results when text is enlarged to 200 percent", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/?specialty=psiquiatria&city=joinville");
+    await page.locator("html").evaluate((element) => { element.style.fontSize = "200%"; });
+    await expect(page.getByRole("heading", { name: "Dra. Marina Alves" })).toBeVisible();
+
+    const metrics = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      viewportWidth: window.innerWidth,
+    }));
+    expect(hasHorizontalOverflow(metrics)).toBe(false);
+  });
+
   test("shows the migrated public profile without moving the legacy site", async ({ page }) => {
     await page.goto("/medicos/dra-marina-alves");
     await expect(page).toHaveURL(/\/medicos\/mariana-andrade$/);
@@ -82,6 +171,13 @@ test.describe("mobile shell", () => {
     await expect(page.getByText("Dados atualizados em")).toBeVisible();
     await expect(page.getByRole("link", { name: "WhatsApp verificado" })).toHaveCount(0);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://medario.com.br/medicos/mariana-andrade");
+    const undersized = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>('a[href],button,input,select')]
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && (rect.width < 44 || rect.height < 44);
+      })
+      .map((element) => element.textContent?.trim()));
+    expect(undersized).toEqual([]);
   });
 
   test("interrupts urgent symptom reports without creating a search URL", async ({ page }) => {

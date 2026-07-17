@@ -7,8 +7,10 @@ type PublicDirectoryServerOptions = {
 };
 
 export function adminFirestore() {
-  const projectId = process.env.FIREBASE_PROJECT_ID ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-  const app = getApps()[0] ?? initializeApp({ credential: applicationDefault(), ...(projectId ? { projectId } : {}) });
+  const projectId = process.env.FIREBASE_PROJECT_ID ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "medario-doctor";
+  const appName = "medario-server";
+  const app = getApps().find((candidate) => candidate.name === appName)
+    ?? initializeApp({ credential: applicationDefault(), projectId }, appName);
   return getFirestore(app);
 }
 

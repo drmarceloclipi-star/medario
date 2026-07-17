@@ -28,7 +28,7 @@ function dateLabel(value: string) {
 function DoctorResultCard({ doctor, search, sponsored = false, selected = false, onSelect, comparing = false, onCompare, favorite = false, onFavorite }: { doctor: DirectoryDoctor; search: DerivedSearch; sponsored?: boolean; selected?: boolean; onSelect?: () => void; comparing?: boolean; onCompare?: () => void; favorite?: boolean; onFavorite?: () => void }) {
   const mainLocation = doctor.locations[0];
   return (
-    <article className={`result-card ${selected ? 'selected' : ''}`} onClick={onSelect}>
+    <article className={`result-card ${selected ? 'selected' : ''}`}>
       {sponsored && <p className="sponsor-label">Patrocinado</p>}
       <div className="result-card-heading">
         <div className="doctor-initials" aria-hidden="true">{doctor.name.replace(/^(Dra?\.)\s/, '').split(' ').map((part) => part[0]).slice(0, 2).join('')}</div>
@@ -40,7 +40,7 @@ function DoctorResultCard({ doctor, search, sponsored = false, selected = false,
         <div><dt>Disponibilidade</dt><dd>{availabilityCopy[doctor.availabilityState]}{doctor.availability?.nextAvailableAt ? ` · ${dateLabel(doctor.availability.nextAvailableAt)}` : ''}</dd></div>
         <div><dt>Convênios</dt><dd>{doctor.insuranceDetails.map((insurance) => `${insurance.name} · ${insurance.status === 'confirmed' ? 'Convênio confirmado' : 'Convênio informado: confirme antes'}`).join(' · ')}</dd></div>
       </dl>
-      <footer><span>Dado atualizado em {dateLabel(doctor.updatedAt)}</span>{onFavorite && <button type="button" onClick={(event) => { event.stopPropagation(); onFavorite(); }}>{favorite ? 'Remover favorito' : 'Favoritar'}</button>}{onCompare && <button type="button" onClick={(event) => { event.stopPropagation(); onCompare(); }}>{comparing ? 'Remover comparação' : 'Comparar'}</button>}<a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${mainLocation?.district ?? ''} ${mainLocation?.city ?? ''}`)}`} target="_blank" rel="noreferrer">Rota no Google Maps</a><a href={`/perfil/${doctor.slug}${journeyUrl(search.filters).replace('/', '')}`}>Ver perfil</a></footer>
+      <footer><span>Dado atualizado em {dateLabel(doctor.updatedAt)}</span>{onSelect && <button type="button" aria-pressed={selected} onClick={onSelect}>{selected ? 'Selecionado no mapa' : 'Selecionar no mapa'}</button>}{onFavorite && <button type="button" onClick={onFavorite}>{favorite ? 'Remover favorito' : 'Favoritar'}</button>}{onCompare && <button type="button" onClick={onCompare}>{comparing ? 'Remover comparação' : 'Comparar'}</button>}<a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${mainLocation?.district ?? ''} ${mainLocation?.city ?? ''}`)}`} target="_blank" rel="noreferrer">Rota no Google Maps</a><a href={`/perfil/${doctor.slug}${journeyUrl(search.filters).replace('/', '')}`}>Ver perfil</a></footer>
     </article>
   );
 }

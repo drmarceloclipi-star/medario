@@ -17,12 +17,13 @@ export function Button({
   variant = "primary",
   loading = false,
   disabled,
+  className = "",
   children,
   ...props
 }: ButtonProps) {
   return (
     <button
-      className="mdr-button"
+      className={`mdr-button ${className}`.trim()}
       data-variant={variant}
       aria-busy={loading || undefined}
       disabled={disabled || loading}
@@ -38,9 +39,9 @@ export interface IconButtonProps
   label: string;
 }
 
-export function IconButton({ label, children, ...props }: IconButtonProps) {
+export function IconButton({ label, className = "", children, ...props }: IconButtonProps) {
   return (
-    <button className="mdr-icon-button" aria-label={label} {...props}>
+    <button className={`mdr-icon-button ${className}`.trim()} aria-label={label} {...props}>
       {children}
     </button>
   );
@@ -48,8 +49,8 @@ export function IconButton({ label, children, ...props }: IconButtonProps) {
 
 export type InputProps = InputHTMLAttributes<HTMLInputElement>;
 
-export function Input(props: InputProps) {
-  return <input className="mdr-input" {...props} />;
+export function Input({ className = "", ...props }: InputProps) {
+  return <input className={`mdr-input ${className}`.trim()} {...props} />;
 }
 
 export type CardProps = HTMLAttributes<HTMLDivElement>;
@@ -62,10 +63,10 @@ export interface ChipProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   selected?: boolean;
 }
 
-export function Chip({ selected = false, ...props }: ChipProps) {
+export function Chip({ selected = false, className = "", ...props }: ChipProps) {
   return (
     <button
-      className="mdr-chip"
+      className={`mdr-chip ${className}`.trim()}
       type="button"
       aria-pressed={selected}
       {...props}
