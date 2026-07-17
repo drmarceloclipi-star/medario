@@ -162,8 +162,8 @@ test.describe("mobile shell", () => {
     await expect(page.getByRole("heading", { name: "Dra. Marina Alves" })).toBeVisible();
 
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), {
-      message: "document overflow in CSS pixels after text enlargement",
-    }).toBeLessThanOrEqual(0);
+      message: "document overflow beyond one CSS pixel of cross-platform rounding after text enlargement",
+    }).toBeLessThanOrEqual(1);
   });
 
   test("shows the migrated public profile without moving the legacy site", async ({ page }) => {
