@@ -23,4 +23,8 @@ function savedSearchRecord({ id, criteria, alertEnabled, now }) {
   return { id, criteria: safeCriteria, alertEnabled, createdAt: now, updatedAt: now, version: 1 };
 }
 
-module.exports = { savedSearchCriteriaFrom, savedSearchRecord };
+function expectedAccountMatches(expectedUid, actualUid) {
+  return typeof expectedUid === "string" && expectedUid.length > 0 && expectedUid === actualUid;
+}
+
+module.exports = { expectedAccountMatches, savedSearchCriteriaFrom, savedSearchRecord };

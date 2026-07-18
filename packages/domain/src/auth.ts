@@ -42,5 +42,5 @@ export interface AccountPort {
   getProfile(): Promise<AccountProfile>;
   updatePreferences(input: AccountPreferences): Promise<void>;
   setHealthConsent(value: boolean): Promise<void>;
-  deleteAccount(): Promise<void>;
+  deleteAccount(password?: string): Promise<void>;
 }

@@ -163,22 +163,22 @@ export async function createFirebaseBrowserClient(options: FirebaseClientOptions
 }
 
 export type SavedItemsCallableClient = {
-  listSavedItems: () => Promise<SavedItemsSnapshot>;
-  favoriteDoctor: (doctorId: string) => Promise<{ doctorId: string; favorited: true }>;
-  unfavoriteDoctor: (doctorId: string) => Promise<{ doctorId: string; favorited: false }>;
-  saveAccountSearch: (input: { criteria: SavedSearchCriteria; alertEnabled: boolean }) => Promise<{ id: string; criteria: SavedSearchCriteria; alertEnabled: boolean }>;
-  removeAccountSearch: (searchId: string) => Promise<{ searchId: string; removed: true }>;
-  setSavedSearchAlert: (input: { searchId: string; alertEnabled: boolean }) => Promise<{ searchId: string; alertEnabled: boolean }>;
+  listSavedItems: (expectedUid: string) => Promise<SavedItemsSnapshot>;
+  favoriteDoctor: (doctorId: string, expectedUid: string) => Promise<{ doctorId: string; favorited: true }>;
+  unfavoriteDoctor: (doctorId: string, expectedUid: string) => Promise<{ doctorId: string; favorited: false }>;
+  saveAccountSearch: (input: { criteria: SavedSearchCriteria; alertEnabled: boolean; expectedUid: string }) => Promise<{ id: string; criteria: SavedSearchCriteria; alertEnabled: boolean }>;
+  removeAccountSearch: (searchId: string, expectedUid: string) => Promise<{ searchId: string; removed: true }>;
+  setSavedSearchAlert: (input: { searchId: string; alertEnabled: boolean; expectedUid: string }) => Promise<{ searchId: string; alertEnabled: boolean }>;
 };
 
 export async function createSavedItemsCallableClient(options: FirebaseClientOptions = {}): Promise<SavedItemsCallableClient> {
   const client = await createFirebaseBrowserClient(options);
   return {
-    listSavedItems: () => client.invoke<undefined, SavedItemsSnapshot>("listSavedItems", undefined),
-    favoriteDoctor: (doctorId) => client.invoke("favoriteDoctor", { doctorId }),
-    unfavoriteDoctor: (doctorId) => client.invoke("unfavoriteDoctor", { doctorId }),
+    listSavedItems: (expectedUid) => client.invoke("listSavedItems", { expectedUid }),
+    favoriteDoctor: (doctorId, expectedUid) => client.invoke("favoriteDoctor", { doctorId, expectedUid }),
+    unfavoriteDoctor: (doctorId, expectedUid) => client.invoke("unfavoriteDoctor", { doctorId, expectedUid }),
     saveAccountSearch: (input) => client.invoke("saveAccountSearch", input),
-    removeAccountSearch: (searchId) => client.invoke("removeAccountSearch", { searchId }),
+    removeAccountSearch: (searchId, expectedUid) => client.invoke("removeAccountSearch", { searchId, expectedUid }),
     setSavedSearchAlert: (input) => client.invoke("setSavedSearchAlert", input),
   };
 }

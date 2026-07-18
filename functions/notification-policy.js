@@ -23,6 +23,14 @@ function preferencesFrom(input) {
   return preferences;
 }
 
+function preferencesFromDocument(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return defaultPreferences();
+  const preferenceFields = Object.fromEntries(events.flatMap((event) => (
+    Object.prototype.hasOwnProperty.call(input, event) ? [[event, input[event]]] : []
+  )));
+  return preferencesFrom(preferenceFields);
+}
+
 function notificationEnabled(preferences, event, channel) {
   return events.includes(event) && channels.includes(channel) && preferencesFrom(preferences || {})[event][channel] === true;
 }
@@ -42,4 +50,27 @@ function notificationOutboxRecord({ id, event, channel, recipientUid, subjectRef
   return { id, event, channel, recipientUid, subjectRef, state: "pending", attempts: 0, createdAt: now };
 }
 
-module.exports = { channels, defaultPreferences, enabledChannels, events, notificationEnabled, notificationOutboxRecord, preferencesFrom, providerlessDeliveryState };
+function safePushMessage(event) {
+  const messages = {
+    appointment_confirmed: {
+      title: "Agendamento atualizado",
+      body: "Abra o Medário para ver os detalhes.",
+      destination: "appointments",
+    },
+    profile_updated: {
+      title: "Perfil atualizado",
+      body: "Um perfil salvo recebeu informações novas.",
+      destination: "saved_items",
+    },
+    saved_search_material: {
+      title: "Busca salva atualizada",
+      body: "Há uma novidade compatível. Abra o Medário para consultar.",
+      destination: "saved_items",
+    },
+  };
+  const message = messages[event];
+  if (!message) throw new Error("Unknown notification event");
+  return message;
+}
+
+module.exports = { channels, defaultPreferences, enabledChannels, events, notificationEnabled, notificationOutboxRecord, preferencesFrom, preferencesFromDocument, providerlessDeliveryState, safePushMessage };

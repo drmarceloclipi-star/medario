@@ -1,0 +1,1192 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0177EED8B5BC3EB157120E28 /* PublicProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CD233AB3D8EFBD0E6813C4D /* PublicProfile.swift */; };
+		01DDEB46FA4335865066F65B /* AccountFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D49542A58058E03D91DAFBE /* AccountFeedback.swift */; };
+		0302AB07D9DD4F4C8C8C2BB2 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A388E920376A769C28947CEF /* FirebaseMessaging */; };
+		03D514902011E5C4DD8077DE /* AccountSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BA95902CD7999DAE52732A7 /* AccountSession.swift */; };
+		04E295E03F82DE1A988D1D60 /* DirectoryMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5EFF468C236560309BC039 /* DirectoryMapView.swift */; };
+		054C183D988644CF61787129 /* AppointmentViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28B59A67D6204EBB6A72BD6D /* AppointmentViewModelTests.swift */; };
+		076809D926ECCEA08F03566F /* ProfileContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACA31229757CDDBDEA82D6B1 /* ProfileContactView.swift */; };
+		08D5BA42E3A4D96322CC7ECA /* FirebaseAccountCallableGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB53352978B6D37BEF9068E0 /* FirebaseAccountCallableGateway.swift */; };
+		094FD090EFAB75F6507C40C8 /* ProfileFactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F6E23D78539AF4D225AAD7 /* ProfileFactsView.swift */; };
+		0D6E1C6209B788D353034312 /* SavedItemsRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7C15463E5B53C475A37793 /* SavedItemsRepositoryTests.swift */; };
+		0F37FA9BB824A06BCF34D3ED /* FirebaseAppointmentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1DE37699CAB997E033067B6 /* FirebaseAppointmentRepository.swift */; };
+		10297324A3A9DF27091AEC30 /* AccountPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF8605301D94A2927359D77 /* AccountPreferencesView.swift */; };
+		118DF5B7AD25CFADDD9249BA /* AccountCallableGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33128E60D33D84CE3D24CF3 /* AccountCallableGateway.swift */; };
+		1215CC45320B0D320AE77ABB /* PublicDirectoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6B377DE2CFC610B246CF5F /* PublicDirectoryRepository.swift */; };
+		1420D4345930611570F650DB /* AccountStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153FCE9078D96BAABB710864 /* AccountStatusView.swift */; };
+		17783416D6AE263047B6A0A0 /* FirebaseNativeNotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B038F0364A1AF33D592B93D9 /* FirebaseNativeNotificationRepository.swift */; };
+		18586FC82044F3F9D006FA0A /* PublicProfileFixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2299DDBDF46C539E6B4F595E /* PublicProfileFixture.swift */; };
+		195A8151D08ABE9F3DAC758E /* FirebaseSavedItemsCallableGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38BD13BB76CF7B79BD0C4BA /* FirebaseSavedItemsCallableGateway.swift */; };
+		1A0BBB9580418B8BA57216CD /* NativeNotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B94C83A51B9199C7F407FE /* NativeNotificationRepository.swift */; };
+		1BA8338823C468ED5261F08A /* DirectoryResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9933B58A56BAC7EADCEB4A29 /* DirectoryResultsView.swift */; };
+		1D2EA43FC1C3EEDAC865A052 /* ProfileLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D81D10F93A1CF630311AAAB /* ProfileLocation.swift */; };
+		1E51D8E71C9600E4E5F0D416 /* MockPublicDirectoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A53834B86DB7A605F88BDD9 /* MockPublicDirectoryRepository.swift */; };
+		1FCB8A775F46422FC35267C9 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9DCC9AF9B210A9B473479E46 /* FirebaseAuth */; };
+		2179F881011C8D10305901F2 /* MyAppointmentsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7380D39FAA9540E8F777A256 /* MyAppointmentsViewModel.swift */; };
+		2362FC868B59F2904A7BCAF1 /* AppointmentOptionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A600B25E939A1020FE22031F /* AppointmentOptionsViewModel.swift */; };
+		2402D832C85DC3633556898D /* FirestorePublicProfileMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0541A7AAB2ECAF7B50599A33 /* FirestorePublicProfileMapperTests.swift */; };
+		2B7BD5BDBDB76589DDA4D26C /* SavedItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6945653C459F84C01C35C2BC /* SavedItems.swift */; };
+		33800DCD4D2F0731058EC69D /* SignedInAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C491046DB323E77C0DE93A /* SignedInAccountView.swift */; };
+		35796AF0C0B1C498F0CA895C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 008C7ED24A91E08CA00D82B6 /* Assets.xcassets */; };
+		38D69A51C1F6EFC941D90F75 /* FirebaseAccountBackendGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = 087C57565B0D20C0180389AA /* FirebaseAccountBackendGateway.swift */; };
+		3A8492FF8E22127EA74AC31D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE8D48FA41CC001A2E59391B /* GoogleService-Info.plist */; };
+		3D5EA65EEB2D1A1878FF7D29 /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151C47CF6A3382CD556A00DE /* AccountView.swift */; };
+		417E74354912B151DFA2AED6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CA03DC8C1AC1E713AE35CAC8 /* PrivacyInfo.xcprivacy */; };
+		434BA2147C332106C2AA7529 /* PublicProfileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90DC940CE4853EBACD6C1CF /* PublicProfileDocument.swift */; };
+		4A07696530C8E4E4E145AE56 /* MockAccountRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68ECD0052299B6825CFE1E69 /* MockAccountRepository.swift */; };
+		4A0AAD0C2B96DCC13B73B4A4 /* AccountMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BFB380439EAA879104E7E49 /* AccountMode.swift */; };
+		4CE22C6568259624436747CE /* HealthConsentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6751BD0AF85C3D93831EA98F /* HealthConsentView.swift */; };
+		4E1EDAC2895E5662395B693A /* AppointmentOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6539703CB8D2F004C730CC /* AppointmentOptionsView.swift */; };
+		4EE5E89591D9F28B6CEFF4D1 /* FirestorePublicProfileMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9980E43F7CC68DE0F15CF9F0 /* FirestorePublicProfileMapper.swift */; };
+		50B1F418B7AA002B3ED4B5D6 /* MedarioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB5527007BD877D7F352361 /* MedarioApp.swift */; };
+		558B17C1BB2476032461A109 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = EEE2BDE5808A495F81E12C29 /* FirebaseFirestore */; };
+		56A29D4EEEDE8F9730D874D4 /* Appointment.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9CFF4913C1E3F87EBF92F7C /* Appointment.swift */; };
+		56F1C7D3DD6E8F697D4AAD33 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 9DEF8C891E9E4E8B7FCED3F7 /* FirebaseFunctions */; };
+		5787B792024BEDC90261DC1D /* UserDefaultsSavedItemsLocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6C7CAB782A08DC4F0BD2BA /* UserDefaultsSavedItemsLocalStore.swift */; };
+		59DCDFF598E56370F1D4BB8B /* ProfileInsurance.swift in Sources */ = {isa = PBXBuildFile; fileRef = E02C4BF5F1789590CE8F8D9D /* ProfileInsurance.swift */; };
+		59EA6898A264CE81F706840D /* FirebasePublicProfileDocumentsSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D4DE2B14DC3C155F4B33D2 /* FirebasePublicProfileDocumentsSource.swift */; };
+		5CB5C3D657BB930B4E220FBA /* MyAppointmentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B898893302F643AC6C67E0A1 /* MyAppointmentsView.swift */; };
+		5DB000942E7192C6AFFB26A8 /* AccountCallableClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BBDFA07BAF9D3C04FA7DB15 /* AccountCallableClient.swift */; };
+		5E2C5471353E6B4DB2664E3D /* SavedSearchCriteria.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A35ABE46FF0C3E8BAD2FFBD /* SavedSearchCriteria.swift */; };
+		5E92011958A33A785D83C08D /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5931AB9BC731A6EDE17ECA80 /* TestError.swift */; };
+		5EF94462BF3834439B47CE71 /* RootTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6857DCABA6BDCB3133D43404 /* RootTab.swift */; };
+		64300897717207F3919D724B /* FirebaseSavedItemsCallableGatewayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16AD96D0FA2B14D004269FD /* FirebaseSavedItemsCallableGatewayTests.swift */; };
+		65CB3321F2CBAE24137EBDCD /* AccountDeletionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E59B2DB757182559384FF5 /* AccountDeletionState.swift */; };
+		6A4D3DBAD122BDB6FF67494A /* MockAccountSessionSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C44312B85D18997F492B3 /* MockAccountSessionSubscription.swift */; };
+		6DEB2D7F68EF0551C971233D /* ProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C285D067B54DFA370A5476F3 /* ProfileDetailView.swift */; };
+		6F9442E67946ED40DDED8065 /* NativeNotificationPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28B38A1E7A921A7A2EC100C /* NativeNotificationPreferencesView.swift */; };
+		730E983119690B4702BC1BBA /* MockAccountCallableClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88C33F80CFDD7AA8853C49ED /* MockAccountCallableClient.swift */; };
+		747367207A66831E983E7741 /* AccountBackendGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F90664B5EB3A16EF312D68 /* AccountBackendGateway.swift */; };
+		79AB5F6B63EDF352E8404611 /* ReleaseConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F4D218DA47764C8E83509E /* ReleaseConfigurationTests.swift */; };
+		7A2EADC959FF3239E5CD4154 /* AccountRepositoryError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FD60C7857BC7AA542A23B4 /* AccountRepositoryError.swift */; };
+		7B485D974AAD7B1CEFED3A2C /* AccountProfileMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5D9D2D0922DEFCCADB0B91 /* AccountProfileMapper.swift */; };
+		7CFCB7EFA701BBA769EAB84E /* DirectoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EDA6F709AE38A15D2BE3 /* DirectoryViewModel.swift */; };
+		7D9071E506F167322ABC55D5 /* SavedItemsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5A6EA00C5612EA6DE0C7163 /* SavedItemsViewModelTests.swift */; };
+		7E9384F790BACAF0DFF55B15 /* ProfileRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC437C318F8D2E4607DED94 /* ProfileRowView.swift */; };
+		7EE7A7143F1B5BA62EE06FF8 /* MedarioNativeLaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42AC2FAF42B8B2E37D9D83FF /* MedarioNativeLaunchUITests.swift */; };
+		834C02C06151DAC0E1423747 /* MedarioDeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2987355FD761C8E05C7F0B /* MedarioDeepLink.swift */; };
+		874DDE686022F5252D2110A1 /* NativeNotificationPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF3E9A9095EF1AD08B675D7 /* NativeNotificationPreferences.swift */; };
+		8785411D990208D193810598 /* FirebasePublicDirectoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F86AE879EA1F4B27E47B93F /* FirebasePublicDirectoryRepository.swift */; };
+		89874D589481357CC35D6E6A /* AccountCallableErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366908B5F9C4AD02E8A086FB /* AccountCallableErrorMapper.swift */; };
+		908072317EB21990EC8CD7F3 /* DirectoryLoadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E24B55AD308F9081DE7DE5ED /* DirectoryLoadState.swift */; };
+		90DA5614E7CF833B712CCFFE /* FirebasePublicDirectoryRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B284EF5214320D77C7FAD0 /* FirebasePublicDirectoryRepositoryTests.swift */; };
+		914B0C2B66ED96E2E1B0046A /* AccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BDCDD0AC0DFCB4F1860CD3 /* AccountViewModel.swift */; };
+		9569518284AE5E603A605109 /* AccountProfileMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A99C5ACE4C2F7AF859A504 /* AccountProfileMapperTests.swift */; };
+		95E0A15E124D9BE6C4FF993E /* AccountProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C48D188C0C3F2D9D9097B5 /* AccountProfile.swift */; };
+		9830B4CA98A8421576EE1BA0 /* DefaultSavedItemsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4777E358F42AACE2FE7262C2 /* DefaultSavedItemsRepository.swift */; };
+		99B5A05F833C6FA5B1D376FB /* AccountProfileState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575936383E61BBF3AB02A50A /* AccountProfileState.swift */; };
+		9A248B68F1826B319C6B3DA1 /* ControlledPublicDirectoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65D43F6844126385C8A4C20 /* ControlledPublicDirectoryRepository.swift */; };
+		9C4ABEC3E8807F61E33367FF /* PendingProfileChangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C6B74B9079429DC71299FA /* PendingProfileChangeView.swift */; };
+		A2D048AEC306A2A543425041 /* ReauthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4597B4D2A9D6E2802B69855D /* ReauthenticationView.swift */; };
+		A8C89FBFB9F856ECAD4793B2 /* AccountAuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4D2DA3C5460747EA2FFFFC2 /* AccountAuthenticationView.swift */; };
+		B0F1F8C188E969E52B12E057 /* DirectoryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 405B62F19D282BAFFD72539F /* DirectoryViewModelTests.swift */; };
+		B1AF74FCBFCC7EB1C1906D3D /* PublicProfileDocumentsSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADFB468718DEB797DD8A35D /* PublicProfileDocumentsSource.swift */; };
+		B1DDF9C678A7896AB4109507 /* SavedItemsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E9BC4453F4FD190DB4CEBD /* SavedItemsRepository.swift */; };
+		B3292DFE403B38954942DA7A /* AccountSavedItemsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3516A06797BF703B9CB7A97 /* AccountSavedItemsState.swift */; };
+		B3EED88197FA5960B8AB7068 /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C4B2E261A9F816945CBF02 /* ProfileHeaderView.swift */; };
+		B8144CE5055B48CB2BB4A19C /* ProfileContacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E5B1DFF0FD09D5B9A6C35E /* ProfileContacts.swift */; };
+		BB06DF9FF6D2525E0E8A9238 /* FirebaseAccountRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69190FA3777413F6429CDB11 /* FirebaseAccountRepositoryTests.swift */; };
+		BBF4E1357824720C9DAB3023 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 22198BF6FEE150A99C64BFE1 /* FirebaseCore */; };
+		BD046AC2F987C1C7A3F43778 /* AccountCallableErrorMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E56203BDD8F0E0A7E36771B /* AccountCallableErrorMapperTests.swift */; };
+		BD6B9B7D911A6761E310A527 /* ProfileLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66DFE07469818DA09748E5D5 /* ProfileLocationTests.swift */; };
+		BDA8000FFC041C841F0DDA5C /* FirebaseAppointmentCallableClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D206D2397D323714ADA3FCB9 /* FirebaseAppointmentCallableClient.swift */; };
+		BFBAB8703A7D5C2914C40FF1 /* FirebaseAccountRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DCF2BF46AE813A90736B693 /* FirebaseAccountRepository.swift */; };
+		C023D1EC1055300511C4B98D /* MockPublicProfileDocumentsSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637CC402B7CEC84E371E7C46 /* MockPublicProfileDocumentsSource.swift */; };
+		C4FE5BF4FE014C97DB4DC3B1 /* NativePushCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7F5FA24BDC1CA95C647DB4 /* NativePushCoordinator.swift */; };
+		C611D5CE491864C42118DE4F /* MedarioDeepLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED37B0A478F49D0CFA0B87BE /* MedarioDeepLinkTests.swift */; };
+		C716792D69C2481ED64115D5 /* MockAccountBackendGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21C80DBCED2D685CCA600ACB /* MockAccountBackendGateway.swift */; };
+		C9C9640655D4CF999EF37839 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EC40EAFE633825CEBAAB0E /* RootView.swift */; };
+		C9D56EBB9A104100FBF9693C /* MockSavedItemsDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD899672703B8A6B5C1E49E /* MockSavedItemsDependencies.swift */; };
+		CA8EC19A05AD13E65F82FA8B /* SavedItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F3FFE143328E0D669FC597 /* SavedItemsView.swift */; };
+		D17D70A06F4690432202FF64 /* NativeNotificationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D03DCC268DDA6A07345445E /* NativeNotificationViewModelTests.swift */; };
+		D2DE3FBAAF376B1C3DFBC25F /* FirebaseAccountSessionSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8E70D06640C64832D851E6 /* FirebaseAccountSessionSubscription.swift */; };
+		D58EFD74661192C873E787A9 /* ConsultationModality.swift in Sources */ = {isa = PBXBuildFile; fileRef = D278C58A66DDFB11A201B432 /* ConsultationModality.swift */; };
+		DCF0C20AB86F72903D11DD1A /* AppointmentRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A5A6C4E8DBCAE8B06B9F3D /* AppointmentRepositoryTests.swift */; };
+		DD55591342D6AC6AD6D6B7CB /* VerifiedContact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D3A4A4BDCB61F396CAF281 /* VerifiedContact.swift */; };
+		DF188C5359B45E2C6E8E9D82 /* SavedItemsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541EE169BA8DAB46E220541B /* SavedItemsViewModel.swift */; };
+		E10622354CE16768F1FE884D /* MockNativeNotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96787C67F2C7289216A77C6 /* MockNativeNotificationRepository.swift */; };
+		E26DE10F1D0AA23336289FF8 /* AccountUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B983496702D1FF638809FF7E /* AccountUser.swift */; };
+		E2FFBD841FC24483FA1C4164 /* DirectoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF894AE0815388EDDF9F2E9F /* DirectoryView.swift */; };
+		E43E4FEE2E59AA8D93B529A9 /* AccountViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD96387B0200A405F3EA8795 /* AccountViewModelTests.swift */; };
+		E6C78508C817A62F19523AEE /* AccountPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C29CCD8DAC10BB12B2BE697 /* AccountPreferences.swift */; };
+		E9501BC4D98979B711473F53 /* FirebaseAccountCallableClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1C98991C4AE5F065198ABF /* FirebaseAccountCallableClient.swift */; };
+		ED1A78D6B66A791FB2B56B0C /* SavedItemsCallableClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 315E28DBF607EF5119A3CE0B /* SavedItemsCallableClient.swift */; };
+		ED5D9FE5CC6A1C4FC2BCB356 /* AppointmentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F43574444B2CDEA540CD328 /* AppointmentRepository.swift */; };
+		EE3C7B3A0F8F8AF5883E42E8 /* AccountRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075609665152BE5B18311B66 /* AccountRepository.swift */; };
+		F051A4976C7F9F79C35CCE4F /* MedarioAppCheckProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B480D663AF925DFFDE4036B /* MedarioAppCheckProviderFactory.swift */; };
+		F0B3AE2DE713199AA19E4861 /* NativeNotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4350D713D0D803B80A4B202 /* NativeNotificationViewModel.swift */; };
+		F0FF0CAA0ACBE366B2E91437 /* FirebaseSavedItemsCallableClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67058F03CBBD641F8B4D13A1 /* FirebaseSavedItemsCallableClient.swift */; };
+		F313970D60D3AB7C380345CC /* MedarioTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C583EF90415DC74929192932 /* MedarioTheme.swift */; };
+		F7D21D874DCE973E2A2C564C /* FirebaseAccountCallableGatewayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F39725A81A2D1526D1680B /* FirebaseAccountCallableGatewayTests.swift */; };
+		FBFCD464899D4F771184E82B /* NativeNotificationPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 937D1D2C833AD1DD9AC2E2E9 /* NativeNotificationPreferencesTests.swift */; };
+		FC0DB160BD52F70CF711F9A2 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = C09B81E08E4AEEAFF75711BE /* FirebaseAppCheck */; };
+		FD2273F6F25BAF96C16D816F /* MockAccountCallableGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E1A7948318811BC5F8547E1 /* MockAccountCallableGateway.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		27C6EC4135ACB9FA75C015E4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E10C5688D3F1E0BBBFFD8858 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1D188B45F5B7527A1A1E08E;
+			remoteInfo = Medario;
+		};
+		5A080C36F3F67CE1A68C1082 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E10C5688D3F1E0BBBFFD8858 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1D188B45F5B7527A1A1E08E;
+			remoteInfo = Medario;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		008C7ED24A91E08CA00D82B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0541A7AAB2ECAF7B50599A33 /* FirestorePublicProfileMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestorePublicProfileMapperTests.swift; sourceTree = "<group>"; };
+		05C491046DB323E77C0DE93A /* SignedInAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedInAccountView.swift; sourceTree = "<group>"; };
+		075609665152BE5B18311B66 /* AccountRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRepository.swift; sourceTree = "<group>"; };
+		087C57565B0D20C0180389AA /* FirebaseAccountBackendGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAccountBackendGateway.swift; sourceTree = "<group>"; };
+		0A6C7CAB782A08DC4F0BD2BA /* UserDefaultsSavedItemsLocalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsSavedItemsLocalStore.swift; sourceTree = "<group>"; };
+		0BBDFA07BAF9D3C04FA7DB15 /* AccountCallableClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCallableClient.swift; sourceTree = "<group>"; };
+		0BFB380439EAA879104E7E49 /* AccountMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountMode.swift; sourceTree = "<group>"; };
+		151C47CF6A3382CD556A00DE /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
+		153FCE9078D96BAABB710864 /* AccountStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStatusView.swift; sourceTree = "<group>"; };
+		16F3FFE143328E0D669FC597 /* SavedItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedItemsView.swift; sourceTree = "<group>"; };
+		19E5B1DFF0FD09D5B9A6C35E /* ProfileContacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileContacts.swift; sourceTree = "<group>"; };
+		1BA95902CD7999DAE52732A7 /* AccountSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSession.swift; sourceTree = "<group>"; };
+		1D03DCC268DDA6A07345445E /* NativeNotificationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeNotificationViewModelTests.swift; sourceTree = "<group>"; };
+		1D2987355FD761C8E05C7F0B /* MedarioDeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedarioDeepLink.swift; sourceTree = "<group>"; };
+		1D81D10F93A1CF630311AAAB /* ProfileLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLocation.swift; sourceTree = "<group>"; };
+		1E1A7948318811BC5F8547E1 /* MockAccountCallableGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAccountCallableGateway.swift; sourceTree = "<group>"; };
+		1E8E70D06640C64832D851E6 /* FirebaseAccountSessionSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAccountSessionSubscription.swift; sourceTree = "<group>"; };
+		1FD899672703B8A6B5C1E49E /* MockSavedItemsDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSavedItemsDependencies.swift; sourceTree = "<group>"; };
+		21C80DBCED2D685CCA600ACB /* MockAccountBackendGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAccountBackendGateway.swift; sourceTree = "<group>"; };
+		2299DDBDF46C539E6B4F595E /* PublicProfileFixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfileFixture.swift; sourceTree = "<group>"; };
+		22BDCDD0AC0DFCB4F1860CD3 /* AccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewModel.swift; sourceTree = "<group>"; };
+		23C6B74B9079429DC71299FA /* PendingProfileChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingProfileChangeView.swift; sourceTree = "<group>"; };
+		25F39725A81A2D1526D1680B /* FirebaseAccountCallableGatewayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAccountCallableGatewayTests.swift; sourceTree = "<group>"; };
+		28B59A67D6204EBB6A72BD6D /* AppointmentViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppointmentViewModelTests.swift; sourceTree = "<group>"; };
+		2B480D663AF925DFFDE4036B /* MedarioAppCheckProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedarioAppCheckProviderFactory.swift; sourceTree = "<group>"; };
+		2DB5527007BD877D7F352361 /* MedarioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedarioApp.swift; sourceTree = "<group>"; };
+		2E56203BDD8F0E0A7E36771B /* AccountCallableErrorMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCallableErrorMapperTests.swift; sourceTree = "<group>"; };
+		315E28DBF607EF5119A3CE0B /* SavedItemsCallableClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedItemsCallableClient.swift; sourceTree = "<group>"; };
+		366908B5F9C4AD02E8A086FB /* AccountCallableErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCallableErrorMapper.swift; sourceTree = "<group>"; };
+		39EC40EAFE633825CEBAAB0E /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		3ADFB468718DEB797DD8A35D /* PublicProfileDocumentsSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfileDocumentsSource.swift; sourceTree = "<group>"; };
+		3D7F5FA24BDC1CA95C647DB4 /* NativePushCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePushCoordinator.swift; sourceTree = "<group>"; };
+		3EC437C318F8D2E4607DED94 /* ProfileRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileRowView.swift; sourceTree = "<group>"; };
+		3F43574444B2CDEA540CD328 /* AppointmentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppointmentRepository.swift; sourceTree = "<group>"; };
+		405B62F19D282BAFFD72539F /* DirectoryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryViewModelTests.swift; sourceTree = "<group>"; };
+		42AC2FAF42B8B2E37D9D83FF /* MedarioNativeLaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedarioNativeLaunchUITests.swift; sourceTree = "<group>"; };
+		4597B4D2A9D6E2802B69855D /* ReauthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReauthenticationView.swift; sourceTree = "<group>"; };
+		4777E358F42AACE2FE7262C2 /* DefaultSavedItemsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSavedItemsRepository.swift; sourceTree = "<group>"; };
+		4A35ABE46FF0C3E8BAD2FFBD /* SavedSearchCriteria.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedSearchCriteria.swift; sourceTree = "<group>"; };
+		4F86AE879EA1F4B27E47B93F /* FirebasePublicDirectoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebasePublicDirectoryRepository.swift; sourceTree = "<group>"; };
+		50D3A4A4BDCB61F396CAF281 /* VerifiedContact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifiedContact.swift; sourceTree = "<group>"; };
+		51F4D218DA47764C8E83509E /* ReleaseConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseConfigurationTests.swift; sourceTree = "<group>"; };
+		53EE0077BAD8D0BDD19E073D /* Medario.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Medario.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		541EE169BA8DAB46E220541B /* SavedItemsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedItemsViewModel.swift; sourceTree = "<group>"; };
+		575936383E61BBF3AB02A50A /* AccountProfileState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProfileState.swift; sourceTree = "<group>"; };
+		5931AB9BC731A6EDE17ECA80 /* TestError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestError.swift; sourceTree = "<group>"; };
+		5D5D9D2D0922DEFCCADB0B91 /* AccountProfileMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProfileMapper.swift; sourceTree = "<group>"; };
+		5E6B377DE2CFC610B246CF5F /* PublicDirectoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicDirectoryRepository.swift; sourceTree = "<group>"; };
+		62E9BC4453F4FD190DB4CEBD /* SavedItemsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedItemsRepository.swift; sourceTree = "<group>"; };
+		637CC402B7CEC84E371E7C46 /* MockPublicProfileDocumentsSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPublicProfileDocumentsSource.swift; sourceTree = "<group>"; };
+		65F6E23D78539AF4D225AAD7 /* ProfileFactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFactsView.swift; sourceTree = "<group>"; };
+		66DFE07469818DA09748E5D5 /* ProfileLocationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLocationTests.swift; sourceTree = "<group>"; };
+		67058F03CBBD641F8B4D13A1 /* FirebaseSavedItemsCallableClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseSavedItemsCallableClient.swift; sourceTree = "<group>"; };
+		6751BD0AF85C3D93831EA98F /* HealthConsentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthConsentView.swift; sourceTree = "<group>"; };
+		6857DCABA6BDCB3133D43404 /* RootTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTab.swift; sourceTree = "<group>"; };
+		68ECD0052299B6825CFE1E69 /* MockAccountRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAccountRepository.swift; sourceTree = "<group>"; };
+		69190FA3777413F6429CDB11 /* FirebaseAccountRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAccountRepositoryTests.swift; sourceTree = "<group>"; };
+		6945653C459F84C01C35C2BC /* SavedItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedItems.swift; sourceTree = "<group>"; };
+		6D49542A58058E03D91DAFBE /* AccountFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFeedback.swift; sourceTree = "<group>"; };
+		6DCF2BF46AE813A90736B693 /* FirebaseAccountRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAccountRepository.swift; sourceTree = "<group>"; };
+		7380D39FAA9540E8F777A256 /* MyAppointmentsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAppointmentsViewModel.swift; sourceTree = "<group>"; };
+		7A6539703CB8D2F004C730CC /* AppointmentOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppointmentOptionsView.swift; sourceTree = "<group>"; };
+		83D4DE2B14DC3C155F4B33D2 /* FirebasePublicProfileDocumentsSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebasePublicProfileDocumentsSource.swift; sourceTree = "<group>"; };
+		85B284EF5214320D77C7FAD0 /* FirebasePublicDirectoryRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebasePublicDirectoryRepositoryTests.swift; sourceTree = "<group>"; };
+		88C33F80CFDD7AA8853C49ED /* MockAccountCallableClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAccountCallableClient.swift; sourceTree = "<group>"; };
+		8AC99125F6D7103B523620C7 /* MedarioTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MedarioTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8AF8605301D94A2927359D77 /* AccountPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPreferencesView.swift; sourceTree = "<group>"; };
+		937D1D2C833AD1DD9AC2E2E9 /* NativeNotificationPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeNotificationPreferencesTests.swift; sourceTree = "<group>"; };
+		93E59B2DB757182559384FF5 /* AccountDeletionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionState.swift; sourceTree = "<group>"; };
+		946583B26DD3D976B69D0450 /* Medario.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Medario.entitlements; sourceTree = "<group>"; };
+		9933B58A56BAC7EADCEB4A29 /* DirectoryResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryResultsView.swift; sourceTree = "<group>"; };
+		9980E43F7CC68DE0F15CF9F0 /* FirestorePublicProfileMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestorePublicProfileMapper.swift; sourceTree = "<group>"; };
+		9A53834B86DB7A605F88BDD9 /* MockPublicDirectoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPublicDirectoryRepository.swift; sourceTree = "<group>"; };
+		9C29CCD8DAC10BB12B2BE697 /* AccountPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPreferences.swift; sourceTree = "<group>"; };
+		9CD233AB3D8EFBD0E6813C4D /* PublicProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfile.swift; sourceTree = "<group>"; };
+		A38BD13BB76CF7B79BD0C4BA /* FirebaseSavedItemsCallableGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseSavedItemsCallableGateway.swift; sourceTree = "<group>"; };
+		A600B25E939A1020FE22031F /* AppointmentOptionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppointmentOptionsViewModel.swift; sourceTree = "<group>"; };
+		A9F90664B5EB3A16EF312D68 /* AccountBackendGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountBackendGateway.swift; sourceTree = "<group>"; };
+		ACA31229757CDDBDEA82D6B1 /* ProfileContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileContactView.swift; sourceTree = "<group>"; };
+		B038F0364A1AF33D592B93D9 /* FirebaseNativeNotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseNativeNotificationRepository.swift; sourceTree = "<group>"; };
+		B28B38A1E7A921A7A2EC100C /* NativeNotificationPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeNotificationPreferencesView.swift; sourceTree = "<group>"; };
+		B4350D713D0D803B80A4B202 /* NativeNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeNotificationViewModel.swift; sourceTree = "<group>"; };
+		B6A99C5ACE4C2F7AF859A504 /* AccountProfileMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProfileMapperTests.swift; sourceTree = "<group>"; };
+		B898893302F643AC6C67E0A1 /* MyAppointmentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAppointmentsView.swift; sourceTree = "<group>"; };
+		B96787C67F2C7289216A77C6 /* MockNativeNotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNativeNotificationRepository.swift; sourceTree = "<group>"; };
+		B983496702D1FF638809FF7E /* AccountUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountUser.swift; sourceTree = "<group>"; };
+		BB53352978B6D37BEF9068E0 /* FirebaseAccountCallableGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAccountCallableGateway.swift; sourceTree = "<group>"; };
+		BC544521BDD18A927B0AE35E /* MedarioUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MedarioUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF894AE0815388EDDF9F2E9F /* DirectoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryView.swift; sourceTree = "<group>"; };
+		C16AD96D0FA2B14D004269FD /* FirebaseSavedItemsCallableGatewayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseSavedItemsCallableGatewayTests.swift; sourceTree = "<group>"; };
+		C1DE37699CAB997E033067B6 /* FirebaseAppointmentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAppointmentRepository.swift; sourceTree = "<group>"; };
+		C285D067B54DFA370A5476F3 /* ProfileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailView.swift; sourceTree = "<group>"; };
+		C3516A06797BF703B9CB7A97 /* AccountSavedItemsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSavedItemsState.swift; sourceTree = "<group>"; };
+		C583EF90415DC74929192932 /* MedarioTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedarioTheme.swift; sourceTree = "<group>"; };
+		C7C4B2E261A9F816945CBF02 /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
+		C90DC940CE4853EBACD6C1CF /* PublicProfileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfileDocument.swift; sourceTree = "<group>"; };
+		CA03DC8C1AC1E713AE35CAC8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		CCB6EDA6F709AE38A15D2BE3 /* DirectoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryViewModel.swift; sourceTree = "<group>"; };
+		CEF3E9A9095EF1AD08B675D7 /* NativeNotificationPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeNotificationPreferences.swift; sourceTree = "<group>"; };
+		D206D2397D323714ADA3FCB9 /* FirebaseAppointmentCallableClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAppointmentCallableClient.swift; sourceTree = "<group>"; };
+		D278C58A66DDFB11A201B432 /* ConsultationModality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsultationModality.swift; sourceTree = "<group>"; };
+		D3A5A6C4E8DBCAE8B06B9F3D /* AppointmentRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppointmentRepositoryTests.swift; sourceTree = "<group>"; };
+		D4D2DA3C5460747EA2FFFFC2 /* AccountAuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountAuthenticationView.swift; sourceTree = "<group>"; };
+		D5A6EA00C5612EA6DE0C7163 /* SavedItemsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedItemsViewModelTests.swift; sourceTree = "<group>"; };
+		DA7C15463E5B53C475A37793 /* SavedItemsRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedItemsRepositoryTests.swift; sourceTree = "<group>"; };
+		DD96387B0200A405F3EA8795 /* AccountViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewModelTests.swift; sourceTree = "<group>"; };
+		DE8D48FA41CC001A2E59391B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E02C4BF5F1789590CE8F8D9D /* ProfileInsurance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileInsurance.swift; sourceTree = "<group>"; };
+		E24B55AD308F9081DE7DE5ED /* DirectoryLoadState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryLoadState.swift; sourceTree = "<group>"; };
+		E9CFF4913C1E3F87EBF92F7C /* Appointment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Appointment.swift; sourceTree = "<group>"; };
+		EC4C44312B85D18997F492B3 /* MockAccountSessionSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAccountSessionSubscription.swift; sourceTree = "<group>"; };
+		ED37B0A478F49D0CFA0B87BE /* MedarioDeepLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedarioDeepLinkTests.swift; sourceTree = "<group>"; };
+		EF5EFF468C236560309BC039 /* DirectoryMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryMapView.swift; sourceTree = "<group>"; };
+		F33128E60D33D84CE3D24CF3 /* AccountCallableGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCallableGateway.swift; sourceTree = "<group>"; };
+		F65D43F6844126385C8A4C20 /* ControlledPublicDirectoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlledPublicDirectoryRepository.swift; sourceTree = "<group>"; };
+		F6B94C83A51B9199C7F407FE /* NativeNotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeNotificationRepository.swift; sourceTree = "<group>"; };
+		F6C48D188C0C3F2D9D9097B5 /* AccountProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProfile.swift; sourceTree = "<group>"; };
+		F8FD60C7857BC7AA542A23B4 /* AccountRepositoryError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRepositoryError.swift; sourceTree = "<group>"; };
+		FF1C98991C4AE5F065198ABF /* FirebaseAccountCallableClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAccountCallableClient.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3A74DAA03AEAE0FB0F83BEAB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBF4E1357824720C9DAB3023 /* FirebaseCore in Frameworks */,
+				1FCB8A775F46422FC35267C9 /* FirebaseAuth in Frameworks */,
+				558B17C1BB2476032461A109 /* FirebaseFirestore in Frameworks */,
+				56F1C7D3DD6E8F697D4AAD33 /* FirebaseFunctions in Frameworks */,
+				FC0DB160BD52F70CF711F9A2 /* FirebaseAppCheck in Frameworks */,
+				0302AB07D9DD4F4C8C8C2BB2 /* FirebaseMessaging in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1F0BBD251B7F1A6402FB44A4 /* SavedItems */ = {
+			isa = PBXGroup;
+			children = (
+				C3516A06797BF703B9CB7A97 /* AccountSavedItemsState.swift */,
+				16F3FFE143328E0D669FC597 /* SavedItemsView.swift */,
+				541EE169BA8DAB46E220541B /* SavedItemsViewModel.swift */,
+			);
+			path = SavedItems;
+			sourceTree = "<group>";
+		};
+		2C3E391C848986CB1E093935 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				2DB5527007BD877D7F352361 /* MedarioApp.swift */,
+				2B480D663AF925DFFDE4036B /* MedarioAppCheckProviderFactory.swift */,
+				1D2987355FD761C8E05C7F0B /* MedarioDeepLink.swift */,
+				3D7F5FA24BDC1CA95C647DB4 /* NativePushCoordinator.swift */,
+				6857DCABA6BDCB3133D43404 /* RootTab.swift */,
+				39EC40EAFE633825CEBAAB0E /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		37A89C04AEB9ABD9EF14BC49 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				C62516A9DE609DAFC39B279F /* Models */,
+				D91BAD378D9104ADC12D026D /* Repositories */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		38A99EEB0AAA8519E1C5B1C4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				53EE0077BAD8D0BDD19E073D /* Medario.app */,
+				8AC99125F6D7103B523620C7 /* MedarioTests.xctest */,
+				BC544521BDD18A927B0AE35E /* MedarioUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		41F54B1C7944A49B8CB6F395 /* Directory */ = {
+			isa = PBXGroup;
+			children = (
+				E24B55AD308F9081DE7DE5ED /* DirectoryLoadState.swift */,
+				EF5EFF468C236560309BC039 /* DirectoryMapView.swift */,
+				9933B58A56BAC7EADCEB4A29 /* DirectoryResultsView.swift */,
+				BF894AE0815388EDDF9F2E9F /* DirectoryView.swift */,
+				CCB6EDA6F709AE38A15D2BE3 /* DirectoryViewModel.swift */,
+				3EC437C318F8D2E4607DED94 /* ProfileRowView.swift */,
+			);
+			path = Directory;
+			sourceTree = "<group>";
+		};
+		4651BA513346610FAC76B47D /* MedarioTests */ = {
+			isa = PBXGroup;
+			children = (
+				2E56203BDD8F0E0A7E36771B /* AccountCallableErrorMapperTests.swift */,
+				B6A99C5ACE4C2F7AF859A504 /* AccountProfileMapperTests.swift */,
+				DD96387B0200A405F3EA8795 /* AccountViewModelTests.swift */,
+				D3A5A6C4E8DBCAE8B06B9F3D /* AppointmentRepositoryTests.swift */,
+				28B59A67D6204EBB6A72BD6D /* AppointmentViewModelTests.swift */,
+				F65D43F6844126385C8A4C20 /* ControlledPublicDirectoryRepository.swift */,
+				405B62F19D282BAFFD72539F /* DirectoryViewModelTests.swift */,
+				25F39725A81A2D1526D1680B /* FirebaseAccountCallableGatewayTests.swift */,
+				69190FA3777413F6429CDB11 /* FirebaseAccountRepositoryTests.swift */,
+				85B284EF5214320D77C7FAD0 /* FirebasePublicDirectoryRepositoryTests.swift */,
+				C16AD96D0FA2B14D004269FD /* FirebaseSavedItemsCallableGatewayTests.swift */,
+				0541A7AAB2ECAF7B50599A33 /* FirestorePublicProfileMapperTests.swift */,
+				ED37B0A478F49D0CFA0B87BE /* MedarioDeepLinkTests.swift */,
+				21C80DBCED2D685CCA600ACB /* MockAccountBackendGateway.swift */,
+				88C33F80CFDD7AA8853C49ED /* MockAccountCallableClient.swift */,
+				1E1A7948318811BC5F8547E1 /* MockAccountCallableGateway.swift */,
+				68ECD0052299B6825CFE1E69 /* MockAccountRepository.swift */,
+				EC4C44312B85D18997F492B3 /* MockAccountSessionSubscription.swift */,
+				B96787C67F2C7289216A77C6 /* MockNativeNotificationRepository.swift */,
+				9A53834B86DB7A605F88BDD9 /* MockPublicDirectoryRepository.swift */,
+				637CC402B7CEC84E371E7C46 /* MockPublicProfileDocumentsSource.swift */,
+				1FD899672703B8A6B5C1E49E /* MockSavedItemsDependencies.swift */,
+				937D1D2C833AD1DD9AC2E2E9 /* NativeNotificationPreferencesTests.swift */,
+				1D03DCC268DDA6A07345445E /* NativeNotificationViewModelTests.swift */,
+				66DFE07469818DA09748E5D5 /* ProfileLocationTests.swift */,
+				2299DDBDF46C539E6B4F595E /* PublicProfileFixture.swift */,
+				51F4D218DA47764C8E83509E /* ReleaseConfigurationTests.swift */,
+				DA7C15463E5B53C475A37793 /* SavedItemsRepositoryTests.swift */,
+				D5A6EA00C5612EA6DE0C7163 /* SavedItemsViewModelTests.swift */,
+				5931AB9BC731A6EDE17ECA80 /* TestError.swift */,
+			);
+			path = MedarioTests;
+			sourceTree = "<group>";
+		};
+		48444A475244F6EC80A2F757 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				C583EF90415DC74929192932 /* MedarioTheme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		54093BEF1ACF98A3FE03AC4B /* Account */ = {
+			isa = PBXGroup;
+			children = (
+				D4D2DA3C5460747EA2FFFFC2 /* AccountAuthenticationView.swift */,
+				93E59B2DB757182559384FF5 /* AccountDeletionState.swift */,
+				6D49542A58058E03D91DAFBE /* AccountFeedback.swift */,
+				0BFB380439EAA879104E7E49 /* AccountMode.swift */,
+				8AF8605301D94A2927359D77 /* AccountPreferencesView.swift */,
+				575936383E61BBF3AB02A50A /* AccountProfileState.swift */,
+				153FCE9078D96BAABB710864 /* AccountStatusView.swift */,
+				151C47CF6A3382CD556A00DE /* AccountView.swift */,
+				22BDCDD0AC0DFCB4F1860CD3 /* AccountViewModel.swift */,
+				6751BD0AF85C3D93831EA98F /* HealthConsentView.swift */,
+				4597B4D2A9D6E2802B69855D /* ReauthenticationView.swift */,
+				05C491046DB323E77C0DE93A /* SignedInAccountView.swift */,
+			);
+			path = Account;
+			sourceTree = "<group>";
+		};
+		59C9DD4A1EA8596ACB249CC8 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				0BBDFA07BAF9D3C04FA7DB15 /* AccountCallableClient.swift */,
+				366908B5F9C4AD02E8A086FB /* AccountCallableErrorMapper.swift */,
+				5D5D9D2D0922DEFCCADB0B91 /* AccountProfileMapper.swift */,
+				4777E358F42AACE2FE7262C2 /* DefaultSavedItemsRepository.swift */,
+				087C57565B0D20C0180389AA /* FirebaseAccountBackendGateway.swift */,
+				FF1C98991C4AE5F065198ABF /* FirebaseAccountCallableClient.swift */,
+				BB53352978B6D37BEF9068E0 /* FirebaseAccountCallableGateway.swift */,
+				6DCF2BF46AE813A90736B693 /* FirebaseAccountRepository.swift */,
+				1E8E70D06640C64832D851E6 /* FirebaseAccountSessionSubscription.swift */,
+				D206D2397D323714ADA3FCB9 /* FirebaseAppointmentCallableClient.swift */,
+				C1DE37699CAB997E033067B6 /* FirebaseAppointmentRepository.swift */,
+				B038F0364A1AF33D592B93D9 /* FirebaseNativeNotificationRepository.swift */,
+				4F86AE879EA1F4B27E47B93F /* FirebasePublicDirectoryRepository.swift */,
+				83D4DE2B14DC3C155F4B33D2 /* FirebasePublicProfileDocumentsSource.swift */,
+				67058F03CBBD641F8B4D13A1 /* FirebaseSavedItemsCallableClient.swift */,
+				A38BD13BB76CF7B79BD0C4BA /* FirebaseSavedItemsCallableGateway.swift */,
+				9980E43F7CC68DE0F15CF9F0 /* FirestorePublicProfileMapper.swift */,
+				C90DC940CE4853EBACD6C1CF /* PublicProfileDocument.swift */,
+				3ADFB468718DEB797DD8A35D /* PublicProfileDocumentsSource.swift */,
+				315E28DBF607EF5119A3CE0B /* SavedItemsCallableClient.swift */,
+				0A6C7CAB782A08DC4F0BD2BA /* UserDefaultsSavedItemsLocalStore.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		74604709B40952D4489F1EC1 /* Medario */ = {
+			isa = PBXGroup;
+			children = (
+				2C3E391C848986CB1E093935 /* App */,
+				F2063A130ED0890CADA0D6F9 /* Core */,
+				59C9DD4A1EA8596ACB249CC8 /* Data */,
+				37A89C04AEB9ABD9EF14BC49 /* Domain */,
+				BA7FEAA029F5A183C8A5C198 /* Features */,
+				D91D52FA554314F6383D95DB /* Resources */,
+			);
+			path = Medario;
+			sourceTree = "<group>";
+		};
+		799AF27B078D3986FBD57C9B /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				B28B38A1E7A921A7A2EC100C /* NativeNotificationPreferencesView.swift */,
+				B4350D713D0D803B80A4B202 /* NativeNotificationViewModel.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		90FC5C0E6EF6819F7B7FA74A /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				23C6B74B9079429DC71299FA /* PendingProfileChangeView.swift */,
+				ACA31229757CDDBDEA82D6B1 /* ProfileContactView.swift */,
+				C285D067B54DFA370A5476F3 /* ProfileDetailView.swift */,
+				65F6E23D78539AF4D225AAD7 /* ProfileFactsView.swift */,
+				C7C4B2E261A9F816945CBF02 /* ProfileHeaderView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		AFB31F7DE97E7CCAF99C66B6 = {
+			isa = PBXGroup;
+			children = (
+				74604709B40952D4489F1EC1 /* Medario */,
+				4651BA513346610FAC76B47D /* MedarioTests */,
+				CE0CF49CCDD1E16BA30726A2 /* MedarioUITests */,
+				38A99EEB0AAA8519E1C5B1C4 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BA7FEAA029F5A183C8A5C198 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				54093BEF1ACF98A3FE03AC4B /* Account */,
+				F29E9F5336D7E8ACBF3D51B8 /* Appointments */,
+				41F54B1C7944A49B8CB6F395 /* Directory */,
+				799AF27B078D3986FBD57C9B /* Notifications */,
+				90FC5C0E6EF6819F7B7FA74A /* Profile */,
+				1F0BBD251B7F1A6402FB44A4 /* SavedItems */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		C62516A9DE609DAFC39B279F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9C29CCD8DAC10BB12B2BE697 /* AccountPreferences.swift */,
+				F6C48D188C0C3F2D9D9097B5 /* AccountProfile.swift */,
+				1BA95902CD7999DAE52732A7 /* AccountSession.swift */,
+				B983496702D1FF638809FF7E /* AccountUser.swift */,
+				E9CFF4913C1E3F87EBF92F7C /* Appointment.swift */,
+				D278C58A66DDFB11A201B432 /* ConsultationModality.swift */,
+				CEF3E9A9095EF1AD08B675D7 /* NativeNotificationPreferences.swift */,
+				19E5B1DFF0FD09D5B9A6C35E /* ProfileContacts.swift */,
+				E02C4BF5F1789590CE8F8D9D /* ProfileInsurance.swift */,
+				1D81D10F93A1CF630311AAAB /* ProfileLocation.swift */,
+				9CD233AB3D8EFBD0E6813C4D /* PublicProfile.swift */,
+				6945653C459F84C01C35C2BC /* SavedItems.swift */,
+				4A35ABE46FF0C3E8BAD2FFBD /* SavedSearchCriteria.swift */,
+				50D3A4A4BDCB61F396CAF281 /* VerifiedContact.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		CE0CF49CCDD1E16BA30726A2 /* MedarioUITests */ = {
+			isa = PBXGroup;
+			children = (
+				42AC2FAF42B8B2E37D9D83FF /* MedarioNativeLaunchUITests.swift */,
+			);
+			path = MedarioUITests;
+			sourceTree = "<group>";
+		};
+		D91BAD378D9104ADC12D026D /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				A9F90664B5EB3A16EF312D68 /* AccountBackendGateway.swift */,
+				F33128E60D33D84CE3D24CF3 /* AccountCallableGateway.swift */,
+				075609665152BE5B18311B66 /* AccountRepository.swift */,
+				F8FD60C7857BC7AA542A23B4 /* AccountRepositoryError.swift */,
+				3F43574444B2CDEA540CD328 /* AppointmentRepository.swift */,
+				F6B94C83A51B9199C7F407FE /* NativeNotificationRepository.swift */,
+				5E6B377DE2CFC610B246CF5F /* PublicDirectoryRepository.swift */,
+				62E9BC4453F4FD190DB4CEBD /* SavedItemsRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		D91D52FA554314F6383D95DB /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				008C7ED24A91E08CA00D82B6 /* Assets.xcassets */,
+				DE8D48FA41CC001A2E59391B /* GoogleService-Info.plist */,
+				946583B26DD3D976B69D0450 /* Medario.entitlements */,
+				CA03DC8C1AC1E713AE35CAC8 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		F2063A130ED0890CADA0D6F9 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				48444A475244F6EC80A2F757 /* Theme */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		F29E9F5336D7E8ACBF3D51B8 /* Appointments */ = {
+			isa = PBXGroup;
+			children = (
+				7A6539703CB8D2F004C730CC /* AppointmentOptionsView.swift */,
+				A600B25E939A1020FE22031F /* AppointmentOptionsViewModel.swift */,
+				B898893302F643AC6C67E0A1 /* MyAppointmentsView.swift */,
+				7380D39FAA9540E8F777A256 /* MyAppointmentsViewModel.swift */,
+			);
+			path = Appointments;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8BACE1F0EADE6FD5FA81FEEF /* MedarioTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A82F1C3E1B114AA529826C7 /* Build configuration list for PBXNativeTarget "MedarioTests" */;
+			buildPhases = (
+				55C6EEB95362B08E9CE63819 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				04A7AF68ADA5878425190F62 /* PBXTargetDependency */,
+			);
+			name = MedarioTests;
+			packageProductDependencies = (
+			);
+			productName = MedarioTests;
+			productReference = 8AC99125F6D7103B523620C7 /* MedarioTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C1D188B45F5B7527A1A1E08E /* Medario */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA99846132C67293BBB428B5 /* Build configuration list for PBXNativeTarget "Medario" */;
+			buildPhases = (
+				6309A33A9EE4001C1A8BE88C /* Sources */,
+				620E08F6F2B3B46D981F34DB /* Resources */,
+				3A74DAA03AEAE0FB0F83BEAB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Medario;
+			packageProductDependencies = (
+				22198BF6FEE150A99C64BFE1 /* FirebaseCore */,
+				9DCC9AF9B210A9B473479E46 /* FirebaseAuth */,
+				EEE2BDE5808A495F81E12C29 /* FirebaseFirestore */,
+				9DEF8C891E9E4E8B7FCED3F7 /* FirebaseFunctions */,
+				C09B81E08E4AEEAFF75711BE /* FirebaseAppCheck */,
+				A388E920376A769C28947CEF /* FirebaseMessaging */,
+			);
+			productName = Medario;
+			productReference = 53EE0077BAD8D0BDD19E073D /* Medario.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C88BF99B3263E84A1F827F75 /* MedarioUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE7035E67104797CAEA64769 /* Build configuration list for PBXNativeTarget "MedarioUITests" */;
+			buildPhases = (
+				DB0547FC55A8B7B35C1ACAED /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9D7DE8FA651A951579D17712 /* PBXTargetDependency */,
+			);
+			name = MedarioUITests;
+			packageProductDependencies = (
+			);
+			productName = MedarioUITests;
+			productReference = BC544521BDD18A927B0AE35E /* MedarioUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E10C5688D3F1E0BBBFFD8858 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					8BACE1F0EADE6FD5FA81FEEF = {
+						DevelopmentTeam = X66WU4VS9N;
+						ProvisioningStyle = Automatic;
+					};
+					C1D188B45F5B7527A1A1E08E = {
+						DevelopmentTeam = X66WU4VS9N;
+						ProvisioningStyle = Manual;
+					};
+					C88BF99B3263E84A1F827F75 = {
+						DevelopmentTeam = X66WU4VS9N;
+						ProvisioningStyle = Automatic;
+						TestTargetID = C1D188B45F5B7527A1A1E08E;
+					};
+				};
+			};
+			buildConfigurationList = B5F1E5076C4DBCFEE25B80B8 /* Build configuration list for PBXProject "Medario" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = AFB31F7DE97E7CCAF99C66B6;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5431DBD0F7718A246F323D92 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 38A99EEB0AAA8519E1C5B1C4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C1D188B45F5B7527A1A1E08E /* Medario */,
+				8BACE1F0EADE6FD5FA81FEEF /* MedarioTests */,
+				C88BF99B3263E84A1F827F75 /* MedarioUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		620E08F6F2B3B46D981F34DB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				35796AF0C0B1C498F0CA895C /* Assets.xcassets in Resources */,
+				3A8492FF8E22127EA74AC31D /* GoogleService-Info.plist in Resources */,
+				417E74354912B151DFA2AED6 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		55C6EEB95362B08E9CE63819 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BD046AC2F987C1C7A3F43778 /* AccountCallableErrorMapperTests.swift in Sources */,
+				9569518284AE5E603A605109 /* AccountProfileMapperTests.swift in Sources */,
+				E43E4FEE2E59AA8D93B529A9 /* AccountViewModelTests.swift in Sources */,
+				DCF0C20AB86F72903D11DD1A /* AppointmentRepositoryTests.swift in Sources */,
+				054C183D988644CF61787129 /* AppointmentViewModelTests.swift in Sources */,
+				9A248B68F1826B319C6B3DA1 /* ControlledPublicDirectoryRepository.swift in Sources */,
+				B0F1F8C188E969E52B12E057 /* DirectoryViewModelTests.swift in Sources */,
+				F7D21D874DCE973E2A2C564C /* FirebaseAccountCallableGatewayTests.swift in Sources */,
+				BB06DF9FF6D2525E0E8A9238 /* FirebaseAccountRepositoryTests.swift in Sources */,
+				90DA5614E7CF833B712CCFFE /* FirebasePublicDirectoryRepositoryTests.swift in Sources */,
+				64300897717207F3919D724B /* FirebaseSavedItemsCallableGatewayTests.swift in Sources */,
+				2402D832C85DC3633556898D /* FirestorePublicProfileMapperTests.swift in Sources */,
+				C611D5CE491864C42118DE4F /* MedarioDeepLinkTests.swift in Sources */,
+				C716792D69C2481ED64115D5 /* MockAccountBackendGateway.swift in Sources */,
+				730E983119690B4702BC1BBA /* MockAccountCallableClient.swift in Sources */,
+				FD2273F6F25BAF96C16D816F /* MockAccountCallableGateway.swift in Sources */,
+				4A07696530C8E4E4E145AE56 /* MockAccountRepository.swift in Sources */,
+				6A4D3DBAD122BDB6FF67494A /* MockAccountSessionSubscription.swift in Sources */,
+				E10622354CE16768F1FE884D /* MockNativeNotificationRepository.swift in Sources */,
+				1E51D8E71C9600E4E5F0D416 /* MockPublicDirectoryRepository.swift in Sources */,
+				C023D1EC1055300511C4B98D /* MockPublicProfileDocumentsSource.swift in Sources */,
+				C9D56EBB9A104100FBF9693C /* MockSavedItemsDependencies.swift in Sources */,
+				FBFCD464899D4F771184E82B /* NativeNotificationPreferencesTests.swift in Sources */,
+				D17D70A06F4690432202FF64 /* NativeNotificationViewModelTests.swift in Sources */,
+				BD6B9B7D911A6761E310A527 /* ProfileLocationTests.swift in Sources */,
+				18586FC82044F3F9D006FA0A /* PublicProfileFixture.swift in Sources */,
+				79AB5F6B63EDF352E8404611 /* ReleaseConfigurationTests.swift in Sources */,
+				0D6E1C6209B788D353034312 /* SavedItemsRepositoryTests.swift in Sources */,
+				7D9071E506F167322ABC55D5 /* SavedItemsViewModelTests.swift in Sources */,
+				5E92011958A33A785D83C08D /* TestError.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6309A33A9EE4001C1A8BE88C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A8C89FBFB9F856ECAD4793B2 /* AccountAuthenticationView.swift in Sources */,
+				747367207A66831E983E7741 /* AccountBackendGateway.swift in Sources */,
+				5DB000942E7192C6AFFB26A8 /* AccountCallableClient.swift in Sources */,
+				89874D589481357CC35D6E6A /* AccountCallableErrorMapper.swift in Sources */,
+				118DF5B7AD25CFADDD9249BA /* AccountCallableGateway.swift in Sources */,
+				65CB3321F2CBAE24137EBDCD /* AccountDeletionState.swift in Sources */,
+				01DDEB46FA4335865066F65B /* AccountFeedback.swift in Sources */,
+				4A0AAD0C2B96DCC13B73B4A4 /* AccountMode.swift in Sources */,
+				E6C78508C817A62F19523AEE /* AccountPreferences.swift in Sources */,
+				10297324A3A9DF27091AEC30 /* AccountPreferencesView.swift in Sources */,
+				95E0A15E124D9BE6C4FF993E /* AccountProfile.swift in Sources */,
+				7B485D974AAD7B1CEFED3A2C /* AccountProfileMapper.swift in Sources */,
+				99B5A05F833C6FA5B1D376FB /* AccountProfileState.swift in Sources */,
+				EE3C7B3A0F8F8AF5883E42E8 /* AccountRepository.swift in Sources */,
+				7A2EADC959FF3239E5CD4154 /* AccountRepositoryError.swift in Sources */,
+				B3292DFE403B38954942DA7A /* AccountSavedItemsState.swift in Sources */,
+				03D514902011E5C4DD8077DE /* AccountSession.swift in Sources */,
+				1420D4345930611570F650DB /* AccountStatusView.swift in Sources */,
+				E26DE10F1D0AA23336289FF8 /* AccountUser.swift in Sources */,
+				3D5EA65EEB2D1A1878FF7D29 /* AccountView.swift in Sources */,
+				914B0C2B66ED96E2E1B0046A /* AccountViewModel.swift in Sources */,
+				56A29D4EEEDE8F9730D874D4 /* Appointment.swift in Sources */,
+				4E1EDAC2895E5662395B693A /* AppointmentOptionsView.swift in Sources */,
+				2362FC868B59F2904A7BCAF1 /* AppointmentOptionsViewModel.swift in Sources */,
+				ED5D9FE5CC6A1C4FC2BCB356 /* AppointmentRepository.swift in Sources */,
+				D58EFD74661192C873E787A9 /* ConsultationModality.swift in Sources */,
+				9830B4CA98A8421576EE1BA0 /* DefaultSavedItemsRepository.swift in Sources */,
+				908072317EB21990EC8CD7F3 /* DirectoryLoadState.swift in Sources */,
+				04E295E03F82DE1A988D1D60 /* DirectoryMapView.swift in Sources */,
+				1BA8338823C468ED5261F08A /* DirectoryResultsView.swift in Sources */,
+				E2FFBD841FC24483FA1C4164 /* DirectoryView.swift in Sources */,
+				7CFCB7EFA701BBA769EAB84E /* DirectoryViewModel.swift in Sources */,
+				38D69A51C1F6EFC941D90F75 /* FirebaseAccountBackendGateway.swift in Sources */,
+				E9501BC4D98979B711473F53 /* FirebaseAccountCallableClient.swift in Sources */,
+				08D5BA42E3A4D96322CC7ECA /* FirebaseAccountCallableGateway.swift in Sources */,
+				BFBAB8703A7D5C2914C40FF1 /* FirebaseAccountRepository.swift in Sources */,
+				D2DE3FBAAF376B1C3DFBC25F /* FirebaseAccountSessionSubscription.swift in Sources */,
+				BDA8000FFC041C841F0DDA5C /* FirebaseAppointmentCallableClient.swift in Sources */,
+				0F37FA9BB824A06BCF34D3ED /* FirebaseAppointmentRepository.swift in Sources */,
+				17783416D6AE263047B6A0A0 /* FirebaseNativeNotificationRepository.swift in Sources */,
+				8785411D990208D193810598 /* FirebasePublicDirectoryRepository.swift in Sources */,
+				59EA6898A264CE81F706840D /* FirebasePublicProfileDocumentsSource.swift in Sources */,
+				F0FF0CAA0ACBE366B2E91437 /* FirebaseSavedItemsCallableClient.swift in Sources */,
+				195A8151D08ABE9F3DAC758E /* FirebaseSavedItemsCallableGateway.swift in Sources */,
+				4EE5E89591D9F28B6CEFF4D1 /* FirestorePublicProfileMapper.swift in Sources */,
+				4CE22C6568259624436747CE /* HealthConsentView.swift in Sources */,
+				50B1F418B7AA002B3ED4B5D6 /* MedarioApp.swift in Sources */,
+				F051A4976C7F9F79C35CCE4F /* MedarioAppCheckProviderFactory.swift in Sources */,
+				834C02C06151DAC0E1423747 /* MedarioDeepLink.swift in Sources */,
+				F313970D60D3AB7C380345CC /* MedarioTheme.swift in Sources */,
+				5CB5C3D657BB930B4E220FBA /* MyAppointmentsView.swift in Sources */,
+				2179F881011C8D10305901F2 /* MyAppointmentsViewModel.swift in Sources */,
+				874DDE686022F5252D2110A1 /* NativeNotificationPreferences.swift in Sources */,
+				6F9442E67946ED40DDED8065 /* NativeNotificationPreferencesView.swift in Sources */,
+				1A0BBB9580418B8BA57216CD /* NativeNotificationRepository.swift in Sources */,
+				F0B3AE2DE713199AA19E4861 /* NativeNotificationViewModel.swift in Sources */,
+				C4FE5BF4FE014C97DB4DC3B1 /* NativePushCoordinator.swift in Sources */,
+				9C4ABEC3E8807F61E33367FF /* PendingProfileChangeView.swift in Sources */,
+				076809D926ECCEA08F03566F /* ProfileContactView.swift in Sources */,
+				B8144CE5055B48CB2BB4A19C /* ProfileContacts.swift in Sources */,
+				6DEB2D7F68EF0551C971233D /* ProfileDetailView.swift in Sources */,
+				094FD090EFAB75F6507C40C8 /* ProfileFactsView.swift in Sources */,
+				B3EED88197FA5960B8AB7068 /* ProfileHeaderView.swift in Sources */,
+				59DCDFF598E56370F1D4BB8B /* ProfileInsurance.swift in Sources */,
+				1D2EA43FC1C3EEDAC865A052 /* ProfileLocation.swift in Sources */,
+				7E9384F790BACAF0DFF55B15 /* ProfileRowView.swift in Sources */,
+				1215CC45320B0D320AE77ABB /* PublicDirectoryRepository.swift in Sources */,
+				0177EED8B5BC3EB157120E28 /* PublicProfile.swift in Sources */,
+				434BA2147C332106C2AA7529 /* PublicProfileDocument.swift in Sources */,
+				B1AF74FCBFCC7EB1C1906D3D /* PublicProfileDocumentsSource.swift in Sources */,
+				A2D048AEC306A2A543425041 /* ReauthenticationView.swift in Sources */,
+				5EF94462BF3834439B47CE71 /* RootTab.swift in Sources */,
+				C9C9640655D4CF999EF37839 /* RootView.swift in Sources */,
+				2B7BD5BDBDB76589DDA4D26C /* SavedItems.swift in Sources */,
+				ED1A78D6B66A791FB2B56B0C /* SavedItemsCallableClient.swift in Sources */,
+				B1DDF9C678A7896AB4109507 /* SavedItemsRepository.swift in Sources */,
+				CA8EC19A05AD13E65F82FA8B /* SavedItemsView.swift in Sources */,
+				DF188C5359B45E2C6E8E9D82 /* SavedItemsViewModel.swift in Sources */,
+				5E2C5471353E6B4DB2664E3D /* SavedSearchCriteria.swift in Sources */,
+				33800DCD4D2F0731058EC69D /* SignedInAccountView.swift in Sources */,
+				5787B792024BEDC90261DC1D /* UserDefaultsSavedItemsLocalStore.swift in Sources */,
+				DD55591342D6AC6AD6D6B7CB /* VerifiedContact.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DB0547FC55A8B7B35C1ACAED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7EE7A7143F1B5BA62EE06FF8 /* MedarioNativeLaunchUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		04A7AF68ADA5878425190F62 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1D188B45F5B7527A1A1E08E /* Medario */;
+			targetProxy = 27C6EC4135ACB9FA75C015E4 /* PBXContainerItemProxy */;
+		};
+		9D7DE8FA651A951579D17712 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1D188B45F5B7527A1A1E08E /* Medario */;
+			targetProxy = 5A080C36F3F67CE1A68C1082 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0BD685D56853FA2A21F6DE2B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.medario.app.tests;
+				SDKROOT = iphoneos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Medario.app/Medario";
+			};
+			name = Release;
+		};
+		11F7A98162DAEAA2713E2BD9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.medario.app.uitests;
+				SDKROOT = iphoneos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Medario;
+			};
+			name = Release;
+		};
+		3CD33A5781D1019A13279C86 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = X66WU4VS9N;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.2;
+			};
+			name = Release;
+		};
+		4966FE436A12ADEE5D81C883 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APS_ENVIRONMENT = development;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Medario/Resources/Medario.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Medário";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.medario.app;
+				PRODUCT_NAME = Medario;
+				PROVISIONING_PROFILE_SPECIFIER = "Medario iOS Development AppAttest 2026";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		4DB23788FBE7D31A81503AE9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = X66WU4VS9N;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.2;
+			};
+			name = Debug;
+		};
+		56DC8CA1E53A1A71DE91A38F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.medario.app.uitests;
+				SDKROOT = iphoneos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Medario;
+			};
+			name = Debug;
+		};
+		A47EADE76FFC2CFDA8AA4939 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APS_ENVIRONMENT = production;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Medario/Resources/Medario.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Medário";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.medario.app;
+				PRODUCT_NAME = Medario;
+				PROVISIONING_PROFILE_SPECIFIER = "Medario iOS App Store AppAttest 2026";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		BD044CECE449A2C1E94DA027 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.medario.app.tests;
+				SDKROOT = iphoneos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Medario.app/Medario";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9A82F1C3E1B114AA529826C7 /* Build configuration list for PBXNativeTarget "MedarioTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD044CECE449A2C1E94DA027 /* Debug */,
+				0BD685D56853FA2A21F6DE2B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B5F1E5076C4DBCFEE25B80B8 /* Build configuration list for PBXProject "Medario" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DB23788FBE7D31A81503AE9 /* Debug */,
+				3CD33A5781D1019A13279C86 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DE7035E67104797CAEA64769 /* Build configuration list for PBXNativeTarget "MedarioUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				56DC8CA1E53A1A71DE91A38F /* Debug */,
+				11F7A98162DAEAA2713E2BD9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		FA99846132C67293BBB428B5 /* Build configuration list for PBXNativeTarget "Medario" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4966FE436A12ADEE5D81C883 /* Debug */,
+				A47EADE76FFC2CFDA8AA4939 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5431DBD0F7718A246F323D92 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		22198BF6FEE150A99C64BFE1 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5431DBD0F7718A246F323D92 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		9DCC9AF9B210A9B473479E46 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5431DBD0F7718A246F323D92 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		9DEF8C891E9E4E8B7FCED3F7 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5431DBD0F7718A246F323D92 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		A388E920376A769C28947CEF /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5431DBD0F7718A246F323D92 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		C09B81E08E4AEEAFF75711BE /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5431DBD0F7718A246F323D92 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		EEE2BDE5808A495F81E12C29 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5431DBD0F7718A246F323D92 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = E10C5688D3F1E0BBBFFD8858 /* Project object */;
+}

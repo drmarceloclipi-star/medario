@@ -2,6 +2,12 @@ import type { AccountPort, AccountPreferences, AuthPort, AuthSession, AuthUser, 
 import type { User } from "firebase/auth";
 import { createFirebaseBrowserClient, type FirebaseClientOptions } from "./index";
 
+export type FirebaseAccountPortOptions = FirebaseClientOptions & {
+  createClient?: typeof createFirebaseBrowserClient;
+  loadAuthRuntime?: () => Promise<typeof import("firebase/auth")>;
+  loadFirestoreRuntime?: () => Promise<typeof import("firebase/firestore")>;
+};
+
 function authUser(user: { uid: string; email: string | null; displayName: string | null }): AuthUser {
   return { uid: user.uid, email: user.email, displayName: user.displayName };
 }
@@ -11,9 +17,12 @@ function requiredUser(auth: { currentUser: { uid: string; email: string | null }
   return auth.currentUser;
 }
 
-export async function createFirebaseAccountPort(options: FirebaseClientOptions = {}): Promise<AuthPort & AccountPort> {
-  const client = await createFirebaseBrowserClient(options);
-  const [authRuntime, firestoreRuntime] = await Promise.all([import("firebase/auth"), import("firebase/firestore")]);
+export async function createFirebaseAccountPort(options: FirebaseAccountPortOptions = {}): Promise<AuthPort & AccountPort> {
+  const client = await (options.createClient ?? createFirebaseBrowserClient)(options);
+  const [authRuntime, firestoreRuntime] = await Promise.all([
+    (options.loadAuthRuntime ?? (() => import("firebase/auth")))(),
+    (options.loadFirestoreRuntime ?? (() => import("firebase/firestore")))(),
+  ]);
   const db = firestoreRuntime.getFirestore(client.app);
 
   const profileRef = () => firestoreRuntime.doc(db, "users", requiredUser(client.auth).uid);
@@ -40,7 +49,7 @@ export async function createFirebaseAccountPort(options: FirebaseClientOptions =
     async createPatientAccount(input: PatientAccountInput) {
       const result = await authRuntime.createUserWithEmailAndPassword(client.auth, input.email.trim(), input.password);
       try {
-        await authRuntime.updateProfile(result.user, { displayName: input.email.trim().split("@")[0] });
+        await authRuntime.updateProfile(result.user, { displayName: input.email.trim().split("@")[0] ?? null });
       } catch {
         // Auth account + server-triggered user profile remain valid if display-name enrichment fails.
       }
@@ -71,13 +80,25 @@ export async function createFirebaseAccountPort(options: FirebaseClientOptions =
       });
     },
     async setHealthConsent(value) {
+      requiredUser(client.auth);
+      if (!value) {
+        await client.invoke<undefined, { consentPreferences: false }>("revokeHealthConsent", undefined);
+        return;
+      }
       await writeProfileFields({
-        consent_preferences: value,
+        consent_preferences: true,
         consent_at: firestoreRuntime.serverTimestamp(),
       });
     },
-    async deleteAccount() {
-      await authRuntime.deleteUser(requiredUser(client.auth) as Parameters<typeof authRuntime.deleteUser>[0]);
+    async deleteAccount(password) {
+      const user = requiredUser(client.auth);
+      if (password) {
+        if (!user.email) throw new Error("REAUTH_EMAIL_REQUIRED");
+        const credential = authRuntime.EmailAuthProvider.credential(user.email, password);
+        await authRuntime.reauthenticateWithCredential(user as User, credential);
+        await (user as User).getIdToken(true);
+      }
+      await client.invoke<undefined, { deleted: true }>("deleteMyAccount", undefined);
     },
   };
 }

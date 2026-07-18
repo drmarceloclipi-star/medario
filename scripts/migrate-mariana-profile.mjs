@@ -1,9 +1,12 @@
 import { applicationDefault, getApps, initializeApp } from "firebase-admin/app";
 
 const projectId = process.env.FIREBASE_PROJECT_ID ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "medario-doctor";
+const location = { name: "Consultório Santo Antônio", address: "Rua das Palmeiras, 245", district: "Santo Antônio", city: "Joinville", state: "SC", authorized: true };
+const publicReadSafe = !Object.hasOwn(location, "address") || location.authorized === true;
 const profile = {
   slug: "mariana-andrade",
   published: true,
+  publicReadSafe,
   name: "Dra. Mariana Andrade",
   specialty: "Dermatologia",
   crm: "CRM/SC 12345",
@@ -13,7 +16,7 @@ const profile = {
   claimed: false,
   verificationStatus: "verified",
   updatedAt: "2026-07-07T09:00:00-03:00",
-  location: { name: "Consultório Santo Antônio", address: "Rua das Palmeiras, 245", district: "Santo Antônio", city: "Joinville", state: "SC", authorized: true },
+  location,
   insurances: [
     { name: "Unimed", confirmed: true },
     { name: "América", confirmed: true },

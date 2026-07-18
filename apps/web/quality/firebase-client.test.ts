@@ -46,10 +46,10 @@ describe("Firebase browser adapter", () => {
     const client = await createSavedItemsCallableClient({ environment, isBrowser: true, loadRuntime: async () => runtimeMock(calls) });
 
     expect(calls).toEqual(["initializeApp", "getFunctions:southamerica-east1", "getAuth"]);
-    await client.favoriteDoctor("doctor-1");
-    await client.saveAccountSearch({ criteria: { city: "joinville" }, alertEnabled: true });
+    await client.favoriteDoctor("doctor-1", "user-1");
+    await client.saveAccountSearch({ criteria: { city: "joinville" }, alertEnabled: true, expectedUid: "user-1" });
 
-    expect(calls).toContain('favoriteDoctor:{"doctorId":"doctor-1"}');
-    expect(calls).toContain('saveAccountSearch:{"criteria":{"city":"joinville"},"alertEnabled":true}');
+    expect(calls).toContain('favoriteDoctor:{"doctorId":"doctor-1","expectedUid":"user-1"}');
+    expect(calls).toContain('saveAccountSearch:{"criteria":{"city":"joinville"},"alertEnabled":true,"expectedUid":"user-1"}');
   });
 });

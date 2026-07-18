@@ -7,10 +7,17 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function activeAccount(userId) {
+      return signedIn() && request.auth.uid == userId &&
+        (!exists(/databases/$(database)/documents/deletedUsers/$(userId)) ||
+          get(/databases/$(database)/documents/deletedUsers/$(userId)).data.expiresAt <= request.time);
+    }
+
     function ownsProfessionalAccount(doctorId) {
-      return signedIn() &&
+      return activeAccount(request.auth.uid) &&
         exists(/databases/$(database)/documents/professionalAccounts/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/professionalAccounts/$(request.auth.uid)).data.doctorId == doctorId;
+        get(/databases/$(database)/documents/professionalAccounts/$(request.auth.uid)).data.doctorId == doctorId &&
+        get(/databases/$(database)/documents/professionalAccounts/$(request.auth.uid)).data.status == "active";
     }
 
     function userProfileFields() {
@@ -22,8 +29,22 @@ service cloud.firestore {
         (!request.resource.data.diff(resource.data).affectedKeys().hasAny(["consent_at"]) || (request.resource.data.consent_at is timestamp && request.resource.data.consent_at == request.time));
     }
 
+    function consentTransitionAllowed() {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(["consent_preferences"]) ||
+        !resource.data.keys().hasAll(["consent_preferences"]) ||
+        resource.data.consent_preferences != true ||
+        request.resource.data.consent_preferences == true;
+    }
+
+    function consentGrantTimestampValid() {
+      return !request.resource.data.keys().hasAll(["consent_preferences"]) ||
+        request.resource.data.consent_preferences != true ||
+        (resource.data.keys().hasAll(["consent_preferences"]) && resource.data.consent_preferences == true) ||
+        (request.resource.data.consent_at is timestamp && request.resource.data.consent_at == request.time);
+    }
+
     function hasHealthSearchConsent(userId) {
-      return signedIn() &&
+      return activeAccount(userId) &&
         exists(/databases/$(database)/documents/users/$(userId)) &&
         get(/databases/$(database)/documents/users/$(userId)).data.consent_preferences == true;
     }
@@ -40,7 +61,7 @@ service cloud.firestore {
 
     // Public projection only. Private doctor records stay server-only.
     match /publicDoctors/{doctorId} {
-      allow read: if resource.data.published == true;
+      allow read: if resource.data.published == true && resource.data.publicReadSafe == true;
       allow write: if false;
     }
 
@@ -54,17 +75,17 @@ service cloud.firestore {
     // ─── User data — only the owner can access ──────────────────
     // A signed-in user may read and write only their own document.
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.auth.uid == userId && request.resource.data.keys().hasOnly(userProfileFields()) && request.resource.data.email == request.auth.token.email && request.resource.data.created_at is timestamp && request.resource.data.created_at == request.time;
-      allow update: if request.auth != null && request.auth.uid == userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(userProfileFields()) && request.resource.data.email == request.auth.token.email && (!resource.data.keys().hasAll(["created_at"]) || request.resource.data.created_at == resource.data.created_at) && serverOwnedUserTimestamps();
+      allow read: if activeAccount(userId);
+      allow create: if activeAccount(userId) && request.resource.data.keys().hasOnly(userProfileFields()) && request.resource.data.email == request.auth.token.email && request.resource.data.created_at is timestamp && request.resource.data.created_at == request.time && (!request.resource.data.keys().hasAll(["consent_preferences"]) || request.resource.data.consent_preferences != true || (request.resource.data.consent_at is timestamp && request.resource.data.consent_at == request.time));
+      allow update: if activeAccount(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(userProfileFields()) && request.resource.data.email == request.auth.token.email && (!resource.data.keys().hasAll(["created_at"]) || request.resource.data.created_at == resource.data.created_at) && serverOwnedUserTimestamps() && consentTransitionAllowed() && consentGrantTimestampValid();
       // Deletion must start at Firebase Auth so onUserDelete can erase all owned subcollections.
       allow delete: if false;
 
       // Interests subcollection — same ownership rule.
       match /interests/{interestId} {
-        allow read: if request.auth != null && request.auth.uid == userId;
+        allow read: if activeAccount(userId);
         allow create, update: if false;
-        allow delete: if request.auth != null && request.auth.uid == userId;
+        allow delete: if activeAccount(userId);
       }
 
       // Search events are written by the app and consumed/deleted by
@@ -72,7 +93,7 @@ service cloud.firestore {
       // are blocked — the CF processes and deletes these immediately.
       match /search_events/{eventId} {
         allow read: if false; // sensitive — CF processes and deletes immediately
-        allow create: if request.auth != null && request.auth.uid == userId &&
+        allow create: if activeAccount(userId) &&
           hasHealthSearchConsent(userId) &&
           request.resource.data.keys().hasOnly(["query", "timestamp"]) &&
           request.resource.data.query is string &&
@@ -93,11 +114,10 @@ service cloud.firestore {
 
     // ─── Appointment orchestration ─────────────────────────────
     // All mutations happen inside callable Cloud Functions. Patients
-    // may read only their own requests; professionals only their own
-    // doctor's requests. Visitor access remains server-mediated.
+    // may read only their own requests. Professionals receive a
+    // purpose-built server DTO instead of the raw patient UID.
     match /appointments/{appointmentId} {
-      allow read: if signedIn() &&
-        (resource.data.patientUid == request.auth.uid || ownsProfessionalAccount(resource.data.doctorId));
+      allow read: if signedIn() && activeAccount(request.auth.uid) && resource.data.patientUid == request.auth.uid;
       allow write: if false;
 
       match /audit/{eventId} {
@@ -109,8 +129,14 @@ service cloud.firestore {
     // A professional account maps one authenticated doctor to one
     // claimed Profile médico. Claim/review is server-only.
     match /professionalAccounts/{userId} {
-      allow read: if signedIn() && request.auth.uid == userId;
+      allow read: if activeAccount(userId);
       allow write: if false;
+    }
+
+    // Account-deletion tombstones are server-only. They block stale ID
+    // tokens from recreating data until the scheduled residual sweep.
+    match /deletedUsers/{userId} {
+      allow read, write: if false;
     }
 
     // Availability, OAuth connection data, idempotency, outbox and
@@ -125,6 +151,9 @@ service cloud.firestore {
       allow read, write: if false;
     }
     match /appointmentIdempotency/{key} {
+      allow read, write: if false;
+    }
+    match /appointmentRateLimits/{key} {
       allow read, write: if false;
     }
     match /appointmentAccess/{tokenHash} {

@@ -5,7 +5,7 @@ const { resolve } = require("node:path");
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const { assertFails, assertSucceeds, initializeTestEnvironment } = require("@firebase/rules-unit-testing");
-const { deleteDoc, doc, getDoc, serverTimestamp, setDoc } = require("firebase/firestore");
+const { Timestamp, collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc, where } = require("firebase/firestore");
 
 const projectId = "medario-rules-test";
 const emulatorPort = Number(process.env.FIRESTORE_EMULATOR_PORT || 8080);
@@ -30,21 +30,49 @@ test.before(async () => {
     await setDoc(doc(db, "profileChangeRequests/change-1"), { doctorId: "doctor-1", status: "pending" });
     await setDoc(doc(db, "professionalLeadMetrics/doctor-1"), { profileViews: 1 });
     await setDoc(doc(db, "professionalLeads/lead-1"), { doctorId: "doctor-1", action: "appointment_request" });
-    await setDoc(doc(db, "publicDoctors/doctor-1"), { published: true, slug: "doctor-1" });
+    await setDoc(doc(db, "publicDoctors/doctor-1"), { published: true, publicReadSafe: true, slug: "doctor-1" });
+    await setDoc(doc(db, "publicDoctors/doctor-authorized"), {
+      published: true,
+      publicReadSafe: true,
+      slug: "doctor-authorized",
+      location: { city: "Joinville", authorized: true, address: "Rua autorizada, 10" },
+    });
+    await setDoc(doc(db, "publicDoctors/doctor-sanitized"), {
+      published: true,
+      publicReadSafe: true,
+      slug: "doctor-sanitized",
+      location: { city: "Joinville", authorized: false },
+    });
+    await setDoc(doc(db, "publicDoctors/doctor-unsafe"), {
+      published: true,
+      publicReadSafe: false,
+      slug: "doctor-unsafe",
+      location: { city: "Joinville", authorized: false, address: "Rua privada, 99" },
+    });
+    await setDoc(doc(db, "publicDoctors/doctor-address-without-authorization"), {
+      published: true,
+      publicReadSafe: false,
+      slug: "doctor-address-without-authorization",
+      location: { city: "Joinville", address: "Rua privada, 100" },
+    });
     await setDoc(doc(db, "users/search-without-consent"), { email: "no-consent@example.com", consent_preferences: false });
     await setDoc(doc(db, "users/search-with-consent"), { email: "consent@example.com", consent_preferences: true });
+    await setDoc(doc(db, "users/deleted-user"), { email: "deleted@example.com", consent_preferences: false });
+    await setDoc(doc(db, "deletedUsers/deleted-user"), { expiresAt: Timestamp.fromDate(new Date("2099-01-01T00:00:00Z")), finalizeAfter: Timestamp.fromDate(new Date("2098-12-31T00:00:00Z")) });
+    await setDoc(doc(db, "deletedUsers/expired-user"), { expiresAt: Timestamp.fromDate(new Date("2000-01-01T00:00:00Z")), finalizeAfter: Timestamp.fromDate(new Date("1999-12-31T00:00:00Z")) });
+    await setDoc(doc(db, "appointmentRateLimits/patient-1_2030-01-01"), { patientUid: "patient-1", count: 1 });
   });
 });
 
 test.after(async () => environment.cleanup());
 
-test("allows patient and owning professional to read only their appointment", async () => {
+test("allows patient to read own appointment while professionals use server DTOs", async () => {
   const patient = environment.authenticatedContext("patient-1").firestore();
   const doctor = environment.authenticatedContext("doctor-user").firestore();
   const stranger = environment.authenticatedContext("patient-2").firestore();
 
   await assertSucceeds(getDoc(doc(patient, "appointments/appointment-1")));
-  await assertSucceeds(getDoc(doc(doctor, "appointments/appointment-1")));
+  await assertFails(getDoc(doc(doctor, "appointments/appointment-1")));
   await assertFails(getDoc(doc(stranger, "appointments/appointment-1")));
 });
 
@@ -53,12 +81,35 @@ test("denies direct writes and all availability reads", async () => {
 
   await assertFails(setDoc(doc(patient, "appointments/appointment-1"), { status: "confirmed" }, { merge: true }));
   await assertFails(getDoc(doc(patient, "calendarAvailability/doctor-1")));
+  await assertFails(getDoc(doc(patient, "appointmentRateLimits/patient-1_2030-01-01")));
 });
 
 test("exposes only published public projections", async () => {
   const anonymous = environment.unauthenticatedContext().firestore();
   await assertSucceeds(getDoc(doc(anonymous, "publicDoctors/doctor-1")));
   await assertFails(getDoc(doc(anonymous, "doctors/doctor-1")));
+});
+
+test("allows sanitized or authorized public locations and denies unsafe addresses", async () => {
+  const anonymous = environment.unauthenticatedContext().firestore();
+
+  await assertSucceeds(getDoc(doc(anonymous, "publicDoctors/doctor-sanitized")));
+  await assertSucceeds(getDoc(doc(anonymous, "publicDoctors/doctor-authorized")));
+  await assertFails(getDoc(doc(anonymous, "publicDoctors/doctor-unsafe")));
+  await assertFails(getDoc(doc(anonymous, "publicDoctors/doctor-address-without-authorization")));
+});
+
+test("lists only projections explicitly marked safe without rules acting as filters", async () => {
+  const anonymous = environment.unauthenticatedContext().firestore();
+  const safeDirectory = query(
+    collection(anonymous, "publicDoctors"),
+    where("published", "==", true),
+    where("publicReadSafe", "==", true),
+  );
+
+  const snapshot = await assertSucceeds(getDocs(safeDirectory));
+  assert.deepEqual(snapshot.docs.map((item) => item.id).sort(), ["doctor-1", "doctor-authorized", "doctor-sanitized"]);
+  await assertFails(getDocs(query(collection(anonymous, "publicDoctors"), where("published", "==", true))));
 });
 
 test("keeps Medário Pro review and lead data server-only", async () => {
@@ -111,6 +162,22 @@ test("requires explicit health consent before accepting raw search events", asyn
   await assertSucceeds(setDoc(doc(withConsent, `users/search-with-consent/search_events/${eventId}`), event()));
 });
 
+test("allows granting consent but requires the revocation callable", async () => {
+  const granted = environment.authenticatedContext("search-with-consent", { email: "consent@example.com" }).firestore();
+  const denied = environment.authenticatedContext("search-without-consent", { email: "no-consent@example.com" }).firestore();
+
+  await assertFails(setDoc(doc(granted, "users/search-with-consent"), { consent_preferences: false, consent_at: serverTimestamp() }, { merge: true }));
+  await assertSucceeds(setDoc(doc(granted, "users/search-with-consent"), { cidade: "Joinville", consent_preferences: true }, { merge: true }));
+  await assertFails(setDoc(doc(denied, "users/search-without-consent"), { consent_preferences: true }, { merge: true }));
+  await assertSucceeds(setDoc(doc(denied, "users/search-without-consent"), { consent_preferences: true, consent_at: serverTimestamp() }, { merge: true }));
+
+  const newUserId = `consent-create-${Date.now()}`;
+  const newUser = environment.authenticatedContext(newUserId, { email: "new-consent@example.com" }).firestore();
+  const profile = { email: "new-consent@example.com", idioma: "Português", acessibilidade: false, consent_preferences: true, created_at: serverTimestamp() };
+  await assertFails(setDoc(doc(newUser, `users/${newUserId}`), profile));
+  await assertSucceeds(setDoc(doc(newUser, `users/${newUserId}`), { ...profile, consent_at: serverTimestamp() }));
+});
+
 test("allows only account-owned profile fields and blocks derived writes", async () => {
   const userId = `rules-profile-${Date.now()}`;
   const patient = environment.authenticatedContext(userId, { email: "patient@example.com" }).firestore();
@@ -125,4 +192,27 @@ test("allows only account-owned profile fields and blocks derived writes", async
   await assertFails(setDoc(doc(patient, `users/${userId}`), { affinity: { psiquiatria: 1 } }, { merge: true }));
   await assertFails(deleteDoc(doc(patient, `users/${userId}`)));
   await assertFails(setDoc(doc(patient, `users/${userId}/interests/psiquiatria`), { specialty: "psiquiatria" }));
+});
+
+test("active deletion tombstone blocks stale tokens while remaining server-only", async () => {
+  const deleted = environment.authenticatedContext("deleted-user", { email: "deleted@example.com" }).firestore();
+
+  await assertFails(getDoc(doc(deleted, "users/deleted-user")));
+  await assertFails(setDoc(doc(deleted, "users/deleted-user"), {
+    email: "deleted@example.com",
+    idioma: "Português",
+    acessibilidade: false,
+    created_at: serverTimestamp(),
+  }));
+  await assertFails(getDoc(doc(deleted, "deletedUsers/deleted-user")));
+});
+
+test("expired tombstone no longer blocks a legitimate account profile", async () => {
+  const restored = environment.authenticatedContext("expired-user", { email: "restored@example.com" }).firestore();
+  await assertSucceeds(setDoc(doc(restored, "users/expired-user"), {
+    email: "restored@example.com",
+    idioma: "Português",
+    acessibilidade: false,
+    created_at: serverTimestamp(),
+  }));
 });
