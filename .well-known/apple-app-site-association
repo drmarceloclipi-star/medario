@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["X66WU4VS9N.br.com.medario.app"],
+        "components": [
+          { "/": "/medicos/*", "comment": "Public medical profile" }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["X66WU4VS9N.br.com.medario.app"]
+  }
+}

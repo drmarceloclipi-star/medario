@@ -7,6 +7,28 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+  "emulators": {
+    "auth": {
+      "host": "127.0.0.1",
+      "port": 9099
+    },
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8080
+    },
+    "functions": {
+      "host": "127.0.0.1",
+      "port": 5001
+    },
+    "pubsub": {
+      "host": "127.0.0.1",
+      "port": 8085
+    },
+    "ui": {
+      "enabled": false
+    },
+    "singleProjectMode": true
+  },
   "hosting": {
     "public": ".firebase/legacy-public",
     "predeploy": [
@@ -15,6 +37,13 @@
     "cleanUrls": true,
     "trailingSlash": false,
     "headers": [
+      {
+        "source": "/.well-known/apple-app-site-association",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Cache-Control", "value": "public, max-age=3600" }
+        ]
+      },
       {
         "source": "**",
         "headers": [

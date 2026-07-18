@@ -3,7 +3,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { defaultPreferences, enabledChannels, notificationEnabled, notificationOutboxRecord, preferencesFrom, providerlessDeliveryState } = require("./notification-policy");
+const { defaultPreferences, enabledChannels, notificationEnabled, notificationOutboxRecord, preferencesFrom, preferencesFromDocument, providerlessDeliveryState, safePushMessage } = require("./notification-policy");
 
 test("defaults every notification preference to denied", () => {
   assert.equal(notificationEnabled(defaultPreferences(), "appointment_confirmed", "email"), false);
@@ -17,6 +17,17 @@ test("normalizes only known event and channel preferences", () => {
   assert.equal(notificationEnabled(preferences, "appointment_confirmed", "whatsapp"), false);
   assert.throws(() => preferencesFrom({ promotion: { email: true } }));
   assert.throws(() => preferencesFrom({ appointment_confirmed: { sms: true } }));
+});
+
+test("reads stored preference documents without treating server metadata as user input", () => {
+  const preferences = preferencesFromDocument({
+    appointment_confirmed: { push: true },
+    updatedAt: new Date(),
+    version: 1,
+  });
+
+  assert.equal(notificationEnabled(preferences, "appointment_confirmed", "push"), true);
+  assert.equal(notificationEnabled(preferences, "profile_updated", "push"), false);
 });
 
 test("fans out only through explicitly enabled channels", () => {
@@ -39,4 +50,15 @@ test("outbox stores only metadata and never health or contact content", () => {
 
   assert.deepEqual(Object.keys(record).sort(), ["attempts", "channel", "createdAt", "event", "id", "recipientUid", "state", "subjectRef"]);
   assert.doesNotMatch(JSON.stringify(record), /email@|phone|symptom|query|location|diagnos/i);
+});
+
+test("push copy never exposes specialty, symptoms, patient identity, or exact location", () => {
+  for (const event of ["appointment_confirmed", "profile_updated", "saved_search_material"]) {
+    const message = safePushMessage(event);
+    const serialized = JSON.stringify(message).toLowerCase();
+    for (const forbidden of ["cardio", "sintoma", "paciente", "email", "telefone", "endereço", "diagnóstico"]) {
+      assert.equal(serialized.includes(forbidden), false);
+    }
+    assert.match(message.destination, /^(appointments|saved_items)$/);
+  }
 });

@@ -5,7 +5,7 @@ export type Slug = string;
 export type AppointmentType = "in_person" | "telemedicine";
 export type VerificationStatus = "unverified" | "pending" | "verified" | "rejected";
 export type LeadStatus = "new" | "contacted" | "converted" | "lost";
-export type AppointmentRequestStatus = "requested" | "confirmed" | "cancelled" | "completed";
+export type AppointmentRequestStatus = "requested" | "confirmed" | "declined" | "reschedule_proposed" | "reschedule_requested" | "cancel_requested" | "cancelled" | "completed" | "no_show";
 
 export interface Specialty {
   id: EntityId;
@@ -69,11 +69,21 @@ export interface ProfessionalAccount {
 export interface AppointmentRequest {
   id: EntityId;
   doctorId: EntityId;
-  patientId: EntityId;
-  appointmentType: AppointmentType;
-  requestedAt: ISODateString;
-  preferredDates: ISODateString[];
-  message?: string;
+  doctorName: string;
+  doctorSlug: Slug;
+  typeLabel: string;
+  modality: AppointmentType;
+  startsAt?: ISODateString;
+  endsAt?: ISODateString;
+  timezone: string;
+  locationLabel: string;
+  cancellationPolicy: string;
+  cancellationNoticeMinutes?: number;
+  priceCents?: number;
+  confirmationPolicy: "manual" | "immediate";
+  requestedAt?: ISODateString;
+  confirmedAt?: ISODateString;
+  cancelledAt?: ISODateString;
   status: AppointmentRequestStatus;
 }
 

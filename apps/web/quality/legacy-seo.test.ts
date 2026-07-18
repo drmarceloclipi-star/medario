@@ -8,17 +8,26 @@ const readRootFile = (path: string) => readFileSync(resolve(root, path), 'utf8')
 
 describe('legacy public SEO contract', () => {
   it('serves canonical extensionless legacy URLs through Firebase Hosting', () => {
-    const firebase = JSON.parse(readRootFile('firebase.json')) as { hosting: { cleanUrls?: boolean; trailingSlash?: boolean; headers?: Array<{ headers: Array<{ key: string; value: string }> }> } };
+    const firebase = JSON.parse(readRootFile('firebase.json')) as { hosting: { cleanUrls?: boolean; trailingSlash?: boolean; headers?: Array<{ source: string; headers: Array<{ key: string; value: string }> }> } };
 
     expect(firebase.hosting.cleanUrls).toBe(true);
     expect(firebase.hosting.trailingSlash).toBe(false);
-    const headers = Object.fromEntries(firebase.hosting.headers?.[0]?.headers.map(({ key, value }) => [key, value]) ?? []);
+    const headers = Object.fromEntries(firebase.hosting.headers?.find(({ source }) => source === '**')?.headers.map(({ key, value }) => [key, value]) ?? []);
     expect(headers['Content-Security-Policy']).toContain("default-src 'self'");
     expect(headers['Content-Security-Policy']).toContain('https://firestore.googleapis.com');
     expect(headers['X-Frame-Options']).toBe('DENY');
     expect(headers['X-Content-Type-Options']).toBe('nosniff');
     expect(headers['Referrer-Policy']).toBe('strict-origin-when-cross-origin');
     expect(headers['Permissions-Policy']).toContain('geolocation=(self)');
+  });
+
+  it('publishes Universal Link ownership with JSON content type', () => {
+    const association = JSON.parse(readRootFile('.well-known/apple-app-site-association')) as { applinks: { details: Array<{ appIDs: string[] }> } };
+    const firebase = JSON.parse(readRootFile('firebase.json')) as { hosting: { headers?: Array<{ source: string; headers: Array<{ key: string; value: string }> }> } };
+    const headers = Object.fromEntries(firebase.hosting.headers?.find(({ source }) => source === '/.well-known/apple-app-site-association')?.headers.map(({ key, value }) => [key, value]) ?? []);
+
+    expect(association.applinks.details[0]?.appIDs).toContain('X66WU4VS9N.br.com.medario.app');
+    expect(headers['Content-Type']).toBe('application/json');
   });
 
   it('keeps sparse directory and account pages outside search indexing', () => {

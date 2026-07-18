@@ -82,9 +82,10 @@ export function ResultList({ search, doctors }: { search: DerivedSearch; doctors
     if (!savedClient || accountSession.status !== 'signed_in') return;
     setMergeBusy(true);
     setMergeMessage('');
+    const expectedUid = accountSession.user.uid;
     try {
-      await Promise.all(favoriteIds.map((doctorId) => savedClient.favoriteDoctor(doctorId)));
-      const existing = await savedClient.listSavedItems();
+      await Promise.all(favoriteIds.map((doctorId) => savedClient.favoriteDoctor(doctorId, expectedUid)));
+      const existing = await savedClient.listSavedItems(expectedUid);
       const knownSearches = new Set(existing.searches.map((search) => savedCriteriaKey(search.criteria)));
       const searchesToSync = savedSearches.filter((search) => {
         const key = savedCriteriaKey(search.criteria);
@@ -92,8 +93,8 @@ export function ResultList({ search, doctors }: { search: DerivedSearch; doctors
         knownSearches.add(key);
         return true;
       });
-      await Promise.all(searchesToSync.map((search) => savedClient.saveAccountSearch({ criteria: search.criteria, alertEnabled: false })));
-      const synced = await savedClient.listSavedItems();
+      await Promise.all(searchesToSync.map((search) => savedClient.saveAccountSearch({ criteria: search.criteria, alertEnabled: false, expectedUid })));
+      const synced = await savedClient.listSavedItems(expectedUid);
       setFavoriteIds(synced.favorites.map((item) => item.doctorId));
       setMergeMessage(`Favoritos e buscas sincronizados com sua conta (${synced.favorites.length} favorito(s)).`);
     } catch {

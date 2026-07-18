@@ -8,6 +8,7 @@ const STAGING = path.join(ROOT, ".firebase", "legacy-public.staging");
 
 // Keep this list explicit. Do not replace with a directory glob.
 const ALLOWED_FILES = [
+  ".well-known/apple-app-site-association",
   "assets/doctor-lucas.png",
   "assets/doctor-mariana.png",
   "assets/medario-mark.svg",
