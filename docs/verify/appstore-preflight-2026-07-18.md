@@ -22,8 +22,7 @@
 - AppIcon 1024×1024 sem alpha.
 - `PrivacyInfo.xcprivacy` empacotado, tracking desativado e motivo `CA92.1` para `UserDefaults`.
 - `ITSAppUsesNonExemptEncryption=false` empacotado.
-- 74 testes unitários iOS e 2 XCUITests aprovados; o smoke prova quatro abas nativas e zero `WebView` na raiz.
-- Suite física aprovada no iPhone 17 Pro Max (iOS 26.5.2): 74 testes unitários e 2 XCUITests, instalação e abertura do app `br.com.medario.app`.
+- Suite física aprovada no iPhone 17 Pro Max (iOS 26.5.2): 74 testes unitários e 2 XCUITests, instalação e abertura do app `br.com.medario.app`; o smoke prova quatro abas nativas e zero `WebView` na raiz.
 - Universal Link de produção aprovado no aparelho: `https://medario.com.br/medicos/mariana-andrade` abriu diretamente a tela nativa `Perfil médico` da Dra. Mariana Andrade.
 - App Attest de produção aprovado no aparelho: build Release assinada para desenvolvimento emitiu token real (`APP_CHECK_SMOKE_OK`); entitlements continham App Attest `production`, Associated Domains e APNs `development`.
 - Push físico revelou falha: após autorização do iOS, `Messaging.messaging().token()` permaneceu aguardando por mais de 45 segundos; nenhum endpoint FCM foi registrado. Conta e documentos QA temporários foram removidos.
