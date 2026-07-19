@@ -22,7 +22,10 @@
 - AppIcon 1024×1024 sem alpha.
 - `PrivacyInfo.xcprivacy` empacotado, tracking desativado e motivo `CA92.1` para `UserDefaults`.
 - `ITSAppUsesNonExemptEncryption=false` empacotado.
-- 74 testes unitários iOS e 2 XCUITests aprovados; o smoke prova quatro abas nativas e zero `WebView` na raiz.
+- Suite física aprovada no iPhone 17 Pro Max (iOS 26.5.2): 74 testes unitários e 2 XCUITests, instalação e abertura do app `br.com.medario.app`; o smoke prova quatro abas nativas e zero `WebView` na raiz.
+- Universal Link de produção aprovado no aparelho: `https://medario.com.br/medicos/mariana-andrade` abriu diretamente a tela nativa `Perfil médico` da Dra. Mariana Andrade.
+- App Attest de produção aprovado no aparelho: build Release assinada para desenvolvimento emitiu token real (`APP_CHECK_SMOKE_OK`); entitlements continham App Attest `production`, Associated Domains e APNs `development`.
+- Push físico revelou falha: após autorização do iOS, `Messaging.messaging().token()` permaneceu aguardando por mais de 45 segundos; nenhum endpoint FCM foi registrado. Conta e documentos QA temporários foram removidos.
 - Archive Release arm64 assinado com Apple Distribution e profile App Store aprovado.
 - IPA validado e enviado sem erros; iOS mínimo `18.0`, `usesNonExemptEncryption=false`.
 - Export options usa assinatura manual e profile `Medario iOS App Store AppAttest 2026`.
@@ -41,11 +44,11 @@
 
 ## Bloqueios
 
-1. Validar App Attest, Universal Link e APNs/FCM em device físico quando o aparelho estiver disponível. O iPhone pareado não foi tocado porque o usuário o reservou para outro agente.
+1. Corrigir ou limitar a espera por token APNs/FCM no fluxo `FirebaseNativeNotificationPermissionService.requestToken()`; repetir registro e entrega real de push no iPhone.
 2. Criar grupo interno e adicionar testers somente após autorização específica.
 3. Enviar screenshots reais e concluir App Privacy, faixa etária e categoria.
 4. Submeter App Review somente após autorização explícita separada.
 
 ## Próxima ação
 
-Executar smoke físico quando o aparelho for liberado. Não instalar nem abrir o app no iPhone enquanto outro agente estiver usando o device.
+Corrigir o bloqueio de obtenção do token FCM e repetir o smoke físico de push. App Attest, Universal Link, instalação, abertura e suite Xcode no aparelho já estão validados.
