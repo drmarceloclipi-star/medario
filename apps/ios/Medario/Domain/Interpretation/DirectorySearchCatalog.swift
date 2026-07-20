@@ -22,7 +22,7 @@ nonisolated struct DirectorySearchCatalog: Sendable, Equatable {
             candidates = []
         } else {
             candidates = profiles
-                .filter { $0.name.localizedStandardContains(trimmed) }
+                .filter { $0.name.localizedStandardContains(trimmed) || trimmed.localizedStandardContains($0.name) }
                 .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
                 .prefix(20)
                 .map { DoctorCandidate(slug: $0.slug, name: $0.name) }
