@@ -41,17 +41,24 @@ final class DirectoryViewModel {
             let profiles = try await repository.profiles(matching: "")
             guard requestGeneration == generation else { return }
 
-            let needsInterpretation = !query.isEmpty && criteria.specialty == nil && !skipNextInterpretation
+            let needsInterpretation = !query.isEmpty && criteria.specialty == nil
+                && criteria.doctorSlug == nil && !skipNextInterpretation
             skipNextInterpretation = false
 
             if needsInterpretation {
-                let catalog = DirectorySearchCatalog.from(profiles: profiles)
+                let catalog = DirectorySearchCatalog.from(profiles: profiles, query: query)
                 let interpretation = await interpreter.interpret(query, catalog: catalog)
                 guard requestGeneration == generation else { return }
 
                 switch interpretation {
-                case .matched(let specialty):
-                    derivedCriteria = SavedSearchCriteria(specialty: specialty)
+                case .matched(let interpreted):
+                    derivedCriteria = SavedSearchCriteria(
+                        doctorSlug: interpreted.doctorSlug,
+                        specialty: interpreted.specialty,
+                        city: interpreted.city,
+                        insurance: interpreted.insurance,
+                        modality: interpreted.modality
+                    )
                     let effective = mergeCriteria(manual: criteria, derived: derivedCriteria)
                     let filtered = profiles.filter { $0.matches(effective) }
                     guard requestGeneration == generation else { return }
@@ -90,12 +97,37 @@ final class DirectoryViewModel {
         await load(query: lastQuery, criteria: lastCriteria)
     }
 
+    func removeDerivedDoctor() async {
+        derivedCriteria.doctorSlug = nil
+        skipNextInterpretation = true
+        await load(query: lastQuery, criteria: lastCriteria)
+    }
+
+    func removeDerivedCity() async {
+        derivedCriteria.city = nil
+        skipNextInterpretation = true
+        await load(query: lastQuery, criteria: lastCriteria)
+    }
+
+    func removeDerivedInsurance() async {
+        derivedCriteria.insurance = nil
+        skipNextInterpretation = true
+        await load(query: lastQuery, criteria: lastCriteria)
+    }
+
+    func removeDerivedModality() async {
+        derivedCriteria.modality = nil
+        skipNextInterpretation = true
+        await load(query: lastQuery, criteria: lastCriteria)
+    }
+
     func retry() async {
         await load(query: lastQuery, criteria: lastCriteria)
     }
 
     private func mergeCriteria(manual: SavedSearchCriteria, derived: SavedSearchCriteria) -> SavedSearchCriteria {
         var merged = derived
+        if manual.doctorSlug != nil { merged.doctorSlug = manual.doctorSlug }
         if manual.specialty != nil { merged.specialty = manual.specialty }
         if manual.city != nil { merged.city = manual.city }
         if manual.insurance != nil { merged.insurance = manual.insurance }
@@ -109,8 +141,10 @@ final class DirectoryViewModel {
         return profiles.filter { $0.searchableText.localizedStandardContains(trimmed) }
     }
 }
+
 private extension PublicProfile {
     func matches(_ criteria: SavedSearchCriteria) -> Bool {
+        if let slug = criteria.doctorSlug, self.slug != slug { return false }
         if let specialty = criteria.specialty,
            !self.specialty.localizedStandardContains(specialty) { return false }
         if let city = criteria.city,
