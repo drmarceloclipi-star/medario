@@ -81,6 +81,14 @@ struct DirectoryView: View {
             }
             .onChange(of: deepLinkSlug) { openDeepLinkIfPossible() }
             .onChange(of: viewModel.state) { openDeepLinkIfPossible() }
+            .safeAreaInset(edge: .top) {
+                if viewModel.derivedCriteria.specialty != nil {
+                    DerivedFilterChipsView(derivedCriteria: viewModel.derivedCriteria) {
+                        Task { await viewModel.removeDerivedSpecialty() }
+                    }
+                    .padding(.horizontal)
+                }
+            }
             .alert("Atendimento imediato", isPresented: urgentAlertBinding) {
                 Button("Ligar 192") {
                     if let url = URL(string: "tel:192") {
@@ -130,6 +138,14 @@ struct DirectoryView: View {
                 DirectoryMapView(profiles: profiles) { profile in path.append(profile) }
             } else {
                 DirectoryResultsView(profiles: profiles, savedItemsViewModel: savedItemsViewModel)
+            }
+        case .needsClarification:
+            ContentUnavailableView {
+                Label("Esclareça sua busca", systemImage: "questionmark.circle")
+            } description: {
+                Text("Não conseguimos identificar uma especialidade. Tente novamente com mais detalhes.")
+            } actions: {
+                Button("Limpar busca", action: clearSearch)
             }
         case let .failed(message):
             ContentUnavailableView {
@@ -234,5 +250,36 @@ private struct DirectoryFiltersView: View {
                 criteria[keyPath: keyPath] = limited.isEmpty ? nil : limited
             }
         )
+    }
+}
+
+private struct DerivedFilterChipsView: View {
+    let derivedCriteria: SavedSearchCriteria
+    let onRemoveSpecialty: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            if let specialty = derivedCriteria.specialty {
+                HStack(spacing: 4) {
+                    Image(systemName: "sparkles")
+                        .font(.caption)
+                        .foregroundStyle(MedarioTheme.joinvilleBlue)
+                    Text(specialty)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                    Button {
+                        onRemoveSpecialty()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                            .font(.caption)
+                    }
+                    .accessibilityLabel("Remover filtro derivado \(specialty)")
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Capsule().fill(MedarioTheme.joinvilleBlue.opacity(0.12)))
+            }
+        }
     }
 }
