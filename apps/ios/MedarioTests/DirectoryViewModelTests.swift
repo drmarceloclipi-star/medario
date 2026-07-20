@@ -154,7 +154,7 @@ final class DirectoryViewModelTests: XCTestCase {
     @MainActor
     func testInterpretedSpecialtyAppliesDerivedFilter() async {
         let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
-        let interpreter = FakeSearchInterpreter(result: .matched(specialty: "Dermatologia"))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(specialty: "Dermatologia")))
         let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
 
         await viewModel.load(query: "quero ver um dermatologista")
@@ -194,7 +194,7 @@ final class DirectoryViewModelTests: XCTestCase {
     @MainActor
     func testManualSpecialtySkipsInterpretation() async {
         let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
-        let interpreter = FakeSearchInterpreter(result: .matched(specialty: "Cardiologia"))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(specialty: "Cardiologia")))
         let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
 
         await viewModel.load(query: "Mariana", criteria: SavedSearchCriteria(specialty: "Dermatologia"))
@@ -207,7 +207,7 @@ final class DirectoryViewModelTests: XCTestCase {
     @MainActor
     func testEmptyQuerySkipsInterpretation() async {
         let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
-        let interpreter = FakeSearchInterpreter(result: .matched(specialty: "Dermatologia"))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(specialty: "Dermatologia")))
         let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
 
         await viewModel.load()
@@ -219,7 +219,7 @@ final class DirectoryViewModelTests: XCTestCase {
     @MainActor
     func testRemoveDerivedSpecialtyReloads() async {
         let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
-        let interpreter = FakeSearchInterpreter(result: .matched(specialty: "Dermatologia"), secondResult: .unsupported)
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(specialty: "Dermatologia")), secondResult: .unsupported)
         let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
 
         await viewModel.load(query: "Mariana")
@@ -248,13 +248,101 @@ final class DirectoryViewModelTests: XCTestCase {
     @MainActor
     func testSearchTextNotPersistedInDerivedCriteria() async {
         let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
-        let interpreter = FakeSearchInterpreter(result: .matched(specialty: "Dermatologia"))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(specialty: "Dermatologia")))
         let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
 
         await viewModel.load(query: "texto livre não salvo")
 
         XCTAssertNil(viewModel.derivedCriteria.callablePayload["query"])
         XCTAssertNil(viewModel.lastCriteria.callablePayload["query"])
+    }
+
+    @MainActor
+    func testInterpretedDoctorSlugFiltersToSpecificDoctor() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(doctorSlug: "dra-mariana-andrade")))
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "Mariana")
+
+        XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
+        XCTAssertEqual(viewModel.derivedCriteria.doctorSlug, "dra-mariana-andrade")
+    }
+
+    @MainActor
+    func testInterpretedCityFiltersByCity() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(city: "Joinville")))
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "Joinville")
+
+        XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
+        XCTAssertEqual(viewModel.derivedCriteria.city, "Joinville")
+    }
+
+    @MainActor
+    func testInterpretedInsuranceFiltersByInsurance() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(insurance: "Unimed")))
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "Unimed")
+
+        XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
+        XCTAssertEqual(viewModel.derivedCriteria.insurance, "Unimed")
+    }
+
+    @MainActor
+    func testInterpretedModalityFiltersByModality() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(modality: .inPerson)))
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "consulta presencial")
+
+        XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
+        XCTAssertEqual(viewModel.derivedCriteria.modality, .inPerson)
+    }
+
+    @MainActor
+    func testInterpretedCombinationUsesIntersection() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(specialty: "Dermatologia", city: "Joinville")))
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "dermatologia em Joinville")
+
+        XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
+        XCTAssertEqual(viewModel.derivedCriteria.specialty, "Dermatologia")
+        XCTAssertEqual(viewModel.derivedCriteria.city, "Joinville")
+    }
+
+    @MainActor
+    func testManualDoctorSlugSkipsInterpretation() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(specialty: "Cardiologia")))
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "Mariana", criteria: SavedSearchCriteria(doctorSlug: "dra-mariana-andrade"))
+
+        XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
+        XCTAssertEqual(interpreter.callCount, 0)
+    }
+
+    @MainActor
+    func testRemoveDerivedCityReloads() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(city: "Joinville")), secondResult: .unsupported)
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "Joinville")
+        XCTAssertEqual(viewModel.derivedCriteria.city, "Joinville")
+
+        await viewModel.removeDerivedCity()
+
+        XCTAssertNil(viewModel.derivedCriteria.city)
+        XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
     }
 
     @MainActor

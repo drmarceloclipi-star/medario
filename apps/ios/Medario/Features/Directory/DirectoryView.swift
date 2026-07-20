@@ -82,9 +82,17 @@ struct DirectoryView: View {
             .onChange(of: deepLinkSlug) { openDeepLinkIfPossible() }
             .onChange(of: viewModel.state) { openDeepLinkIfPossible() }
             .safeAreaInset(edge: .top) {
-                if viewModel.derivedCriteria.specialty != nil {
+                if !viewModel.derivedCriteria.isEmpty {
                     DerivedFilterChipsView(derivedCriteria: viewModel.derivedCriteria) {
                         Task { await viewModel.removeDerivedSpecialty() }
+                    } onRemoveDoctor: {
+                        Task { await viewModel.removeDerivedDoctor() }
+                    } onRemoveCity: {
+                        Task { await viewModel.removeDerivedCity() }
+                    } onRemoveInsurance: {
+                        Task { await viewModel.removeDerivedInsurance() }
+                    } onRemoveModality: {
+                        Task { await viewModel.removeDerivedModality() }
                     }
                     .padding(.horizontal)
                 }
@@ -260,30 +268,48 @@ private struct DirectoryFiltersView: View {
 private struct DerivedFilterChipsView: View {
     let derivedCriteria: SavedSearchCriteria
     let onRemoveSpecialty: () -> Void
+    let onRemoveDoctor: () -> Void
+    let onRemoveCity: () -> Void
+    let onRemoveInsurance: () -> Void
+    let onRemoveModality: () -> Void
 
     var body: some View {
         HStack(spacing: 8) {
+            if derivedCriteria.doctorSlug != nil {
+                derivedChip(label: "Médico", icon: "person.fill", action: onRemoveDoctor)
+            }
             if let specialty = derivedCriteria.specialty {
-                HStack(spacing: 4) {
-                    Image(systemName: "sparkles")
-                        .font(.caption)
-                        .foregroundStyle(MedarioTheme.joinvilleBlue)
-                    Text(specialty)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                    Button {
-                        onRemoveSpecialty()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
-                            .font(.caption)
-                    }
-                    .accessibilityLabel("Remover filtro derivado \(specialty)")
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(Capsule().fill(MedarioTheme.joinvilleBlue.opacity(0.12)))
+                derivedChip(label: specialty, icon: "sparkles", action: onRemoveSpecialty)
+            }
+            if let city = derivedCriteria.city {
+                derivedChip(label: city, icon: "mappin.circle.fill", action: onRemoveCity)
+            }
+            if let insurance = derivedCriteria.insurance {
+                derivedChip(label: insurance, icon: "shield.fill", action: onRemoveInsurance)
+            }
+            if let modality = derivedCriteria.modality {
+                derivedChip(label: modality.displayName, icon: "video.fill", action: onRemoveModality)
             }
         }
+    }
+
+    private func derivedChip(label: String, icon: String, action: @escaping () -> Void) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(MedarioTheme.joinvilleBlue)
+            Text(label)
+                .font(.caption)
+                .fontWeight(.medium)
+            Button(action: action) {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+            }
+            .accessibilityLabel("Remover filtro derivado \(label)")
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(Capsule().fill(MedarioTheme.joinvilleBlue.opacity(0.12)))
     }
 }

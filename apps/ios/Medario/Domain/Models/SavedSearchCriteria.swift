@@ -1,17 +1,20 @@
 import Foundation
 
 struct SavedSearchCriteria: Codable, Hashable, Sendable {
+    var doctorSlug: String?
     var specialty: String?
     var city: String?
     var insurance: String?
     var modality: SavedSearchModality?
 
     init(
+        doctorSlug: String? = nil,
         specialty: String? = nil,
         city: String? = nil,
         insurance: String? = nil,
         modality: SavedSearchModality? = nil
     ) {
+        self.doctorSlug = Self.clean(doctorSlug)
         self.specialty = Self.clean(specialty)
         self.city = Self.clean(city)
         self.insurance = Self.clean(insurance)
@@ -19,21 +22,22 @@ struct SavedSearchCriteria: Codable, Hashable, Sendable {
     }
 
     var isEmpty: Bool {
-        specialty == nil && city == nil && insurance == nil && modality == nil
+        doctorSlug == nil && specialty == nil && city == nil && insurance == nil && modality == nil
     }
 
     var isPersistable: Bool {
-        !isEmpty && [specialty, city, insurance].compactMap { $0 }.allSatisfy { $0.count <= 100 }
+        !isEmpty && [doctorSlug, specialty, city, insurance].compactMap { $0 }.allSatisfy { $0.count <= 100 }
     }
 
     var summary: String {
-        [specialty, city, insurance, modality?.displayName]
+        [doctorSlug != nil ? "Médico" : nil, specialty, city, insurance, modality?.displayName]
             .compactMap { $0 }
             .joined(separator: " · ")
     }
 
     var callablePayload: [String: String] {
         var payload: [String: String] = [:]
+        if let doctorSlug { payload["doctorSlug"] = doctorSlug }
         if let specialty { payload["specialty"] = specialty }
         if let city { payload["city"] = city }
         if let insurance { payload["insurance"] = insurance }

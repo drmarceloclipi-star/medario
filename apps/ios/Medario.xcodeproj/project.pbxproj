@@ -80,6 +80,7 @@
 		834C02C06151DAC0E1423747 /* MedarioDeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2987355FD761C8E05C7F0B /* MedarioDeepLink.swift */; };
 		874DDE686022F5252D2110A1 /* NativeNotificationPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF3E9A9095EF1AD08B675D7 /* NativeNotificationPreferences.swift */; };
 		8785411D990208D193810598 /* FirebasePublicDirectoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F86AE879EA1F4B27E47B93F /* FirebasePublicDirectoryRepository.swift */; };
+		88C35DF69E22A5A3B27310C9 /* ModalityBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867DA5CD4688E0F8C7EA2B05 /* ModalityBridge.swift */; };
 		89874D589481357CC35D6E6A /* AccountCallableErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366908B5F9C4AD02E8A086FB /* AccountCallableErrorMapper.swift */; };
 		908072317EB21990EC8CD7F3 /* DirectoryLoadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E24B55AD308F9081DE7DE5ED /* DirectoryLoadState.swift */; };
 		90DA5614E7CF833B712CCFFE /* FirebasePublicDirectoryRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B284EF5214320D77C7FAD0 /* FirebasePublicDirectoryRepositoryTests.swift */; };
@@ -114,6 +115,7 @@
 		C9C9640655D4CF999EF37839 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EC40EAFE633825CEBAAB0E /* RootView.swift */; };
 		C9D56EBB9A104100FBF9693C /* MockSavedItemsDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD899672703B8A6B5C1E49E /* MockSavedItemsDependencies.swift */; };
 		CA8EC19A05AD13E65F82FA8B /* SavedItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F3FFE143328E0D669FC597 /* SavedItemsView.swift */; };
+		CC78C5ECAB53132C21596ECC /* ModalityBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C71E3F2B202EF9E6B79E9D0 /* ModalityBridgeTests.swift */; };
 		D17D70A06F4690432202FF64 /* NativeNotificationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D03DCC268DDA6A07345445E /* NativeNotificationViewModelTests.swift */; };
 		D2DE3FBAAF376B1C3DFBC25F /* FirebaseAccountSessionSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8E70D06640C64832D851E6 /* FirebaseAccountSessionSubscription.swift */; };
 		D58EFD74661192C873E787A9 /* ConsultationModality.swift in Sources */ = {isa = PBXBuildFile; fileRef = D278C58A66DDFB11A201B432 /* ConsultationModality.swift */; };
@@ -221,6 +223,7 @@
 		68ECD0052299B6825CFE1E69 /* MockAccountRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAccountRepository.swift; sourceTree = "<group>"; };
 		69190FA3777413F6429CDB11 /* FirebaseAccountRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAccountRepositoryTests.swift; sourceTree = "<group>"; };
 		6945653C459F84C01C35C2BC /* SavedItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedItems.swift; sourceTree = "<group>"; };
+		6C71E3F2B202EF9E6B79E9D0 /* ModalityBridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalityBridgeTests.swift; sourceTree = "<group>"; };
 		6D49542A58058E03D91DAFBE /* AccountFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFeedback.swift; sourceTree = "<group>"; };
 		6DCF2BF46AE813A90736B693 /* FirebaseAccountRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAccountRepository.swift; sourceTree = "<group>"; };
 		708A3BA15E41F6D0F0994C0E /* FoundationModelSearchInterpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelSearchInterpreter.swift; sourceTree = "<group>"; };
@@ -229,6 +232,7 @@
 		7B8EF07E86BBC77929B120DC /* SearchInterpretation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchInterpretation.swift; sourceTree = "<group>"; };
 		83D4DE2B14DC3C155F4B33D2 /* FirebasePublicProfileDocumentsSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebasePublicProfileDocumentsSource.swift; sourceTree = "<group>"; };
 		85B284EF5214320D77C7FAD0 /* FirebasePublicDirectoryRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebasePublicDirectoryRepositoryTests.swift; sourceTree = "<group>"; };
+		867DA5CD4688E0F8C7EA2B05 /* ModalityBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalityBridge.swift; sourceTree = "<group>"; };
 		88C33F80CFDD7AA8853C49ED /* MockAccountCallableClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAccountCallableClient.swift; sourceTree = "<group>"; };
 		8AC99125F6D7103B523620C7 /* MedarioTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MedarioTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8AF8605301D94A2927359D77 /* AccountPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPreferencesView.swift; sourceTree = "<group>"; };
@@ -397,6 +401,7 @@
 				9A53834B86DB7A605F88BDD9 /* MockPublicDirectoryRepository.swift */,
 				637CC402B7CEC84E371E7C46 /* MockPublicProfileDocumentsSource.swift */,
 				1FD899672703B8A6B5C1E49E /* MockSavedItemsDependencies.swift */,
+				6C71E3F2B202EF9E6B79E9D0 /* ModalityBridgeTests.swift */,
 				937D1D2C833AD1DD9AC2E2E9 /* NativeNotificationPreferencesTests.swift */,
 				1D03DCC268DDA6A07345445E /* NativeNotificationViewModelTests.swift */,
 				66DFE07469818DA09748E5D5 /* ProfileLocationTests.swift */,
@@ -506,6 +511,7 @@
 			children = (
 				608432F1ACD98BC0C8056B98 /* DirectorySearchCatalog.swift */,
 				C32A96C779749034EAB299E8 /* FallbackSearchInterpreter.swift */,
+				867DA5CD4688E0F8C7EA2B05 /* ModalityBridge.swift */,
 				7B8EF07E86BBC77929B120DC /* SearchInterpretation.swift */,
 				C84512D16F7B5C27C014A2B1 /* SearchInterpreter.swift */,
 			);
@@ -762,6 +768,7 @@
 				1E51D8E71C9600E4E5F0D416 /* MockPublicDirectoryRepository.swift in Sources */,
 				C023D1EC1055300511C4B98D /* MockPublicProfileDocumentsSource.swift in Sources */,
 				C9D56EBB9A104100FBF9693C /* MockSavedItemsDependencies.swift in Sources */,
+				CC78C5ECAB53132C21596ECC /* ModalityBridgeTests.swift in Sources */,
 				FBFCD464899D4F771184E82B /* NativeNotificationPreferencesTests.swift in Sources */,
 				D17D70A06F4690432202FF64 /* NativeNotificationViewModelTests.swift in Sources */,
 				BD6B9B7D911A6761E310A527 /* ProfileLocationTests.swift in Sources */,
@@ -832,6 +839,7 @@
 				F051A4976C7F9F79C35CCE4F /* MedarioAppCheckProviderFactory.swift in Sources */,
 				834C02C06151DAC0E1423747 /* MedarioDeepLink.swift in Sources */,
 				F313970D60D3AB7C380345CC /* MedarioTheme.swift in Sources */,
+				88C35DF69E22A5A3B27310C9 /* ModalityBridge.swift in Sources */,
 				5CB5C3D657BB930B4E220FBA /* MyAppointmentsView.swift in Sources */,
 				2179F881011C8D10305901F2 /* MyAppointmentsViewModel.swift in Sources */,
 				874DDE686022F5252D2110A1 /* NativeNotificationPreferences.swift in Sources */,
