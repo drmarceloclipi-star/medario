@@ -69,10 +69,15 @@ struct DirectoryView: View {
             }
             .searchable(text: $query, prompt: "Especialidade, médico ou convênio")
             .onSubmit(of: .search, submitSearch)
+            .onChange(of: query) { _, newValue in
+                if !newValue.trimmingCharacters(in: .whitespaces).isEmpty {
+                    viewModel.prewarm()
+                }
+            }
             .sheet(isPresented: $showingFilters) {
                 DirectoryFiltersView(criteria: $criteria, savedItemsViewModel: savedItemsViewModel) {
                     showingFilters = false
-                    Task { await viewModel.load(query: query, criteria: criteria) }
+                    viewModel.submit(query: query, criteria: criteria)
                 }
             }
             .task {
@@ -84,15 +89,15 @@ struct DirectoryView: View {
             .safeAreaInset(edge: .top) {
                 if !viewModel.derivedCriteria.isEmpty {
                     DerivedFilterChipsView(derivedCriteria: viewModel.derivedCriteria) {
-                        Task { await viewModel.removeDerivedSpecialty() }
+                        viewModel.removeDerivedSpecialty()
                     } onRemoveDoctor: {
-                        Task { await viewModel.removeDerivedDoctor() }
+                        viewModel.removeDerivedDoctor()
                     } onRemoveCity: {
-                        Task { await viewModel.removeDerivedCity() }
+                        viewModel.removeDerivedCity()
                     } onRemoveInsurance: {
-                        Task { await viewModel.removeDerivedInsurance() }
+                        viewModel.removeDerivedInsurance()
                     } onRemoveModality: {
-                        Task { await viewModel.removeDerivedModality() }
+                        viewModel.removeDerivedModality()
                     }
                     .padding(.horizontal)
                 }
@@ -160,17 +165,17 @@ struct DirectoryView: View {
     }
 
     private func submitSearch() {
-        Task { await viewModel.load(query: query, criteria: criteria) }
+        viewModel.submit(query: query, criteria: criteria)
     }
 
     private func clearSearch() {
         query = ""
         criteria = SavedSearchCriteria()
-        Task { await viewModel.load() }
+        viewModel.submit(query: "", criteria: SavedSearchCriteria())
     }
 
     private func retry() {
-        Task { await viewModel.retry() }
+        viewModel.retry()
     }
 
     private func callEmergency() {
@@ -182,7 +187,7 @@ struct DirectoryView: View {
     private func dismissUrgencyAlert() {
         query = ""
         criteria = SavedSearchCriteria()
-        Task { await viewModel.dismissUrgency() }
+        viewModel.dismissUrgency()
     }
 
     private var urgentAlertBinding: Binding<Bool> {

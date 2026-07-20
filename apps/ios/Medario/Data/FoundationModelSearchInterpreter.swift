@@ -21,6 +21,17 @@ struct DirectorySearchResponse {
 
 @MainActor
 final class FoundationModelSearchInterpreter: SearchInterpreter {
+    func prewarm() async {
+        #if canImport(FoundationModels)
+        if #available(iOS 26, *) {
+            let model = SystemLanguageModel.default
+            guard case .available = model.availability else { return }
+            guard Locale.current.language.languageCode?.identifier == "pt" else { return }
+            _ = LanguageModelSession(model: model)
+        }
+        #endif
+    }
+
     func interpret(_ query: String, catalog: DirectorySearchCatalog) async -> SearchInterpretation {
         let trimmed = query.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return .unsupported }

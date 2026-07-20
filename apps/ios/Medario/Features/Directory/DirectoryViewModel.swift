@@ -7,19 +7,38 @@ final class DirectoryViewModel {
     private let repository: any PublicDirectoryRepository
     private let urgencyProtocol: UrgencyProtocol
     private let interpreter: any SearchInterpreter
+    private let interpretationTimeout: Duration
     private(set) var state: DirectoryLoadState = .idle
     private(set) var lastQuery = ""
     private(set) var lastCriteria = SavedSearchCriteria()
     private(set) var derivedCriteria = SavedSearchCriteria()
     private var generation = 0
     private var skipNextInterpretation = false
+    private var currentTask: Task<Void, Never>?
 
     init(repository: any PublicDirectoryRepository,
          urgencyProtocol: UrgencyProtocol = .default,
-         interpreter: any SearchInterpreter = FallbackSearchInterpreter()) {
+         interpreter: any SearchInterpreter = FallbackSearchInterpreter(),
+         interpretationTimeout: Duration = .seconds(15)) {
         self.repository = repository
         self.urgencyProtocol = urgencyProtocol
         self.interpreter = interpreter
+        self.interpretationTimeout = interpretationTimeout
+    }
+
+    func submit(query: String, criteria: SavedSearchCriteria = SavedSearchCriteria()) {
+        currentTask?.cancel()
+        currentTask = Task { @MainActor in
+            await load(query: query, criteria: criteria)
+        }
+    }
+
+    func prewarm() {
+        Task { await interpreter.prewarm() }
+    }
+
+    func awaitCompletion() async {
+        await currentTask?.value
     }
 
     func load(query: String = "", criteria: SavedSearchCriteria = SavedSearchCriteria()) async {
@@ -47,7 +66,7 @@ final class DirectoryViewModel {
 
             if needsInterpretation {
                 let catalog = DirectorySearchCatalog.from(profiles: profiles, query: query)
-                let interpretation = await interpreter.interpret(query, catalog: catalog)
+                let interpretation = await interpretWithTimeout(query: query, catalog: catalog)
                 guard requestGeneration == generation else { return }
 
                 switch interpretation {
@@ -83,46 +102,59 @@ final class DirectoryViewModel {
         }
     }
 
-    func dismissUrgency() async {
-        await load()
+    func dismissUrgency() {
+        submit(query: "", criteria: SavedSearchCriteria())
     }
 
-    func dismissClarification() async {
-        await load()
+    func dismissClarification() {
+        submit(query: "", criteria: SavedSearchCriteria())
     }
 
-    func removeDerivedSpecialty() async {
+    func removeDerivedSpecialty() {
         derivedCriteria.specialty = nil
         skipNextInterpretation = true
-        await load(query: lastQuery, criteria: lastCriteria)
+        submit(query: lastQuery, criteria: lastCriteria)
     }
 
-    func removeDerivedDoctor() async {
+    func removeDerivedDoctor() {
         derivedCriteria.doctorSlug = nil
         skipNextInterpretation = true
-        await load(query: lastQuery, criteria: lastCriteria)
+        submit(query: lastQuery, criteria: lastCriteria)
     }
 
-    func removeDerivedCity() async {
+    func removeDerivedCity() {
         derivedCriteria.city = nil
         skipNextInterpretation = true
-        await load(query: lastQuery, criteria: lastCriteria)
+        submit(query: lastQuery, criteria: lastCriteria)
     }
 
-    func removeDerivedInsurance() async {
+    func removeDerivedInsurance() {
         derivedCriteria.insurance = nil
         skipNextInterpretation = true
-        await load(query: lastQuery, criteria: lastCriteria)
+        submit(query: lastQuery, criteria: lastCriteria)
     }
 
-    func removeDerivedModality() async {
+    func removeDerivedModality() {
         derivedCriteria.modality = nil
         skipNextInterpretation = true
-        await load(query: lastQuery, criteria: lastCriteria)
+        submit(query: lastQuery, criteria: lastCriteria)
     }
 
-    func retry() async {
-        await load(query: lastQuery, criteria: lastCriteria)
+    func retry() {
+        submit(query: lastQuery, criteria: lastCriteria)
+    }
+
+    private func interpretWithTimeout(query: String, catalog: DirectorySearchCatalog) async -> SearchInterpretation {
+        let task = Task { @MainActor in
+            await self.interpreter.interpret(query, catalog: catalog)
+        }
+        let timeout = Task { @MainActor in
+            try? await Task.sleep(for: self.interpretationTimeout)
+            task.cancel()
+        }
+        let result = await task.value
+        timeout.cancel()
+        return result
     }
 
     private func mergeCriteria(manual: SavedSearchCriteria, derived: SavedSearchCriteria) -> SavedSearchCriteria {
