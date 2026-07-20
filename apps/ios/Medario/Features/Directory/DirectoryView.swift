@@ -90,16 +90,8 @@ struct DirectoryView: View {
                 }
             }
             .alert("Atendimento imediato", isPresented: urgentAlertBinding) {
-                Button("Ligar 192") {
-                    if let url = URL(string: "tel:192") {
-                        UIApplication.shared.open(url)
-                    }
-                }
-                Button("Entendi", role: .cancel) {
-                    query = ""
-                    criteria = SavedSearchCriteria()
-                    Task { await viewModel.dismissUrgency() }
-                }
+                Button("Ligar 192", action: callEmergency)
+                Button("Entendi", role: .cancel, action: dismissUrgencyAlert)
             } message: {
                 if case .urgent(let message) = viewModel.state {
                     Text(message)
@@ -171,6 +163,18 @@ struct DirectoryView: View {
 
     private func retry() {
         Task { await viewModel.retry() }
+    }
+
+    private func callEmergency() {
+        if let url = URL(string: "tel:192") {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    private func dismissUrgencyAlert() {
+        query = ""
+        criteria = SavedSearchCriteria()
+        Task { await viewModel.dismissUrgency() }
     }
 
     private var urgentAlertBinding: Binding<Bool> {
