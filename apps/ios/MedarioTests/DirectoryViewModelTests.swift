@@ -8,6 +8,7 @@ final class FakeSearchInterpreter: SearchInterpreter {
     private(set) var receivedQuery: String?
     private(set) var receivedCatalog: DirectorySearchCatalog?
     private(set) var callCount = 0
+    private(set) var prewarmCalled = false
 
     init(result: SearchInterpretation, secondResult: SearchInterpretation? = nil) {
         self.result = result
@@ -21,6 +22,28 @@ final class FakeSearchInterpreter: SearchInterpreter {
         if callCount == 2, let secondResult { return secondResult }
         return result
     }
+
+    func prewarm() async { prewarmCalled = true }
+}
+
+@MainActor
+final class SlowFakeInterpreter: SearchInterpreter {
+    let delay: Duration
+    let result: SearchInterpretation
+    private(set) var prewarmCalled = false
+
+    init(delay: Duration, result: SearchInterpretation) {
+        self.delay = delay
+        self.result = result
+    }
+
+    func interpret(_ query: String, catalog: DirectorySearchCatalog) async -> SearchInterpretation {
+        try? await Task.sleep(for: delay)
+        if Task.isCancelled { return .unsupported }
+        return result
+    }
+
+    func prewarm() async { prewarmCalled = true }
 }
 
 final class DirectoryViewModelTests: XCTestCase {
@@ -43,7 +66,8 @@ final class DirectoryViewModelTests: XCTestCase {
         await viewModel.load(query: "Unimed")
         repository.result = .success([PublicProfileFixture.mariana])
 
-        await viewModel.retry()
+        viewModel.retry()
+        await viewModel.awaitCompletion()
 
         XCTAssertEqual(repository.receivedQueries, ["", ""])
         XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
@@ -143,7 +167,8 @@ final class DirectoryViewModelTests: XCTestCase {
             XCTFail("Expected .urgent state before dismiss")
         }
 
-        await viewModel.dismissUrgency()
+        viewModel.dismissUrgency()
+        await viewModel.awaitCompletion()
 
         XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
         XCTAssertEqual(repository.receivedQueries, [""])
@@ -225,7 +250,8 @@ final class DirectoryViewModelTests: XCTestCase {
         await viewModel.load(query: "Mariana")
         XCTAssertEqual(viewModel.derivedCriteria.specialty, "Dermatologia")
 
-        await viewModel.removeDerivedSpecialty()
+        viewModel.removeDerivedSpecialty()
+        await viewModel.awaitCompletion()
 
         XCTAssertNil(viewModel.derivedCriteria.specialty)
         XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
@@ -240,7 +266,8 @@ final class DirectoryViewModelTests: XCTestCase {
         await viewModel.load(query: "algo")
         XCTAssertEqual(viewModel.state, .needsClarification)
 
-        await viewModel.dismissClarification()
+        viewModel.dismissClarification()
+        await viewModel.awaitCompletion()
 
         XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
     }
@@ -256,6 +283,8 @@ final class DirectoryViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.derivedCriteria.callablePayload["query"])
         XCTAssertNil(viewModel.lastCriteria.callablePayload["query"])
     }
+
+    // MARK: - Doctor / city / insurance / modality
 
     @MainActor
     func testInterpretedDoctorSlugFiltersToSpecificDoctor() async {
@@ -339,10 +368,86 @@ final class DirectoryViewModelTests: XCTestCase {
         await viewModel.load(query: "Joinville")
         XCTAssertEqual(viewModel.derivedCriteria.city, "Joinville")
 
-        await viewModel.removeDerivedCity()
+        viewModel.removeDerivedCity()
+        await viewModel.awaitCompletion()
 
         XCTAssertNil(viewModel.derivedCriteria.city)
         XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
+    }
+
+    // MARK: - Timeout / cancellation / prewarm tests
+
+    @MainActor
+    func testInterpretationTimeoutFallsBackToTextSearch() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = SlowFakeInterpreter(delay: .seconds(1), result: .matched(InterpretedSearch(specialty: "Dermatologia")))
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter, interpretationTimeout: .seconds(0.1))
+
+        await viewModel.load(query: "Mariana")
+
+        XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
+        XCTAssertNil(viewModel.derivedCriteria.specialty)
+    }
+
+    @MainActor
+    func testNewSubmissionCancelsPreviousTask() async {
+        let repository = ControlledPublicDirectoryRepository()
+        let interpreter = FakeSearchInterpreter(result: .unsupported)
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        viewModel.submit(query: "primeira")
+        await waitForRequestCount(1, repository: repository)
+        viewModel.submit(query: "segunda")
+        await waitForRequestCount(2, repository: repository)
+
+        repository.complete(index: 1, profiles: [PublicProfileFixture.mariana])
+        await viewModel.awaitCompletion()
+        repository.complete(index: 0, profiles: [])
+
+        XCTAssertEqual(viewModel.lastQuery, "segunda")
+        XCTAssertEqual(viewModel.state, .loaded([]))
+    }
+
+    @MainActor
+    func testPrewarmCallsInterpreterPrewarm() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .unsupported)
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        viewModel.prewarm()
+        try? await Task.sleep(for: .seconds(0.1))
+
+        XCTAssertTrue(interpreter.prewarmCalled)
+    }
+
+    @MainActor
+    func testRepositoryFailureShowsDirectoryUnavailableMessage() async {
+        let repository = MockPublicDirectoryRepository(result: .failure(TestError.unavailable))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(specialty: "Dermatologia")))
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "dermatologia")
+
+        if case .failed(let message) = viewModel.state {
+            XCTAssertTrue(message.contains("Verifique sua conexão"))
+        } else {
+            XCTFail("Expected .failed state for repository failure")
+        }
+    }
+
+    @MainActor
+    func testInterpreterUnsupportedShowsResultsNotError() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .unsupported)
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "dermatologia")
+
+        if case .loaded = viewModel.state {
+            // correct — fallback shows results, not error
+        } else {
+            XCTFail("Expected .loaded state for interpreter fallback, not .failed")
+        }
     }
 
     @MainActor
