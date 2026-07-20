@@ -450,6 +450,96 @@ final class DirectoryViewModelTests: XCTestCase {
         }
     }
 
+    // MARK: - Effective criteria / promotion tests
+
+    @MainActor
+    func testEffectiveCriteriaMergesManualAndDerived() {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let viewModel = DirectoryViewModel(repository: repository)
+        viewModel.derivedCriteria = SavedSearchCriteria(specialty: "Dermatologia")
+        viewModel.lastCriteria = SavedSearchCriteria(city: "Joinville")
+
+        let effective = viewModel.effectiveCriteria
+        XCTAssertEqual(effective.specialty, "Dermatologia")
+        XCTAssertEqual(effective.city, "Joinville")
+    }
+
+    @MainActor
+    func testEffectiveCriteriaManualOverridesDerived() {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let viewModel = DirectoryViewModel(repository: repository)
+        viewModel.derivedCriteria = SavedSearchCriteria(specialty: "Dermatologia")
+        viewModel.lastCriteria = SavedSearchCriteria(specialty: "Cardiologia")
+
+        XCTAssertEqual(viewModel.effectiveCriteria.specialty, "Cardiologia")
+    }
+
+    @MainActor
+    func testPromoteDerivedToManualCopiesAndClears() {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let viewModel = DirectoryViewModel(repository: repository)
+        viewModel.derivedCriteria = SavedSearchCriteria(specialty: "Dermatologia")
+        viewModel.lastCriteria = SavedSearchCriteria(city: "Joinville")
+
+        viewModel.promoteDerivedToManual()
+
+        XCTAssertEqual(viewModel.lastCriteria.specialty, "Dermatologia")
+        XCTAssertEqual(viewModel.lastCriteria.city, "Joinville")
+        XCTAssertTrue(viewModel.derivedCriteria.isEmpty)
+    }
+
+    @MainActor
+    func testClearSearchRemovesDerivedAndManual() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(specialty: "Dermatologia")))
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "Dermatologia")
+        XCTAssertFalse(viewModel.derivedCriteria.isEmpty)
+
+        viewModel.submit(query: "", criteria: SavedSearchCriteria())
+        await viewModel.awaitCompletion()
+
+        XCTAssertTrue(viewModel.derivedCriteria.isEmpty)
+        XCTAssertTrue(viewModel.lastCriteria.isEmpty)
+    }
+
+    @MainActor
+    func testEffectiveCriteriaArePersistable() {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let viewModel = DirectoryViewModel(repository: repository)
+        viewModel.derivedCriteria = SavedSearchCriteria(specialty: "Dermatologia")
+        viewModel.lastCriteria = SavedSearchCriteria()
+
+        XCTAssertTrue(viewModel.effectiveCriteria.isPersistable)
+        XCTAssertNil(viewModel.effectiveCriteria.callablePayload["query"])
+    }
+
+    @MainActor
+    func testNeedsClarificationDoesNotApplyResult() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .needsClarification)
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "algo")
+
+        XCTAssertEqual(viewModel.state, .needsClarification)
+        XCTAssertTrue(viewModel.derivedCriteria.isEmpty)
+    }
+
+    @MainActor
+    func testRawTextNotPersistedAnywhere() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let interpreter = FakeSearchInterpreter(result: .matched(InterpretedSearch(specialty: "Dermatologia")))
+        let viewModel = DirectoryViewModel(repository: repository, interpreter: interpreter)
+
+        await viewModel.load(query: "texto livre com sintomas")
+
+        XCTAssertNil(viewModel.derivedCriteria.callablePayload["query"])
+        XCTAssertNil(viewModel.lastCriteria.callablePayload["query"])
+        XCTAssertNil(viewModel.effectiveCriteria.callablePayload["query"])
+    }
+
     @MainActor
     private func waitForRequestCount(
         _ count: Int,

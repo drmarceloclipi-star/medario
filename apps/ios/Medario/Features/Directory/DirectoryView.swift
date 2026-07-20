@@ -47,6 +47,7 @@ struct DirectoryView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Filtros", systemImage: criteria.isEmpty ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill") {
+                        criteria = viewModel.effectiveCriteria
                         showingFilters = true
                     }
                     .labelStyle(.iconOnly)
@@ -88,17 +89,20 @@ struct DirectoryView: View {
             .onChange(of: viewModel.state) { openDeepLinkIfPossible() }
             .safeAreaInset(edge: .top) {
                 if !viewModel.derivedCriteria.isEmpty {
-                    DerivedFilterChipsView(derivedCriteria: viewModel.derivedCriteria) {
+                    DerivedFilterChipsView(derivedCriteria: viewModel.derivedCriteria, onEdit: {
+                        criteria = viewModel.effectiveCriteria
+                        showingFilters = true
+                    }, onRemoveSpecialty: {
                         viewModel.removeDerivedSpecialty()
-                    } onRemoveDoctor: {
+                    }, onRemoveDoctor: {
                         viewModel.removeDerivedDoctor()
-                    } onRemoveCity: {
+                    }, onRemoveCity: {
                         viewModel.removeDerivedCity()
-                    } onRemoveInsurance: {
+                    }, onRemoveInsurance: {
                         viewModel.removeDerivedInsurance()
-                    } onRemoveModality: {
+                    }, onRemoveModality: {
                         viewModel.removeDerivedModality()
-                    }
+                    })
                     .padding(.horizontal)
                 }
             }
@@ -148,7 +152,7 @@ struct DirectoryView: View {
             ContentUnavailableView {
                 Label("Esclareça sua busca", systemImage: "questionmark.circle")
             } description: {
-                Text("Não conseguimos identificar uma especialidade. Tente novamente com mais detalhes.")
+                Text("Especifique uma especialidade, cidade ou convênio para encontrarmos o profissional ideal.")
             } actions: {
                 Button("Limpar busca", action: clearSearch)
             }
@@ -272,6 +276,7 @@ private struct DirectoryFiltersView: View {
 
 private struct DerivedFilterChipsView: View {
     let derivedCriteria: SavedSearchCriteria
+    let onEdit: () -> Void
     let onRemoveSpecialty: () -> Void
     let onRemoveDoctor: () -> Void
     let onRemoveCity: () -> Void
@@ -281,32 +286,41 @@ private struct DerivedFilterChipsView: View {
     var body: some View {
         HStack(spacing: 8) {
             if derivedCriteria.doctorSlug != nil {
-                derivedChip(label: "Médico", icon: "person.fill", action: onRemoveDoctor)
+                derivedChip(label: "Médico", icon: "person.fill", onRemove: onRemoveDoctor)
             }
             if let specialty = derivedCriteria.specialty {
-                derivedChip(label: specialty, icon: "sparkles", action: onRemoveSpecialty)
+                derivedChip(label: specialty, icon: "sparkles", onRemove: onRemoveSpecialty)
             }
             if let city = derivedCriteria.city {
-                derivedChip(label: city, icon: "mappin.circle.fill", action: onRemoveCity)
+                derivedChip(label: city, icon: "mappin.circle.fill", onRemove: onRemoveCity)
             }
             if let insurance = derivedCriteria.insurance {
-                derivedChip(label: insurance, icon: "shield.fill", action: onRemoveInsurance)
+                derivedChip(label: insurance, icon: "shield.fill", onRemove: onRemoveInsurance)
             }
             if let modality = derivedCriteria.modality {
-                derivedChip(label: modality.displayName, icon: "video.fill", action: onRemoveModality)
+                derivedChip(label: modality.displayName, icon: "video.fill", onRemove: onRemoveModality)
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Filtros derivados ativos")
     }
 
-    private func derivedChip(label: String, icon: String, action: @escaping () -> Void) -> some View {
+    private func derivedChip(label: String, icon: String, onRemove: @escaping () -> Void) -> some View {
         HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundStyle(MedarioTheme.joinvilleBlue)
-            Text(label)
-                .font(.caption)
-                .fontWeight(.medium)
-            Button(action: action) {
+            Button(action: onEdit) {
+                HStack(spacing: 4) {
+                    Image(systemName: icon)
+                        .font(.caption)
+                        .foregroundStyle(MedarioTheme.joinvilleBlue)
+                    Text(label)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Filtro derivado \(label). Toque para editar.")
+
+            Button(action: onRemove) {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(.secondary)
                     .font(.caption)

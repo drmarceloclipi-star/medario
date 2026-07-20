@@ -9,9 +9,9 @@ final class DirectoryViewModel {
     private let interpreter: any SearchInterpreter
     private let interpretationTimeout: Duration
     private(set) var state: DirectoryLoadState = .idle
-    private(set) var lastQuery = ""
-    private(set) var lastCriteria = SavedSearchCriteria()
-    private(set) var derivedCriteria = SavedSearchCriteria()
+    internal(set) var lastQuery = ""
+    internal(set) var lastCriteria = SavedSearchCriteria()
+    internal(set) var derivedCriteria = SavedSearchCriteria()
     private var generation = 0
     private var skipNextInterpretation = false
     private var currentTask: Task<Void, Never>?
@@ -108,6 +108,15 @@ final class DirectoryViewModel {
 
     func dismissClarification() {
         submit(query: "", criteria: SavedSearchCriteria())
+    }
+
+    var effectiveCriteria: SavedSearchCriteria {
+        mergeCriteria(manual: lastCriteria, derived: derivedCriteria)
+    }
+
+    func promoteDerivedToManual() {
+        lastCriteria = effectiveCriteria
+        derivedCriteria = SavedSearchCriteria()
     }
 
     func removeDerivedSpecialty() {
