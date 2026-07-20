@@ -45,6 +45,7 @@
 		434BA2147C332106C2AA7529 /* PublicProfileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90DC940CE4853EBACD6C1CF /* PublicProfileDocument.swift */; };
 		4A07696530C8E4E4E145AE56 /* MockAccountRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68ECD0052299B6825CFE1E69 /* MockAccountRepository.swift */; };
 		4A0AAD0C2B96DCC13B73B4A4 /* AccountMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BFB380439EAA879104E7E49 /* AccountMode.swift */; };
+		4B5ED69D3B06020F9A578079 /* TestProfileFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6668AB190E343CDF8A5CD1A /* TestProfileFactory.swift */; };
 		4CE22C6568259624436747CE /* HealthConsentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6751BD0AF85C3D93831EA98F /* HealthConsentView.swift */; };
 		4E1EDAC2895E5662395B693A /* AppointmentOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6539703CB8D2F004C730CC /* AppointmentOptionsView.swift */; };
 		4EE5E89591D9F28B6CEFF4D1 /* FirestorePublicProfileMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9980E43F7CC68DE0F15CF9F0 /* FirestorePublicProfileMapper.swift */; };
@@ -64,6 +65,7 @@
 		65CB3321F2CBAE24137EBDCD /* AccountDeletionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E59B2DB757182559384FF5 /* AccountDeletionState.swift */; };
 		67DF2FD5F7C7C15E7B0A1A8B /* UrgencyProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4C700AC955436845F3F4C0 /* UrgencyProtocol.swift */; };
 		6856B6093F0DBA4A34E3B977 /* FallbackSearchInterpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32A96C779749034EAB299E8 /* FallbackSearchInterpreter.swift */; };
+		692B548EB3330ECA7231CD7D /* EvaluationCorpus.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7230186FCC9705B9667685 /* EvaluationCorpus.swift */; };
 		6966CA3FEF2FBB4EBC48185D /* DirectorySearchCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 608432F1ACD98BC0C8056B98 /* DirectorySearchCatalog.swift */; };
 		6A4D3DBAD122BDB6FF67494A /* MockAccountSessionSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C44312B85D18997F492B3 /* MockAccountSessionSubscription.swift */; };
 		6DEB2D7F68EF0551C971233D /* ProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C285D067B54DFA370A5476F3 /* ProfileDetailView.swift */; };
@@ -82,6 +84,7 @@
 		8785411D990208D193810598 /* FirebasePublicDirectoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F86AE879EA1F4B27E47B93F /* FirebasePublicDirectoryRepository.swift */; };
 		88C35DF69E22A5A3B27310C9 /* ModalityBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867DA5CD4688E0F8C7EA2B05 /* ModalityBridge.swift */; };
 		89874D589481357CC35D6E6A /* AccountCallableErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366908B5F9C4AD02E8A086FB /* AccountCallableErrorMapper.swift */; };
+		8DA76637A33FE36BEC598CAC /* EvaluationHarnessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537BE9547D7C7F5EACD7DE58 /* EvaluationHarnessTests.swift */; };
 		908072317EB21990EC8CD7F3 /* DirectoryLoadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E24B55AD308F9081DE7DE5ED /* DirectoryLoadState.swift */; };
 		90DA5614E7CF833B712CCFFE /* FirebasePublicDirectoryRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B284EF5214320D77C7FAD0 /* FirebasePublicDirectoryRepositoryTests.swift */; };
 		914B0C2B66ED96E2E1B0046A /* AccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BDCDD0AC0DFCB4F1860CD3 /* AccountViewModel.swift */; };
@@ -206,6 +209,7 @@
 		4F86AE879EA1F4B27E47B93F /* FirebasePublicDirectoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebasePublicDirectoryRepository.swift; sourceTree = "<group>"; };
 		50D3A4A4BDCB61F396CAF281 /* VerifiedContact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifiedContact.swift; sourceTree = "<group>"; };
 		51F4D218DA47764C8E83509E /* ReleaseConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseConfigurationTests.swift; sourceTree = "<group>"; };
+		537BE9547D7C7F5EACD7DE58 /* EvaluationHarnessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluationHarnessTests.swift; sourceTree = "<group>"; };
 		53EE0077BAD8D0BDD19E073D /* Medario.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Medario.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		541EE169BA8DAB46E220541B /* SavedItemsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedItemsViewModel.swift; sourceTree = "<group>"; };
 		575936383E61BBF3AB02A50A /* AccountProfileState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProfileState.swift; sourceTree = "<group>"; };
@@ -248,6 +252,7 @@
 		A38BD13BB76CF7B79BD0C4BA /* FirebaseSavedItemsCallableGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseSavedItemsCallableGateway.swift; sourceTree = "<group>"; };
 		A600B25E939A1020FE22031F /* AppointmentOptionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppointmentOptionsViewModel.swift; sourceTree = "<group>"; };
 		A9F90664B5EB3A16EF312D68 /* AccountBackendGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountBackendGateway.swift; sourceTree = "<group>"; };
+		AC7230186FCC9705B9667685 /* EvaluationCorpus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluationCorpus.swift; sourceTree = "<group>"; };
 		ACA31229757CDDBDEA82D6B1 /* ProfileContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileContactView.swift; sourceTree = "<group>"; };
 		B038F0364A1AF33D592B93D9 /* FirebaseNativeNotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseNativeNotificationRepository.swift; sourceTree = "<group>"; };
 		B28B38A1E7A921A7A2EC100C /* NativeNotificationPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeNotificationPreferencesView.swift; sourceTree = "<group>"; };
@@ -287,6 +292,7 @@
 		EF5EFF468C236560309BC039 /* DirectoryMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryMapView.swift; sourceTree = "<group>"; };
 		F33128E60D33D84CE3D24CF3 /* AccountCallableGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCallableGateway.swift; sourceTree = "<group>"; };
 		F65D43F6844126385C8A4C20 /* ControlledPublicDirectoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlledPublicDirectoryRepository.swift; sourceTree = "<group>"; };
+		F6668AB190E343CDF8A5CD1A /* TestProfileFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProfileFactory.swift; sourceTree = "<group>"; };
 		F6B94C83A51B9199C7F407FE /* NativeNotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeNotificationRepository.swift; sourceTree = "<group>"; };
 		F6C48D188C0C3F2D9D9097B5 /* AccountProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProfile.swift; sourceTree = "<group>"; };
 		F8FD60C7857BC7AA542A23B4 /* AccountRepositoryError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRepositoryError.swift; sourceTree = "<group>"; };
@@ -318,6 +324,16 @@
 				541EE169BA8DAB46E220541B /* SavedItemsViewModel.swift */,
 			);
 			path = SavedItems;
+			sourceTree = "<group>";
+		};
+		2538A7F0012367F4B9E2A889 /* Evaluation */ = {
+			isa = PBXGroup;
+			children = (
+				AC7230186FCC9705B9667685 /* EvaluationCorpus.swift */,
+				537BE9547D7C7F5EACD7DE58 /* EvaluationHarnessTests.swift */,
+				F6668AB190E343CDF8A5CD1A /* TestProfileFactory.swift */,
+			);
+			path = Evaluation;
 			sourceTree = "<group>";
 		};
 		2C3E391C848986CB1E093935 /* App */ = {
@@ -378,6 +394,7 @@
 		4651BA513346610FAC76B47D /* MedarioTests */ = {
 			isa = PBXGroup;
 			children = (
+				2538A7F0012367F4B9E2A889 /* Evaluation */,
 				2E56203BDD8F0E0A7E36771B /* AccountCallableErrorMapperTests.swift */,
 				B6A99C5ACE4C2F7AF859A504 /* AccountProfileMapperTests.swift */,
 				DD96387B0200A405F3EA8795 /* AccountViewModelTests.swift */,
@@ -753,6 +770,8 @@
 				9A248B68F1826B319C6B3DA1 /* ControlledPublicDirectoryRepository.swift in Sources */,
 				FFA5657D20DD0A4E6D704428 /* DirectorySearchCatalogTests.swift in Sources */,
 				B0F1F8C188E969E52B12E057 /* DirectoryViewModelTests.swift in Sources */,
+				692B548EB3330ECA7231CD7D /* EvaluationCorpus.swift in Sources */,
+				8DA76637A33FE36BEC598CAC /* EvaluationHarnessTests.swift in Sources */,
 				F7D21D874DCE973E2A2C564C /* FirebaseAccountCallableGatewayTests.swift in Sources */,
 				BB06DF9FF6D2525E0E8A9238 /* FirebaseAccountRepositoryTests.swift in Sources */,
 				90DA5614E7CF833B712CCFFE /* FirebasePublicDirectoryRepositoryTests.swift in Sources */,
@@ -778,6 +797,7 @@
 				7D9071E506F167322ABC55D5 /* SavedItemsViewModelTests.swift in Sources */,
 				9540C0EF44590EA6B282FD72 /* SearchInterpretationTests.swift in Sources */,
 				5E92011958A33A785D83C08D /* TestError.swift in Sources */,
+				4B5ED69D3B06020F9A578079 /* TestProfileFactory.swift in Sources */,
 				1C2184F969DFA8A7A3F9E306 /* UrgencyProtocolTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
