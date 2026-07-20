@@ -35,7 +35,8 @@ final class MedarioNativeLaunchUITests: XCTestCase {
         let searchField = app.searchFields.firstMatch
         XCTAssertTrue(searchField.waitForExistence(timeout: 10))
         searchField.tap()
-        searchField.typeText("dor no peito\n")
+        searchField.typeText("dor no peito")
+        app.keyboards.buttons["search"].tap()
 
         let alert = app.alerts["Atendimento imediato"]
         XCTAssertTrue(alert.waitForExistence(timeout: 5))
