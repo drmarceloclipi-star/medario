@@ -27,6 +27,28 @@ final class MedarioNativeLaunchUITests: XCTestCase {
         }
     }
 
+    func testUrgentSearchShowsAlertAndSafelyReturns() {
+        let app = launchedApp()
+        let tabBar = app.tabBars.firstMatch
+        XCTAssertTrue(tabBar.waitForExistence(timeout: 15))
+
+        let searchField = app.searchFields.firstMatch
+        XCTAssertTrue(searchField.waitForExistence(timeout: 10))
+        searchField.tap()
+        searchField.typeText("dor no peito\n")
+
+        let alert = app.alerts["Atendimento imediato"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 5))
+        XCTAssertTrue(alert.staticTexts.containing(NSPredicate(format: "label CONTAINS '192'")).firstMatch.exists)
+
+        let entendi = alert.buttons["Entendi"]
+        XCTAssertTrue(entendi.exists)
+        entendi.tap()
+
+        XCTAssertFalse(alert.exists || alert.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.searchFields.firstMatch.exists)
+    }
+
     private func launchedApp() -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()

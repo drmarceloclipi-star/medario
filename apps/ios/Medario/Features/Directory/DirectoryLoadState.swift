@@ -5,4 +5,5 @@ enum DirectoryLoadState: Equatable {
     case loading
     case loaded([PublicProfile])
     case failed(String)
+    case urgent(String)
 }

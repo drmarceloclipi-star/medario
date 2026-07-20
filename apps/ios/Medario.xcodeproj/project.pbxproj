@@ -27,6 +27,7 @@
 		195A8151D08ABE9F3DAC758E /* FirebaseSavedItemsCallableGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38BD13BB76CF7B79BD0C4BA /* FirebaseSavedItemsCallableGateway.swift */; };
 		1A0BBB9580418B8BA57216CD /* NativeNotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B94C83A51B9199C7F407FE /* NativeNotificationRepository.swift */; };
 		1BA8338823C468ED5261F08A /* DirectoryResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9933B58A56BAC7EADCEB4A29 /* DirectoryResultsView.swift */; };
+		1C2184F969DFA8A7A3F9E306 /* UrgencyProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E29D65D185E5DD32F56975 /* UrgencyProtocolTests.swift */; };
 		1D2EA43FC1C3EEDAC865A052 /* ProfileLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D81D10F93A1CF630311AAAB /* ProfileLocation.swift */; };
 		1E51D8E71C9600E4E5F0D416 /* MockPublicDirectoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A53834B86DB7A605F88BDD9 /* MockPublicDirectoryRepository.swift */; };
 		1FCB8A775F46422FC35267C9 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9DCC9AF9B210A9B473479E46 /* FirebaseAuth */; };
@@ -60,6 +61,7 @@
 		5EF94462BF3834439B47CE71 /* RootTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6857DCABA6BDCB3133D43404 /* RootTab.swift */; };
 		64300897717207F3919D724B /* FirebaseSavedItemsCallableGatewayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16AD96D0FA2B14D004269FD /* FirebaseSavedItemsCallableGatewayTests.swift */; };
 		65CB3321F2CBAE24137EBDCD /* AccountDeletionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E59B2DB757182559384FF5 /* AccountDeletionState.swift */; };
+		67DF2FD5F7C7C15E7B0A1A8B /* UrgencyProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4C700AC955436845F3F4C0 /* UrgencyProtocol.swift */; };
 		6A4D3DBAD122BDB6FF67494A /* MockAccountSessionSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C44312B85D18997F492B3 /* MockAccountSessionSubscription.swift */; };
 		6DEB2D7F68EF0551C971233D /* ProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C285D067B54DFA370A5476F3 /* ProfileDetailView.swift */; };
 		6F9442E67946ED40DDED8065 /* NativeNotificationPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28B38A1E7A921A7A2EC100C /* NativeNotificationPreferencesView.swift */; };
@@ -174,11 +176,13 @@
 		23C6B74B9079429DC71299FA /* PendingProfileChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingProfileChangeView.swift; sourceTree = "<group>"; };
 		25F39725A81A2D1526D1680B /* FirebaseAccountCallableGatewayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAccountCallableGatewayTests.swift; sourceTree = "<group>"; };
 		28B59A67D6204EBB6A72BD6D /* AppointmentViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppointmentViewModelTests.swift; sourceTree = "<group>"; };
+		2A4C700AC955436845F3F4C0 /* UrgencyProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrgencyProtocol.swift; sourceTree = "<group>"; };
 		2B480D663AF925DFFDE4036B /* MedarioAppCheckProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedarioAppCheckProviderFactory.swift; sourceTree = "<group>"; };
 		2DB5527007BD877D7F352361 /* MedarioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedarioApp.swift; sourceTree = "<group>"; };
 		2E56203BDD8F0E0A7E36771B /* AccountCallableErrorMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCallableErrorMapperTests.swift; sourceTree = "<group>"; };
 		315E28DBF607EF5119A3CE0B /* SavedItemsCallableClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedItemsCallableClient.swift; sourceTree = "<group>"; };
 		366908B5F9C4AD02E8A086FB /* AccountCallableErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCallableErrorMapper.swift; sourceTree = "<group>"; };
+		38E29D65D185E5DD32F56975 /* UrgencyProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrgencyProtocolTests.swift; sourceTree = "<group>"; };
 		39EC40EAFE633825CEBAAB0E /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		3ADFB468718DEB797DD8A35D /* PublicProfileDocumentsSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfileDocumentsSource.swift; sourceTree = "<group>"; };
 		3D7F5FA24BDC1CA95C647DB4 /* NativePushCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePushCoordinator.swift; sourceTree = "<group>"; };
@@ -316,6 +320,7 @@
 			children = (
 				C62516A9DE609DAFC39B279F /* Models */,
 				D91BAD378D9104ADC12D026D /* Repositories */,
+				42405612EAFA75C94AA3FC08 /* Urgency */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -341,6 +346,14 @@
 				3EC437C318F8D2E4607DED94 /* ProfileRowView.swift */,
 			);
 			path = Directory;
+			sourceTree = "<group>";
+		};
+		42405612EAFA75C94AA3FC08 /* Urgency */ = {
+			isa = PBXGroup;
+			children = (
+				2A4C700AC955436845F3F4C0 /* UrgencyProtocol.swift */,
+			);
+			path = Urgency;
 			sourceTree = "<group>";
 		};
 		4651BA513346610FAC76B47D /* MedarioTests */ = {
@@ -376,6 +389,7 @@
 				DA7C15463E5B53C475A37793 /* SavedItemsRepositoryTests.swift */,
 				D5A6EA00C5612EA6DE0C7163 /* SavedItemsViewModelTests.swift */,
 				5931AB9BC731A6EDE17ECA80 /* TestError.swift */,
+				38E29D65D185E5DD32F56975 /* UrgencyProtocolTests.swift */,
 			);
 			path = MedarioTests;
 			sourceTree = "<group>";
@@ -726,6 +740,7 @@
 				0D6E1C6209B788D353034312 /* SavedItemsRepositoryTests.swift in Sources */,
 				7D9071E506F167322ABC55D5 /* SavedItemsViewModelTests.swift in Sources */,
 				5E92011958A33A785D83C08D /* TestError.swift in Sources */,
+				1C2184F969DFA8A7A3F9E306 /* UrgencyProtocolTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -813,6 +828,7 @@
 				DF188C5359B45E2C6E8E9D82 /* SavedItemsViewModel.swift in Sources */,
 				5E2C5471353E6B4DB2664E3D /* SavedSearchCriteria.swift in Sources */,
 				33800DCD4D2F0731058EC69D /* SignedInAccountView.swift in Sources */,
+				67DF2FD5F7C7C15E7B0A1A8B /* UrgencyProtocol.swift in Sources */,
 				5787B792024BEDC90261DC1D /* UserDefaultsSavedItemsLocalStore.swift in Sources */,
 				DD55591342D6AC6AD6D6B7CB /* VerifiedContact.swift in Sources */,
 			);
