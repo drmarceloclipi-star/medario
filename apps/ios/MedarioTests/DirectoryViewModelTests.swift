@@ -86,6 +86,48 @@ final class DirectoryViewModelTests: XCTestCase {
     }
 
     @MainActor
+    func testUrgentQueryStopsBeforeRepository() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let viewModel = DirectoryViewModel(repository: repository)
+
+        await viewModel.load(query: "dor no peito")
+
+        if case .urgent(let message) = viewModel.state {
+            XCTAssertTrue(message.contains("192"))
+        } else {
+            XCTFail("Expected .urgent state")
+        }
+        XCTAssertTrue(repository.receivedQueries.isEmpty, "Repository must not be called when urgency barrier blocks")
+    }
+
+    @MainActor
+    func testNonUrgentQueryProceedsToRepository() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let viewModel = DirectoryViewModel(repository: repository)
+
+        await viewModel.load(query: "dermatologia")
+
+        XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
+        XCTAssertEqual(repository.receivedQueries, ["dermatologia"])
+    }
+
+    @MainActor
+    func testDismissUrgencyReloadsDirectory() async {
+        let repository = MockPublicDirectoryRepository(result: .success([PublicProfileFixture.mariana]))
+        let viewModel = DirectoryViewModel(repository: repository)
+
+        await viewModel.load(query: "dor no peito")
+        if case .urgent = viewModel.state {} else {
+            XCTFail("Expected .urgent state before dismiss")
+        }
+
+        await viewModel.dismissUrgency()
+
+        XCTAssertEqual(viewModel.state, .loaded([PublicProfileFixture.mariana]))
+        XCTAssertEqual(repository.receivedQueries, [""])
+    }
+
+    @MainActor
     private func waitForRequestCount(
         _ count: Int,
         repository: ControlledPublicDirectoryRepository

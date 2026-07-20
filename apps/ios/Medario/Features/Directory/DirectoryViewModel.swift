@@ -5,16 +5,26 @@ import Observation
 @Observable
 final class DirectoryViewModel {
     private let repository: any PublicDirectoryRepository
+    private let urgencyProtocol: UrgencyProtocol
     private(set) var state: DirectoryLoadState = .idle
     private(set) var lastQuery = ""
     private(set) var lastCriteria = SavedSearchCriteria()
     private var generation = 0
 
-    init(repository: any PublicDirectoryRepository) {
+    init(repository: any PublicDirectoryRepository,
+         urgencyProtocol: UrgencyProtocol = .default) {
         self.repository = repository
+        self.urgencyProtocol = urgencyProtocol
     }
 
     func load(query: String = "", criteria: SavedSearchCriteria = SavedSearchCriteria()) async {
+        if case .urgent(let message) = urgencyProtocol.evaluate(query) {
+            generation += 1
+            lastQuery = query
+            lastCriteria = criteria
+            state = .urgent(message)
+            return
+        }
         generation += 1
         let requestGeneration = generation
         lastQuery = query
@@ -28,6 +38,10 @@ final class DirectoryViewModel {
             guard requestGeneration == generation else { return }
             state = .failed("Não foi possível carregar o diretório. Verifique sua conexão e tente novamente.")
         }
+    }
+
+    func dismissUrgency() async {
+        await load()
     }
 
     func retry() async {

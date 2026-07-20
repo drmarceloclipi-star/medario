@@ -81,6 +81,22 @@ struct DirectoryView: View {
             }
             .onChange(of: deepLinkSlug) { openDeepLinkIfPossible() }
             .onChange(of: viewModel.state) { openDeepLinkIfPossible() }
+            .alert("Atendimento imediato", isPresented: urgentAlertBinding) {
+                Button("Ligar 192") {
+                    if let url = URL(string: "tel:192") {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                Button("Entendi", role: .cancel) {
+                    query = ""
+                    criteria = SavedSearchCriteria()
+                    Task { await viewModel.dismissUrgency() }
+                }
+            } message: {
+                if case .urgent(let message) = viewModel.state {
+                    Text(message)
+                }
+            }
             .safeAreaInset(edge: .bottom) {
                 if let feedback = savedItemsViewModel.feedback {
                     Text(feedback)
@@ -97,7 +113,7 @@ struct DirectoryView: View {
     @ViewBuilder
     private var content: some View {
         switch viewModel.state {
-        case .idle, .loading:
+        case .idle, .loading, .urgent:
             ProgressView("Carregando diretório…")
                 .controlSize(.large)
                 .accessibilityLabel("Carregando diretório médico")
@@ -139,6 +155,16 @@ struct DirectoryView: View {
 
     private func retry() {
         Task { await viewModel.retry() }
+    }
+
+    private var urgentAlertBinding: Binding<Bool> {
+        Binding(
+            get: {
+                if case .urgent = viewModel.state { return true }
+                return false
+            },
+            set: { _ in }
+        )
     }
 
     private func openDeepLinkIfPossible() {
